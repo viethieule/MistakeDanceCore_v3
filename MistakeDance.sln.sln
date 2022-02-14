@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30114.105
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MistakeDance.Domain", "MistakeDance.Domain\MistakeDance.Domain.csproj", "{AF65FD65-1919-46B6-8B7A-A5F331B8A932}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{DBE14F5E-3CAD-46E3-9BD4-232E98C3B628}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{47B4B4F3-2638-430B-888E-66ED49B2672C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +16,13 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AF65FD65-1919-46B6-8B7A-A5F331B8A932}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AF65FD65-1919-46B6-8B7A-A5F331B8A932}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AF65FD65-1919-46B6-8B7A-A5F331B8A932}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AF65FD65-1919-46B6-8B7A-A5F331B8A932}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBE14F5E-3CAD-46E3-9BD4-232E98C3B628}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBE14F5E-3CAD-46E3-9BD4-232E98C3B628}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBE14F5E-3CAD-46E3-9BD4-232E98C3B628}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBE14F5E-3CAD-46E3-9BD4-232E98C3B628}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47B4B4F3-2638-430B-888E-66ED49B2672C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47B4B4F3-2638-430B-888E-66ED49B2672C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47B4B4F3-2638-430B-888E-66ED49B2672C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47B4B4F3-2638-430B-888E-66ED49B2672C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,4 +1,4 @@
-namespace MistakeDance.Domain
+namespace Domain
 {
     public class Schedule : BaseEntity
     {
