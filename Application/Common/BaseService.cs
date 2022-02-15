@@ -1,4 +1,5 @@
 using Application.Common.Interfaces;
+using AutoMapper;
 
 namespace Application.Common
 {
@@ -6,9 +7,11 @@ namespace Application.Common
         where TRq : BaseRequest
         where TRs : BaseResponse
     {
-        private readonly IMistakeDanceDbContext _mistakeDanceDbContext;
-        public BaseService(IMistakeDanceDbContext mistakeDanceDbContext)
+        protected readonly IMistakeDanceDbContext _mistakeDanceDbContext;
+        protected readonly IMapper _mapper;
+        public BaseService(IMistakeDanceDbContext mistakeDanceDbContext, IMapper mapper)
         {
+            _mapper = mapper;
             _mistakeDanceDbContext = mistakeDanceDbContext;
         }
 

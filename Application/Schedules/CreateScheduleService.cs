@@ -1,5 +1,6 @@
 using Application.Common;
 using Application.Common.Interfaces;
+using AutoMapper;
 
 namespace Application.Schedules
 {
@@ -14,7 +15,7 @@ namespace Application.Schedules
 
     public class CreateScheduleService : BaseService<CreateScheduleRq, CreateScheduleRs>
     {
-        public CreateScheduleService(IMistakeDanceDbContext mistakeDanceDbContext) : base(mistakeDanceDbContext)
+        public CreateScheduleService(IMistakeDanceDbContext mistakeDanceDbContext, IMapper mapper) : base(mistakeDanceDbContext, mapper)
         {
         }
 
