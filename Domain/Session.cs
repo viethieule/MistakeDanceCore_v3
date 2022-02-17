@@ -6,6 +6,6 @@ namespace Domain
         public int Number { get; set; }
         public int ScheduleId { get; set; }
         public Schedule Schedule { get; set; }
-        public List<Registration> Registrations { get; set; }
+        public List<Registration> Registrations { get; set; } = new();
     }
 }

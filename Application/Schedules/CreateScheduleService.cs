@@ -15,9 +15,6 @@ namespace Application.Schedules
 
     public class CreateScheduleService : BaseService<CreateScheduleRq, CreateScheduleRs>
     {
-        public CreateScheduleService(IMistakeDanceDbContext mistakeDanceDbContext, IMapper mapper) : base(mistakeDanceDbContext, mapper)
-        {
-        }
 
         public override async Task<CreateScheduleRs> RunAsync(CreateScheduleRq rq)
         {

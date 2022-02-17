@@ -7,12 +7,8 @@ namespace Application.Common
         where TRq : BaseRequest
         where TRs : BaseResponse
     {
-        protected readonly IMistakeDanceDbContext _mistakeDanceDbContext;
-        protected readonly IMapper _mapper;
-        public BaseService(IMistakeDanceDbContext mistakeDanceDbContext, IMapper mapper)
+        public BaseService()
         {
-            _mapper = mapper;
-            _mistakeDanceDbContext = mistakeDanceDbContext;
         }
 
         public abstract Task<TRs> RunAsync(TRq rq);

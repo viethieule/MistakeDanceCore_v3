@@ -20,20 +20,15 @@ namespace Application.Sessions
 
     public class ListSessionsService : BaseService<ListSessionsRq, ListSessionsRs>
     {
-        public ListSessionsService(IMistakeDanceDbContext mistakeDanceDbContext, IMapper mapper) : base(mistakeDanceDbContext, mapper)
+        private readonly SessionDTC _sessionDTC;
+        public ListSessionsService(SessionDTC sessionDTC)
         {
+            _sessionDTC = sessionDTC;
         }
 
         public override async Task<ListSessionsRs> RunAsync(ListSessionsRq rq)
         {
-            List<SessionDTO> sessions = await _mistakeDanceDbContext.Sessions
-                .Where(x => x.Date <= rq.End && x.Date >= rq.Start)
-                .Include(x => x.Schedule).ThenInclude(x => x.Branch)
-                .Include(x => x.Schedule).ThenInclude(x => x.Trainer)
-                .Include(x => x.Schedule).ThenInclude(x => x.Class)
-                .Include(x => x.Registrations)
-                .ProjectTo<SessionDTO>(_mapper.ConfigurationProvider)
-                .ToListAsync();
+            List<SessionDTO> sessions = await _sessionDTC.ListAsync(rq.Start, rq.End);
 
             return new ListSessionsRs
             {

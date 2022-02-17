@@ -7,7 +7,7 @@ namespace Application.Common
         where TENT : BaseEntity, new()
         where TDTO : class, new()
     {
-        private readonly IMistakeDanceDbContext _mistakeDanceDbContext;
+        protected readonly IMistakeDanceDbContext _mistakeDanceDbContext;
         public DTCBase(IMistakeDanceDbContext mistakeDanceDbContext)
         {
             _mistakeDanceDbContext = mistakeDanceDbContext;
@@ -23,14 +23,14 @@ namespace Application.Common
         {
         }
 
-        private TENT MapFromDTO(TDTO dto)
+        protected TENT MapFromDTO(TDTO dto)
         {
             TENT efo = new TENT();
             MapFromDTO(dto, efo);
             return efo;
         }
 
-        private TDTO MapToDTO(TENT efo)
+        protected TDTO MapToDTO(TENT efo)
         {
             if (efo == null)
             {
