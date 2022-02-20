@@ -1,5 +1,6 @@
 using Application.Common;
 using Application.Common.Interfaces;
+using Application.Schedules;
 using Domain;
 using Microsoft.EntityFrameworkCore;
 

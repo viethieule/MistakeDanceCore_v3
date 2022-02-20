@@ -10,5 +10,6 @@ namespace Application.Common.Interfaces
         DbSet<Class> Classes { get; set; }
         DbSet<Session> Sessions { get; set; }
         DbSet<Trainer> Trainers { get; set; }
+        Task<int> SaveChangesAsync();
     }
 }

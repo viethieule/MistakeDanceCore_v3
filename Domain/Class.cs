@@ -1,6 +1,6 @@
 ﻿namespace Domain
 {
-    public class Class
+    public class Class : BaseEntity
     {
         public string Name { get; set; }
     }
