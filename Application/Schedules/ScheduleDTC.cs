@@ -1,6 +1,9 @@
+using Application.Branches;
+using Application.Classes;
 using Application.Common;
 using Application.Common.Interfaces;
 using Application.Sessions;
+using Application.Trainers;
 using Domain;
 
 namespace Application.Schedules
@@ -8,10 +11,21 @@ namespace Application.Schedules
     public class ScheduleDTC : DTCBase<Schedule, ScheduleDTO>
     {
         private readonly SessionDTC _sessionDTC;
+        private readonly BranchDTC _branchDTC;
+        private readonly ClassDTC _classDTC;
+        private readonly TrainerDTC _trainerDTC;
 
-        public ScheduleDTC(IMistakeDanceDbContext mistakeDanceDbContext, SessionDTC sessionDTC) : base(mistakeDanceDbContext)
+        public ScheduleDTC(
+            IMistakeDanceDbContext mistakeDanceDbContext, 
+            SessionDTC sessionDTC,
+            BranchDTC branchDTC,
+            ClassDTC classDTC,
+            TrainerDTC trainerDTC) : base(mistakeDanceDbContext)
         {
             _sessionDTC = sessionDTC;
+            _branchDTC = branchDTC;
+            _classDTC = classDTC;
+            _trainerDTC = trainerDTC;
         }
 
         // public async Task<ScheduleFormDTO> CreateAsync(ScheduleFormDTO scheduleFormDTO)
