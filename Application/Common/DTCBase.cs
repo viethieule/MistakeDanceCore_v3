@@ -23,6 +23,23 @@ namespace Application.Common
         {
         }
 
+        protected async Task RunTransactionalAsync(Func<Task> action)
+        {
+            using (var transaction = await _mistakeDanceDbContext.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    await action.Invoke();
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
+        }
+
         protected TENT MapFromDTO(TDTO dto)
         {
             TENT efo = new TENT();

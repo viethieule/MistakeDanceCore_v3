@@ -25,6 +25,65 @@ namespace Application.Sessions
             return sessions.Select(MapToDTO).ToList();
         }
 
+        public async Task CreateAsync(SessionDTO dto)
+        {
+            Session efo = MapFromDTO(dto);
+            await _mistakeDanceDbContext.Sessions.AddAsync(efo);
+            await _mistakeDanceDbContext.SaveChangesAsync();
+
+            dto.Id = efo.Id;
+        }
+
+        public async Task<List<SessionDTO>> CreateRangeAsync(ScheduleDTO schedule)
+        {
+            List<Session> sessions = new List<Session>();
+            if (!schedule.TotalSessions.HasValue || schedule.DaysPerWeek.Count == 0)
+            {
+                return new List<SessionDTO>();
+            }
+
+            DateTime date = schedule.OpeningDate;
+            int totalSessions = schedule.TotalSessions.Value;
+            int[] recurDays = schedule.DaysPerWeek.Select(x => int.Parse(x.ToString())).ToArray();
+
+            // To be validate when create / update schedule DTO
+            int startIndex = Array.IndexOf(recurDays, (int)date.DayOfWeek);
+            if (startIndex == -1)
+            {
+                return new List<SessionDTO>();
+            }
+
+            for (int i = startIndex, j = 1; i >= -1 && j > 0; i++, j++)
+            {
+                sessions.Add(new Session
+                {
+                    ScheduleId = schedule.Id,
+                    Date = date,
+                    Number = j
+                });
+
+                if (sessions.Count == totalSessions)
+                {
+                    break;
+                }
+
+                if (i == recurDays.Length - 1)
+                {
+                    date = date.AddDays(7 - (recurDays[i] - recurDays[0]));
+                    i = -1;
+                }
+                else
+                {
+                    date = date.AddDays(recurDays[i + 1] - recurDays[i]);
+                }
+            }
+
+            await _mistakeDanceDbContext.Sessions.AddRangeAsync(sessions);
+            await _mistakeDanceDbContext.SaveChangesAsync();
+
+            return sessions.Select(MapToDTO).ToList();
+        }
+
         protected override void MapFromDTO(SessionDTO dto, Session efo)
         {
             throw new NotImplementedException();
