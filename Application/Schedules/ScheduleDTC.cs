@@ -4,7 +4,9 @@ using Application.Common;
 using Application.Common.Interfaces;
 using Application.Sessions;
 using Application.Trainers;
+using FluentValidation;
 using Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Schedules
 {
@@ -85,6 +87,16 @@ namespace Application.Schedules
             await _mistakeDanceDbContext.SaveChangesAsync();
 
             dto.Id = efo.Id;
+        }
+
+        public async Task UpdateAsync(ScheduleDTO dto)
+        {
+            await this.ValidateAndThrowAsync(dto);
+            
+            Schedule efo = MapFromDTO(dto);
+            _mistakeDanceDbContext.Schedules.Attach(efo);
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Modified;
+            await _mistakeDanceDbContext.SaveChangesAsync();
         }
 
         protected override void MapFromDTO(ScheduleDTO dto, Schedule efo)

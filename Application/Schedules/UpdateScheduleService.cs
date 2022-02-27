@@ -60,6 +60,8 @@ namespace Application.Schedules
                     await _trainerDTC.CreateAsync(trainerDTO);
                     scheduleDto.TrainerId = trainerDTO.Id;
                 }
+
+                return new UpdateScheduleRs();
             }
         }
     }

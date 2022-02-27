@@ -1,9 +1,10 @@
 using Application.Common.Interfaces;
 using Domain;
+using FluentValidation;
 
 namespace Application.Common
 {
-    public abstract class DTCBase<TENT, TDTO>
+    public abstract class DTCBase<TENT, TDTO> : AbstractValidator<TDTO>
         where TENT : BaseEntity, new()
         where TDTO : class, new()
     {
@@ -13,10 +14,6 @@ namespace Application.Common
             _mistakeDanceDbContext = mistakeDanceDbContext;
 
             SetValidationRules();
-        }
-
-        protected virtual void ValidateAndThrow(TDTO dto)
-        {
         }
 
         protected virtual void SetValidationRules()

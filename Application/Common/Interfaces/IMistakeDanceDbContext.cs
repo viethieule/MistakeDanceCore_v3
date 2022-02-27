@@ -1,5 +1,6 @@
 using Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Application.Common.Interfaces
@@ -13,5 +14,6 @@ namespace Application.Common.Interfaces
         DbSet<Trainer> Trainers { get; set; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         DatabaseFacade Database { get; }
+        EntityEntry Entry<TEntity>(TEntity entity) where TEntity : BaseEntity;
     }
 }
