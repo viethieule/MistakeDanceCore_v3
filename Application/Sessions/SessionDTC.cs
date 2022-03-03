@@ -35,13 +35,19 @@ namespace Application.Sessions
             dto.Id = efo.Id;
         }
 
-        public async Task<List<SessionDTO>> CreateRangeAsync(ScheduleDTO schedule)
+        public async Task<List<SessionDTO>> CreateRangeAsync(List<SessionDTO> dtos)
         {
-            List<Session> sessions = SessionsGenerator.Generate(schedule);
+            List<Session> efos = dtos.Select(MapFromDTO).ToList();
 
-            await _mistakeDanceDbContext.Sessions.AddRangeAsync(sessions);
+            await _mistakeDanceDbContext.Sessions.AddRangeAsync(efos);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
+            return efos.Select(MapToDTO).ToList();
+        }
+
+        public async Task<List<SessionDTO>> GetByScheduleIdAsync(int scheduleId)
+        {
+            List<Session> sessions = await _mistakeDanceDbContext.Sessions.Where(x => x.ScheduleId == scheduleId).ToListAsync();
             return sessions.Select(MapToDTO).ToList();
         }
 

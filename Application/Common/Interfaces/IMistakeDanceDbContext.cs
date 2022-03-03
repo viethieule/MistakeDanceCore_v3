@@ -14,6 +14,6 @@ namespace Application.Common.Interfaces
         DbSet<Trainer> Trainers { get; set; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         DatabaseFacade Database { get; }
-        EntityEntry Entry<TEntity>(TEntity entity) where TEntity : BaseEntity;
+        EntityEntry Entry(object entity);
     }
 }

@@ -1,16 +1,17 @@
 using Application.Schedules;
+using Application.Sessions;
 using Domain;
 
 namespace Application.Common.Helpers
 {
     public class SessionsGenerator
     {
-        public static List<Session> Generate(ScheduleDTO schedule)
+        public static List<SessionDTO> Generate(ScheduleDTO schedule)
         {
-            List<Session> sessions = new List<Session>();
+            List<SessionDTO> sessions = new List<SessionDTO>();
             if (!schedule.TotalSessions.HasValue || schedule.DaysPerWeek.Count == 0)
             {
-                return new List<Session>();
+                return sessions;
             }
 
             DateTime date = schedule.OpeningDate;
@@ -21,12 +22,12 @@ namespace Application.Common.Helpers
             int startIndex = Array.IndexOf(recurDays, (int)date.DayOfWeek);
             if (startIndex == -1)
             {
-                return new List<Session>();
+                return new List<SessionDTO>();
             }
 
             for (int i = startIndex, j = 1; i >= -1 && j > 0; i++, j++)
             {
-                sessions.Add(new Session
+                sessions.Add(new SessionDTO
                 {
                     ScheduleId = schedule.Id,
                     Date = date,

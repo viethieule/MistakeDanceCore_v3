@@ -7,6 +7,7 @@ using Application.Trainers;
 using FluentValidation;
 using Domain;
 using Microsoft.EntityFrameworkCore;
+using Application.Common.Helpers;
 
 namespace Application.Schedules
 {
@@ -30,10 +31,21 @@ namespace Application.Schedules
             _trainerDTC = trainerDTC;
         }
 
+        public async Task<ScheduleDTO> GetByIdAsync(int id, bool throwIfEmpty = false)
+        {
+            Schedule schedule = await _mistakeDanceDbContext.Schedules.FirstOrDefaultAsync(x => x.Id == id);
+            if (schedule == null)
+            {
+                return !throwIfEmpty ? null : throw new Exception("Schedule not exists");
+            }
+            
+            return MapToDTO(schedule);
+        }
+
         public async Task<ScheduleFormDTO> CreateAsync(ScheduleFormDTO scheduleFormDTO)
         {
             ScheduleDTO scheduleDto = scheduleFormDTO.Schedule;
-            
+
             await RunTransactionalAsync(async () =>
             {
                 if (!string.IsNullOrWhiteSpace(scheduleDto.BranchName))
@@ -61,7 +73,8 @@ namespace Application.Schedules
 
                 if (scheduleDto.TotalSessions.HasValue && scheduleDto.DaysPerWeek.Count > 0)
                 {
-                    scheduleFormDTO.Sessions.AddRange(await _sessionDTC.CreateRangeAsync(scheduleDto));
+                    List<SessionDTO> sessionDTOs = SessionsGenerator.Generate(scheduleDto);
+                    scheduleFormDTO.Sessions.AddRange(sessionDTOs);
                 }
                 else
                 {
@@ -91,12 +104,38 @@ namespace Application.Schedules
 
         public async Task UpdateAsync(ScheduleDTO dto)
         {
+            ScheduleDTO currentDto = await GetByIdAsync(dto.Id, true);
+            if (dto.OpeningDate.Date != currentDto.OpeningDate.Date && currentDto.OpeningDate.Add(currentDto.StartTime) < DateTime.Now)
+            {
+                throw new Exception("Cannot update an already opened schedule");
+            }
+
             await this.ValidateAndThrowAsync(dto);
-            
+
             Schedule efo = MapFromDTO(dto);
             _mistakeDanceDbContext.Schedules.Attach(efo);
             _mistakeDanceDbContext.Entry(efo).State = EntityState.Modified;
+
             await _mistakeDanceDbContext.SaveChangesAsync();
+
+            bool isUpdateSessions = 
+                dto.OpeningDate.Date != currentDto.OpeningDate.Date ||
+                !(dto.DaysPerWeek.All(currentDto.DaysPerWeek.Contains) && dto.DaysPerWeek.Count == currentDto.DaysPerWeek.Count) ||
+                dto.TotalSessions != currentDto.TotalSessions;
+            
+            if (isUpdateSessions)
+            {
+                List<SessionDTO> currentSessions = await _sessionDTC.GetByScheduleIdAsync(dto.Id);
+                List<SessionDTO> updateSessions = SessionsGenerator.Generate(dto);
+
+                List<SessionDTO> toBeAddedSessions = updateSessions.Where(x => !currentSessions.Any(y => y.Date.Date == x.Date.Date)).ToList();
+                List<SessionDTO> toBeRemovedSessions = currentSessions.Where(x => !updateSessions.Any(y => y.Date.Date == x.Date.Date)).ToList();
+
+                // TODO: inform user a message of change
+                // Domain event / message ??
+
+                
+            }
         }
 
         protected override void MapFromDTO(ScheduleDTO dto, Schedule efo)
@@ -125,7 +164,29 @@ namespace Application.Schedules
 
         protected override void MapToDTO(Schedule efo, ScheduleDTO dto)
         {
-            throw new NotImplementedException();
+            dto.Id = efo.Id;
+            dto.Song = efo.Song;
+            dto.OpeningDate = efo.OpeningDate;
+            dto.StartTime = efo.StartTime;
+            dto.DaysPerWeek = efo.DaysPerWeek;
+
+            dto.BranchId = efo.BranchId;
+            if (efo.Branch != null)
+            {
+                dto.BranchName = efo.Branch.Name;
+            }
+
+            dto.TrainerId = efo.TrainerId;
+            if (efo.Trainer != null)
+            {
+                dto.TrainerName = efo.Trainer.Name;
+            }
+
+            dto.ClassId = efo.ClassId;
+            if (efo.Class != null)
+            {
+                dto.ClassName = efo.Class.Name;
+            }
         }
     }
 }
