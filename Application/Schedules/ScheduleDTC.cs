@@ -8,6 +8,7 @@ using FluentValidation;
 using Domain;
 using Microsoft.EntityFrameworkCore;
 using Application.Common.Helpers;
+using Application.Registrations;
 
 namespace Application.Schedules
 {
@@ -17,18 +18,21 @@ namespace Application.Schedules
         private readonly BranchDTC _branchDTC;
         private readonly ClassDTC _classDTC;
         private readonly TrainerDTC _trainerDTC;
+        private readonly RegistrationDTC _registrationDTC;
 
         public ScheduleDTC(
             IMistakeDanceDbContext mistakeDanceDbContext,
             SessionDTC sessionDTC,
             BranchDTC branchDTC,
             ClassDTC classDTC,
-            TrainerDTC trainerDTC) : base(mistakeDanceDbContext)
+            TrainerDTC trainerDTC,
+            RegistrationDTC registrationDTC) : base(mistakeDanceDbContext)
         {
             _sessionDTC = sessionDTC;
             _branchDTC = branchDTC;
             _classDTC = classDTC;
             _trainerDTC = trainerDTC;
+            _registrationDTC = registrationDTC;
         }
 
         public async Task<ScheduleDTO> GetByIdAsync(int id, bool throwIfEmpty = false)
@@ -38,7 +42,7 @@ namespace Application.Schedules
             {
                 return !throwIfEmpty ? null : throw new Exception("Schedule not exists");
             }
-            
+
             return MapToDTO(schedule);
         }
 
@@ -118,11 +122,11 @@ namespace Application.Schedules
 
             await _mistakeDanceDbContext.SaveChangesAsync();
 
-            bool isUpdateSessions = 
+            bool isUpdateSessions =
                 dto.OpeningDate.Date != currentDto.OpeningDate.Date ||
                 !(dto.DaysPerWeek.All(currentDto.DaysPerWeek.Contains) && dto.DaysPerWeek.Count == currentDto.DaysPerWeek.Count) ||
                 dto.TotalSessions != currentDto.TotalSessions;
-            
+
             if (isUpdateSessions)
             {
                 List<SessionDTO> currentSessions = await _sessionDTC.GetByScheduleIdAsync(dto.Id);
@@ -134,7 +138,17 @@ namespace Application.Schedules
                 // TODO: inform user a message of change
                 // Domain event / message ??
 
-                
+                await _sessionDTC.CreateRangeAsync(toBeAddedSessions);
+                await _sessionDTC.DeleteRangeAsync(toBeRemovedSessions);
+
+                List<RegistrationDTO> registrations = await _registrationDTC.GetBySessionIdsAsync(toBeRemovedSessions.Select(x => x.Id).ToList());
+                if (registrations.Count > 0)
+                {
+                    Dictionary<int, int> returns = registrations.GroupBy(x => x.MemberId)
+                                            .ToDictionary(x => x.Key, x => x.Count());
+
+                    var memberIds = returns.Keys;
+                }
             }
         }
 

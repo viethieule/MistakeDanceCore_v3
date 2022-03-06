@@ -12,6 +12,10 @@ namespace Application.Common.Interfaces
         DbSet<Class> Classes { get; set; }
         DbSet<Session> Sessions { get; set; }
         DbSet<Trainer> Trainers { get; set; }
+        DbSet<Registration> Registrations { get; set; }
+        DbSet<Member> Members { get; set; }
+        DbSet<Membership> Memberships { get; set; }
+        DbSet<Package> Packages { get; set; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         DatabaseFacade Database { get; }
         EntityEntry Entry(object entity);

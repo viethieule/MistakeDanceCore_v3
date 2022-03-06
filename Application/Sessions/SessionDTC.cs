@@ -22,7 +22,7 @@ namespace Application.Sessions
                 .Include(x => x.Schedule).ThenInclude(x => x.Class)
                 .Include(x => x.Registrations)
                 .ToListAsync();
-            
+
             return sessions.Select(MapToDTO).ToList();
         }
 
@@ -35,14 +35,30 @@ namespace Application.Sessions
             dto.Id = efo.Id;
         }
 
-        public async Task<List<SessionDTO>> CreateRangeAsync(List<SessionDTO> dtos)
+        public async Task CreateRangeAsync(List<SessionDTO> dtos)
         {
             List<Session> efos = dtos.Select(MapFromDTO).ToList();
 
             await _mistakeDanceDbContext.Sessions.AddRangeAsync(efos);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
-            return efos.Select(MapToDTO).ToList();
+            dtos.Zip(efos, (dto, efo) =>
+            {
+                dto.Id = efo.Id;
+                return dto;
+            });
+        }
+
+        public async Task DeleteRangeAsync(List<SessionDTO> dtos)
+        {
+            foreach (SessionDTO dto in dtos)
+            {
+                Session efo = MapFromDTO(dto);
+                _mistakeDanceDbContext.Sessions.Attach(efo);
+                _mistakeDanceDbContext.Entry(efo).State = EntityState.Deleted;
+            }
+
+            await _mistakeDanceDbContext.SaveChangesAsync();
         }
 
         public async Task<List<SessionDTO>> GetByScheduleIdAsync(int scheduleId)
@@ -53,7 +69,10 @@ namespace Application.Sessions
 
         protected override void MapFromDTO(SessionDTO dto, Session efo)
         {
-            throw new NotImplementedException();
+            efo.Id = dto.Id;
+            efo.Date = dto.Date;
+            efo.Number = dto.Number;
+            efo.ScheduleId = dto.ScheduleId;
         }
 
         protected override void MapToDTO(Session efo, SessionDTO dto)

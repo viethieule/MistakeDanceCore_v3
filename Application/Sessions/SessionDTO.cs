@@ -6,7 +6,7 @@ namespace Application.Sessions
 {
     public class SessionDTO
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
         public DateTime Date { get; set; }
         public int Number { get; set; }
         public int ScheduleId { get; set; }
