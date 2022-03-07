@@ -67,6 +67,11 @@ namespace Application.Sessions
             return sessions.Select(MapToDTO).ToList();
         }
 
+        internal Task RebuildSessionsSeriesAsync(IEnumerable<SessionDTO> enumerable)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override void MapFromDTO(SessionDTO dto, Session efo)
         {
             efo.Id = dto.Id;

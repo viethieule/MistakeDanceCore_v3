@@ -9,6 +9,8 @@ using Domain;
 using Microsoft.EntityFrameworkCore;
 using Application.Common.Helpers;
 using Application.Registrations;
+using Application.Packages;
+using Application.Memberships;
 
 namespace Application.Schedules
 {
@@ -19,6 +21,8 @@ namespace Application.Schedules
         private readonly ClassDTC _classDTC;
         private readonly TrainerDTC _trainerDTC;
         private readonly RegistrationDTC _registrationDTC;
+        private readonly PackageDTC _packageDTC;
+        private readonly MembershipDTC _membershipDTC;
 
         public ScheduleDTC(
             IMistakeDanceDbContext mistakeDanceDbContext,
@@ -26,13 +30,17 @@ namespace Application.Schedules
             BranchDTC branchDTC,
             ClassDTC classDTC,
             TrainerDTC trainerDTC,
-            RegistrationDTC registrationDTC) : base(mistakeDanceDbContext)
+            RegistrationDTC registrationDTC,
+            PackageDTC packageDTC,
+            MembershipDTC membershipDTC) : base(mistakeDanceDbContext)
         {
             _sessionDTC = sessionDTC;
             _branchDTC = branchDTC;
             _classDTC = classDTC;
             _trainerDTC = trainerDTC;
             _registrationDTC = registrationDTC;
+            _packageDTC = packageDTC;
+            _membershipDTC = membershipDTC;
         }
 
         public async Task<ScheduleDTO> GetByIdAsync(int id, bool throwIfEmpty = false)
@@ -140,14 +148,18 @@ namespace Application.Schedules
 
                 await _sessionDTC.CreateRangeAsync(toBeAddedSessions);
                 await _sessionDTC.DeleteRangeAsync(toBeRemovedSessions);
+                await _sessionDTC.RebuildSessionsSeriesAsync(currentSessions.Where(x => toBeAddedSessions.Select(y => y.Id).Contains(x.Id)).Concat(toBeAddedSessions));
 
+                // TODO:
+                // Check if registrations are cascaded
                 List<RegistrationDTO> registrations = await _registrationDTC.GetBySessionIdsAsync(toBeRemovedSessions.Select(x => x.Id).ToList());
                 if (registrations.Count > 0)
                 {
-                    Dictionary<int, int> returns = registrations.GroupBy(x => x.MemberId)
-                                            .ToDictionary(x => x.Key, x => x.Count());
+                    Dictionary<int, int> memberIdAndRemainingSessionDiffs = registrations.GroupBy(x => x.MemberId).ToDictionary(x => x.Key, x => x.Count());
 
-                    var memberIds = returns.Keys;
+                    await _packageDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionDiffs);
+                    await _membershipDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionDiffs);
+                    await _registrationDTC.DeleteRangeAsync(registrations);
                 }
             }
         }

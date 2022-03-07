@@ -11,5 +11,9 @@ namespace Persistence
         public DbSet<Class> Classes { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Trainer> Trainers { get; set; }
+        public DbSet<Registration> Registrations { get; set; }
+        public DbSet<Member> Members { get; set; }
+        public DbSet<Membership> Memberships { get; set; }
+        public DbSet<Package> Packages { get; set; }
     }
 }

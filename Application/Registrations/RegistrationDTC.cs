@@ -21,6 +21,18 @@ namespace Application.Registrations
             return registrations.Select(MapToDTO).ToList();
         }
 
+        public async Task DeleteRangeAsync(List<RegistrationDTO> dtos)
+        {
+            foreach (RegistrationDTO dto in dtos)
+            {
+                Registration efo = MapFromDTO(dto);
+                _mistakeDanceDbContext.Registrations.Attach(efo);
+                _mistakeDanceDbContext.Entry(efo).State = EntityState.Deleted;
+            }
+
+            await _mistakeDanceDbContext.SaveChangesAsync();
+        }
+
         protected override void MapFromDTO(RegistrationDTO dto, Registration efo)
         {
             throw new NotImplementedException();
