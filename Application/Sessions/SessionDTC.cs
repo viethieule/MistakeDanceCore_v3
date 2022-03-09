@@ -44,7 +44,26 @@ namespace Application.Sessions
 
             dtos.Zip(efos, (dto, efo) =>
             {
-                dto.Id = efo.Id;
+                dto = MapToDTO(efo);
+                return dto;
+            });
+        }
+
+        public async Task UpdateRangeAsync(List<SessionDTO> dtos)
+        {
+            List<Session> efos = dtos.Select(MapFromDTO).ToList();
+
+            foreach (SessionDTO dto in dtos)
+            {
+                Session efo = MapFromDTO(dto);
+                _mistakeDanceDbContext.Sessions.Attach(efo);
+            }
+            
+            await _mistakeDanceDbContext.SaveChangesAsync();
+
+            dtos.Zip(efos, (dto, efo) =>
+            {
+                dto = MapToDTO(efo);
                 return dto;
             });
         }
@@ -67,9 +86,15 @@ namespace Application.Sessions
             return sessions.Select(MapToDTO).ToList();
         }
 
-        internal Task RebuildSessionsSeriesAsync(IEnumerable<SessionDTO> enumerable)
+        internal async Task RebuildScheduleSessionsNumberAsync(List<SessionDTO> sessions)
         {
-            throw new NotImplementedException();
+            sessions = sessions.OrderBy(x => x.Date).ToList();
+            for (int i = 0; i < sessions.Count; i++)
+            {
+                sessions[i].Number = i + 1;
+            }
+
+            await this.UpdateRangeAsync(sessions);
         }
 
         protected override void MapFromDTO(SessionDTO dto, Session efo)

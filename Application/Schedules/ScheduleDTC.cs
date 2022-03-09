@@ -148,7 +148,7 @@ namespace Application.Schedules
 
                 await _sessionDTC.CreateRangeAsync(toBeAddedSessions);
                 await _sessionDTC.DeleteRangeAsync(toBeRemovedSessions);
-                await _sessionDTC.RebuildSessionsSeriesAsync(currentSessions.Where(x => toBeAddedSessions.Select(y => y.Id).Contains(x.Id)).Concat(toBeAddedSessions));
+                await _sessionDTC.RebuildScheduleSessionsNumberAsync(currentSessions.Where(x => toBeAddedSessions.Select(y => y.Id).Contains(x.Id)).Concat(toBeAddedSessions).ToList());
 
                 // TODO:
                 // Check if registrations are cascaded
