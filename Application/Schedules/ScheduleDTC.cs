@@ -129,39 +129,6 @@ namespace Application.Schedules
             _mistakeDanceDbContext.Entry(efo).State = EntityState.Modified;
 
             await _mistakeDanceDbContext.SaveChangesAsync();
-
-            bool isUpdateSessions =
-                dto.OpeningDate.Date != currentDto.OpeningDate.Date ||
-                !(dto.DaysPerWeek.All(currentDto.DaysPerWeek.Contains) && dto.DaysPerWeek.Count == currentDto.DaysPerWeek.Count) ||
-                dto.TotalSessions != currentDto.TotalSessions;
-
-            if (isUpdateSessions)
-            {
-                List<SessionDTO> currentSessions = await _sessionDTC.GetByScheduleIdAsync(dto.Id);
-                List<SessionDTO> updateSessions = SessionsGenerator.Generate(dto);
-
-                List<SessionDTO> toBeAddedSessions = updateSessions.Where(x => !currentSessions.Any(y => y.Date.Date == x.Date.Date)).ToList();
-                List<SessionDTO> toBeRemovedSessions = currentSessions.Where(x => !updateSessions.Any(y => y.Date.Date == x.Date.Date)).ToList();
-
-                // TODO: inform user a message of change
-                // Domain event / message ??
-
-                await _sessionDTC.CreateRangeAsync(toBeAddedSessions);
-                await _sessionDTC.DeleteRangeAsync(toBeRemovedSessions);
-                await _sessionDTC.RebuildScheduleSessionsNumberAsync(currentSessions.Where(x => toBeAddedSessions.Select(y => y.Id).Contains(x.Id)).Concat(toBeAddedSessions).ToList());
-
-                // TODO:
-                // Check if registrations are cascaded
-                List<RegistrationDTO> registrations = await _registrationDTC.GetBySessionIdsAsync(toBeRemovedSessions.Select(x => x.Id).ToList());
-                if (registrations.Count > 0)
-                {
-                    Dictionary<int, int> memberIdAndRemainingSessionDiffs = registrations.GroupBy(x => x.MemberId).ToDictionary(x => x.Key, x => x.Count());
-
-                    await _packageDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionDiffs);
-                    await _membershipDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionDiffs);
-                    await _registrationDTC.DeleteRangeAsync(registrations);
-                }
-            }
         }
 
         protected override void MapFromDTO(ScheduleDTO dto, Schedule efo)
