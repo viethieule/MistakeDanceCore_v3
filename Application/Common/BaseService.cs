@@ -11,6 +11,6 @@ namespace Application.Common
         {
         }
 
-        public abstract Task<TRs> RunAsync(TRq rq);
+        protected abstract Task<TRs> RunAsync(TRq rq);
     }
 }

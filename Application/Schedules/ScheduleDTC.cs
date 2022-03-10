@@ -54,58 +54,7 @@ namespace Application.Schedules
             return MapToDTO(schedule);
         }
 
-        public async Task<ScheduleFormDTO> CreateAsync(ScheduleFormDTO scheduleFormDTO)
-        {
-            ScheduleDTO scheduleDto = scheduleFormDTO.Schedule;
-
-            await RunTransactionalAsync(async () =>
-            {
-                if (!string.IsNullOrWhiteSpace(scheduleDto.BranchName))
-                {
-                    BranchDTO branchDTO = new() { Name = scheduleDto.BranchName };
-                    await _branchDTC.CreateAsync(branchDTO);
-                    scheduleDto.BranchId = branchDTO.Id;
-                }
-
-                if (!string.IsNullOrWhiteSpace(scheduleDto.ClassName))
-                {
-                    ClassDTO classDTO = new() { Name = scheduleDto.ClassName };
-                    await _classDTC.CreateAsync(classDTO);
-                    scheduleDto.ClassId = classDTO.Id;
-                }
-
-                if (!string.IsNullOrWhiteSpace(scheduleDto.TrainerName))
-                {
-                    TrainerDTO trainerDTO = new() { Name = scheduleDto.TrainerName };
-                    await _trainerDTC.CreateAsync(trainerDTO);
-                    scheduleDto.TrainerId = trainerDTO.Id;
-                }
-
-                await CreateAsync(scheduleDto);
-
-                if (scheduleDto.TotalSessions.HasValue && scheduleDto.DaysPerWeek.Count > 0)
-                {
-                    List<SessionDTO> sessionDTOs = SessionsGenerator.Generate(scheduleDto);
-                    scheduleFormDTO.Sessions.AddRange(sessionDTOs);
-                }
-                else
-                {
-                    SessionDTO sessionDto = new SessionDTO
-                    {
-                        Date = scheduleDto.OpeningDate,
-                        Number = 1,
-                        ScheduleId = scheduleDto.Id
-                    };
-                    await _sessionDTC.CreateAsync(sessionDto);
-
-                    scheduleFormDTO.Sessions.Add(sessionDto);
-                }
-            });
-
-            return scheduleFormDTO;
-        }
-
-        private async Task CreateAsync(ScheduleDTO dto)
+        public async Task CreateAsync(ScheduleDTO dto)
         {
             Schedule efo = MapFromDTO(dto);
             await _mistakeDanceDbContext.Schedules.AddAsync(efo);
