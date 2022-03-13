@@ -11,7 +11,7 @@ namespace Application.Registrations
         {
         }
 
-        public async Task<List<RegistrationDTO>> GetBySessionIdsAsync(List<int> sessionIds)
+        internal async Task<List<RegistrationDTO>> GetBySessionIdsAsync(List<int> sessionIds)
         {
             List<Registration> registrations = await _mistakeDanceDbContext.Registrations
                 .Where(x => sessionIds.Contains(x.SessionId))
@@ -21,7 +21,7 @@ namespace Application.Registrations
             return registrations.Select(MapToDTO).ToList();
         }
 
-        public async Task DeleteRangeAsync(List<RegistrationDTO> dtos)
+        internal async Task DeleteRangeAsync(List<RegistrationDTO> dtos)
         {
             foreach (RegistrationDTO dto in dtos)
             {
@@ -41,6 +41,24 @@ namespace Application.Registrations
         protected override void MapToDTO(Registration efo, RegistrationDTO dto)
         {
             throw new NotImplementedException();
+        }
+
+        internal async Task<List<RegistrationDTO>> ListShallowByScheduleIdAsync(int scheduleId)
+        {
+            List<Registration> registrations = await _mistakeDanceDbContext.Registrations
+                .Where(x => x.Session.ScheduleId == scheduleId)
+                .ToListAsync();
+
+            return registrations.Select(MapToDTO).ToList();
+        }
+
+        internal async Task<List<RegistrationDTO>> ListShallowBySessionIdsAsync(IEnumerable<int> sessionIds)
+        {
+            List<Registration> registrations = await _mistakeDanceDbContext.Registrations
+                .Where(x => sessionIds.Contains(x.Id))
+                .ToListAsync();
+
+            return registrations.Select(MapToDTO).ToList();
         }
     }
 }

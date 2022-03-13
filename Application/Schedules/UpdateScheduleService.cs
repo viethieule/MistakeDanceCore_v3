@@ -14,6 +14,7 @@ namespace Application.Schedules
     public class UpdateScheduleRq : BaseRequest
     {
         public ScheduleFormDTO ScheduleFormDTO { get; set; }
+        public int SelectedSessionId { get; set; }
     }
 
     public class UpdateScheduleRs : BaseResponse
@@ -30,6 +31,10 @@ namespace Application.Schedules
         private readonly RegistrationDTC _registrationDTC;
         private readonly PackageDTC _packageDTC;
         private readonly MembershipDTC _membershipDTC;
+
+        private const string MESSAGE_START_TIME_CHANGED = "Thời gian lớp học đã thay đổi. Vui lòng thông báo lại cho các hội viên đã đăng ký";
+        private const string MESSAGE_SELECTED_SESSION_DELETED = "Buổi học này đã bị xóa sau khi sửa lịch học";
+        private const string MESSAGE_INFORM_OF_DELETED_REGISTRATION = "Có một hoặc nhiều buổi học đã bị xóa sau cập nhật. Các hội viên đã đăng ký sẽ được hoàn lại đăng ký của mình";
 
         public UpdateScheduleService(
             IMistakeDanceDbContext mistakeDanceDbContext,
@@ -54,6 +59,7 @@ namespace Application.Schedules
 
         protected override async Task<UpdateScheduleRs> RunTransactionalAsync(UpdateScheduleRq rq)
         {
+            UpdateScheduleRs rs = new UpdateScheduleRs();
             ScheduleDTO scheduleDto = rq.ScheduleFormDTO.Schedule;
 
             if (!string.IsNullOrWhiteSpace(scheduleDto.BranchName))
@@ -77,7 +83,12 @@ namespace Application.Schedules
                 scheduleDto.TrainerId = trainerDTO.Id;
             }
 
-            ScheduleDTO currentDto = await _scheduleDTC.GetByIdAsync(scheduleDto.Id, true);
+            ScheduleDTO currentDto = await _scheduleDTC.SingleByIdAsync(scheduleDto.Id);
+
+            if (scheduleDto.StartTime != currentDto.StartTime)
+            {
+                rs.Messages.Add(MESSAGE_START_TIME_CHANGED);
+            }
 
             await _scheduleDTC.UpdateAsync(scheduleDto);
 
@@ -94,12 +105,10 @@ namespace Application.Schedules
                 List<SessionDTO> toBeAddedSessions = updateSessions.Where(x => !currentSessions.Any(y => y.Date.Date == x.Date.Date)).ToList();
                 List<SessionDTO> toBeRemovedSessions = currentSessions.Where(x => !updateSessions.Any(y => y.Date.Date == x.Date.Date)).ToList();
 
-                // TODO: inform user a message of change
-                // Domain event / message ??
-
-                await _sessionDTC.CreateRangeAsync(toBeAddedSessions);
-                await _sessionDTC.DeleteRangeAsync(toBeRemovedSessions);
-                await _sessionDTC.RebuildScheduleSessionsNumberAsync(currentSessions.Where(x => toBeAddedSessions.Select(y => y.Id).Contains(x.Id)).Concat(toBeAddedSessions).ToList());
+                if (toBeRemovedSessions.Any(x => x.Id == rq.SelectedSessionId))
+                {
+                    rs.Messages.Add(MESSAGE_SELECTED_SESSION_DELETED);
+                }
 
                 // TODO:
                 // Check if registrations are cascaded
@@ -110,11 +119,16 @@ namespace Application.Schedules
 
                     await _packageDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionDiffs);
                     await _membershipDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionDiffs);
-                    await _registrationDTC.DeleteRangeAsync(registrations);
+
+                    rs.Messages.Add(MESSAGE_INFORM_OF_DELETED_REGISTRATION);
                 }
+
+                await _sessionDTC.CreateRangeAsync(toBeAddedSessions);
+                await _sessionDTC.DeleteRangeAsync(toBeRemovedSessions);
+                await _sessionDTC.RebuildScheduleSessionsNumberAsync(currentSessions.Where(x => toBeAddedSessions.Select(y => y.Id).Contains(x.Id)).Concat(toBeAddedSessions).ToList());
             }
 
-            return new UpdateScheduleRs();
+            return rs;
         }
     }
 }

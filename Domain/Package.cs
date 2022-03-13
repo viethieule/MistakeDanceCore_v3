@@ -10,9 +10,11 @@ namespace Domain
         public int Months { get; set; }
 
         public int RemainingSessions { get; set; }
-        public DateTime? ExpiryDate { get; set; }
 
         public int? DefaultPackageId { get; set; }
         public DefaultPackage DefaultPackage { get; set; }
+
+        public int BranchRegisteredId { get; set; }
+        public Branch BranchRegistered { get; set; }
     }
 }

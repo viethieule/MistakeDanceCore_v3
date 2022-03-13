@@ -5,7 +5,7 @@ using FluentValidation;
 namespace Application.Common
 {
     public abstract class DTCBase<TENT, TDTO> : AbstractValidator<TDTO>
-        where TENT : BaseEntity, new()
+        where TENT : class, new()
         where TDTO : class, new()
     {
         protected readonly IMistakeDanceDbContext _mistakeDanceDbContext;

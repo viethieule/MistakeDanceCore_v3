@@ -26,7 +26,7 @@ namespace Application.Sessions
             _sessionDTC = sessionDTC;
         }
 
-        protected override async Task<ListSessionsRs> RunAsync(ListSessionsRq rq)
+        public override async Task<ListSessionsRs> RunAsync(ListSessionsRq rq)
         {
             List<SessionDTO> sessions = await _sessionDTC.ListAsync(rq.Start, rq.End);
 

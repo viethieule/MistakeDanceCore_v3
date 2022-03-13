@@ -15,5 +15,6 @@ namespace Persistence
         public DbSet<Member> Members { get; set; }
         public DbSet<Membership> Memberships { get; set; }
         public DbSet<Package> Packages { get; set; }
+        public DbSet<DefaultPackage> DefaultPackages { get; set; }
     }
 }

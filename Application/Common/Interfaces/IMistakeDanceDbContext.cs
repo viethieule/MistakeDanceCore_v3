@@ -16,6 +16,7 @@ namespace Application.Common.Interfaces
         DbSet<Member> Members { get; set; }
         DbSet<Membership> Memberships { get; set; }
         DbSet<Package> Packages { get; set; }
+        DbSet<DefaultPackage> DefaultPackages { get; set; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         DatabaseFacade Database { get; }
         EntityEntry Entry(object entity);

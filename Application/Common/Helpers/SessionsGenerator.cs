@@ -4,7 +4,7 @@ using Domain;
 
 namespace Application.Common.Helpers
 {
-    public class SessionsGenerator
+    public static class SessionsGenerator
     {
         public static List<SessionDTO> Generate(ScheduleDTO schedule)
         {

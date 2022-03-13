@@ -43,18 +43,18 @@ namespace Application.Schedules
             _membershipDTC = membershipDTC;
         }
 
-        public async Task<ScheduleDTO> GetByIdAsync(int id, bool throwIfEmpty = false)
+        internal async Task<ScheduleDTO> SingleByIdAsync(int id)
         {
             Schedule schedule = await _mistakeDanceDbContext.Schedules.FirstOrDefaultAsync(x => x.Id == id);
             if (schedule == null)
             {
-                return !throwIfEmpty ? null : throw new Exception("Schedule not exists");
+                throw new Exception("Schedule not exists");
             }
 
             return MapToDTO(schedule);
         }
 
-        public async Task CreateAsync(ScheduleDTO dto)
+        internal async Task CreateAsync(ScheduleDTO dto)
         {
             Schedule efo = MapFromDTO(dto);
             await _mistakeDanceDbContext.Schedules.AddAsync(efo);
@@ -63,9 +63,18 @@ namespace Application.Schedules
             dto.Id = efo.Id;
         }
 
-        public async Task UpdateAsync(ScheduleDTO dto)
+        internal async Task DeleteAsync(ScheduleDTO dto)
         {
-            ScheduleDTO currentDto = await GetByIdAsync(dto.Id, true);
+            Schedule efo = MapFromDTO(dto);
+            _mistakeDanceDbContext.Schedules.Attach(efo);
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Deleted;
+
+            await _mistakeDanceDbContext.SaveChangesAsync();
+        }
+
+        internal async Task UpdateAsync(ScheduleDTO dto)
+        {
+            ScheduleDTO currentDto = await SingleByIdAsync(dto.Id);
             if (dto.OpeningDate.Date != currentDto.OpeningDate.Date && currentDto.OpeningDate.Add(currentDto.StartTime) < DateTime.Now)
             {
                 throw new Exception("Cannot update an already opened schedule");

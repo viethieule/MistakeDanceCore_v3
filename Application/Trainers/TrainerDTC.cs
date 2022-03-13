@@ -10,7 +10,7 @@ namespace Application.Trainers
         {
         }
 
-        public async Task CreateAsync(TrainerDTO dto)
+        internal async Task CreateAsync(TrainerDTO dto)
         {
             Trainer efo = MapFromDTO(dto);
             await _mistakeDanceDbContext.Trainers.AddAsync(efo);
