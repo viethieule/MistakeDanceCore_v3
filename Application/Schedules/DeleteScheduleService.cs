@@ -21,7 +21,6 @@ namespace Application.Schedules
         private readonly ScheduleDTC _scheduleDTC;
         private readonly SessionDTC _sessionDTC;
         private readonly RegistrationDTC _registrationDTC;
-        private readonly PackageDTC _packageDTC;
         private readonly MembershipDTC _membershipDTC;
 
         public DeleteScheduleService(
@@ -29,13 +28,11 @@ namespace Application.Schedules
             ScheduleDTC scheduleDTC,
             SessionDTC sessionDTC,
             RegistrationDTC registrationDTC,
-            PackageDTC packageDTC,
             MembershipDTC membershipDTC) : base(mistakeDanceDbContext)
         {
             _scheduleDTC = scheduleDTC;
             _sessionDTC = sessionDTC;
             _registrationDTC = registrationDTC;
-            _packageDTC = packageDTC;
             _membershipDTC = membershipDTC;
         }
 
@@ -50,7 +47,6 @@ namespace Application.Schedules
                     .GroupBy(x => x.MemberId)
                     .ToDictionary(x => x.Key, x => x.Count());
 
-                await _packageDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionToReturn);
                 await _membershipDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionToReturn);
             }
 

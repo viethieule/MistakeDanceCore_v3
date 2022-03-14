@@ -117,7 +117,6 @@ namespace Application.Schedules
                 {
                     Dictionary<int, int> memberIdAndRemainingSessionDiffs = registrations.GroupBy(x => x.MemberId).ToDictionary(x => x.Key, x => x.Count());
 
-                    await _packageDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionDiffs);
                     await _membershipDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionDiffs);
 
                     rs.Messages.Add(MESSAGE_INFORM_OF_DELETED_REGISTRATION);

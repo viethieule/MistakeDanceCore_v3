@@ -28,9 +28,15 @@ namespace Application.Registrations
             this._membershipDTC = membershipDTC;
         }
 
-        protected override Task<CreateRegistrationRs> RunTransactionalAsync(CreateRegistrationRq rq)
+        protected override async Task<CreateRegistrationRs> RunTransactionalAsync(CreateRegistrationRq rq)
         {
-            throw new NotImplementedException();
+            MembershipDTO membership = await _membershipDTC.SingleByMemberIdAsync(rq.MemberId);
+            if (membership.IsExpired)
+            {
+                throw new Exception();
+            }
+
+            return new CreateRegistrationRs();
         }
     }
 }

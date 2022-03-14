@@ -20,7 +20,6 @@ namespace Application.Sessions
     {
         private readonly ScheduleDTC _scheduleDTC;
         private readonly SessionDTC _sessionDTC;
-        private readonly PackageDTC _packageDTC;
         private readonly MembershipDTC _membershipDTC;
         private readonly RegistrationDTC _registrationDTC;
         private readonly DeleteScheduleService _deleteScheduleService;
@@ -36,7 +35,6 @@ namespace Application.Sessions
         {
             _scheduleDTC = scheduleDTC;
             _sessionDTC = sessionDTC;
-            _packageDTC = packageDTC;
             _membershipDTC = membershipDTC;
             _registrationDTC = registrationDTC;
             _deleteScheduleService = deleteScheduleService;
@@ -69,7 +67,6 @@ namespace Application.Sessions
                     .GroupBy(x => x.MemberId)
                     .ToDictionary(x => x.Key, x => x.Count());
 
-                await _packageDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionToReturn);
                 await _membershipDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionToReturn);
             }
 
