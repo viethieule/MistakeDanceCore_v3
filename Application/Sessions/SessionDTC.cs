@@ -49,6 +49,12 @@ namespace Application.Sessions
             });
         }
 
+        internal async Task<SessionDTO> SingleWithScheduleByIdAsync(int id)
+        {
+            Session session = await _mistakeDanceDbContext.Sessions.Include(x => x.Schedule).SingleAsync(x => x.Id == id);
+            return MapToDTO(session);
+        }
+
         internal async Task<SessionDTO> SingleByIdAsync(int id)
         {
             Session session = await _mistakeDanceDbContext.Sessions.SingleAsync(x => x.Id == id);

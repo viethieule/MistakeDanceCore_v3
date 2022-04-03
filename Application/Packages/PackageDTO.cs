@@ -9,9 +9,6 @@ namespace Application.Packages
         public double Price { get; set; }
         public int Months { get; set; }
 
-        public int RemainingSessions { get; set; }
-        public DateTime? ExpiryDate { get; set; }
-
         public int? DefaultPackageId { get; set; }
 
         public int BranchRegisteredId { get; set; }

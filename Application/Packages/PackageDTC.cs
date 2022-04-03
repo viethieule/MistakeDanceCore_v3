@@ -41,14 +41,7 @@ namespace Application.Packages
                 dto.NumberOfSessions = defaultPackageDTO.NumberOfSessions;
                 dto.Months = defaultPackageDTO.Months;
                 dto.Price = defaultPackageDTO.Price;
-                dto.RemainingSessions = defaultPackageDTO.NumberOfSessions;
             }
-            else
-            {
-                dto.RemainingSessions = dto.NumberOfSessions;
-            }
-
-            dto.ExpiryDate = DateTime.Now.AddMonths(dto.Months);
 
             await this.ValidateAndThrowAsync(dto);
 

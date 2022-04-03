@@ -62,8 +62,8 @@ namespace Application.Members
             await _membershipDTC.CreateAsync(new MembershipDTO
             {
                 MemberId = memberDTO.Id,
-                RemainingSessions = packageDTO.RemainingSessions,
-                ExpiryDate = packageDTO.ExpiryDate.Value
+                RemainingSessions = packageDTO.NumberOfSessions,
+                ExpiryDate = DateTime.Now.AddMonths(packageDTO.Months)
             });
 
             return new CreateMemberRs
