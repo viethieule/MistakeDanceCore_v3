@@ -7,7 +7,7 @@ using Application.Schedules;
 
 namespace Application.Sessions
 {
-    public class DeleteSesssionRq : BaseRequest
+    public class DeleteSessionRq : BaseRequest
     {
         public int SessionId { get; set; }
     }
@@ -16,7 +16,7 @@ namespace Application.Sessions
     {
     }
 
-    public class DeleteSessionService : TransactionalService<DeleteSesssionRq, DeleteSessionRs>
+    public class DeleteSessionService : TransactionalService<DeleteSessionRq, DeleteSessionRs>
     {
         private readonly ScheduleDTC _scheduleDTC;
         private readonly SessionDTC _sessionDTC;
@@ -41,7 +41,7 @@ namespace Application.Sessions
         }
 
         // Delete the session and all following sessions of a schedule
-        protected override async Task<DeleteSessionRs> RunTransactionalAsync(DeleteSesssionRq rq)
+        protected override async Task<DeleteSessionRs> RunTransactionalAsync(DeleteSessionRq rq)
         {
             DeleteSessionRs rs = new DeleteSessionRs();
             SessionDTO sessionDto = await _sessionDTC.SingleByIdAsync(rq.SessionId);
