@@ -1,5 +1,6 @@
 using API.Extensions;
 using Application.Common;
+using Application.SeedData;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -36,5 +37,16 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+try
+{
+    SeedDataService seedDataService = app.Services.GetRequiredService<SeedDataService>();
+    await seedDataService.RunAsync(new SeedDataRq());
+}
+catch (Exception ex)
+{
+    ILogger<Program> logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occurred while seeding data.");
+}
 
 app.Run();
