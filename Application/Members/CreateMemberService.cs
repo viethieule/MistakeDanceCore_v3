@@ -43,7 +43,7 @@ namespace Application.Members
         protected override async Task<CreateMemberRs> RunTransactionalAsync(CreateMemberRq rq)
         {
             MemberDTO memberDTO = rq.Member;
-            UserDTO user = new UserDTO
+            User user = new User
             {
                 UserName = await _usernameGenerator.Generate(memberDTO.FullName),
                 RoleName = RoleName.Member

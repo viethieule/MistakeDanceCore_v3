@@ -34,7 +34,7 @@ namespace Application.Registrations
 
         protected override async Task<CreateRegistrationRs> RunTransactionalAsync(CreateRegistrationRq rq)
         {
-            UserDTO user = await _userService.GetCurrentUser();
+            User user = await _userService.GetCurrentUser();
             MemberDTO member = await _memberDTC.SingleByIdAsync(rq.MemberId);
 
             if (user.RoleName == RoleName.Member && rq.MemberId != member.Id)

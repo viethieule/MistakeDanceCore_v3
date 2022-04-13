@@ -37,7 +37,7 @@ namespace Application.Registrations
         {
             RegistrationDTO registration = await _registrationDTC.SingleByIdAsync(rq.RegistrationId);
 
-            UserDTO user = await _userService.GetCurrentUser();
+            User user = await _userService.GetCurrentUser();
             MemberDTO member = await _memberDTC.SingleByIdAsync(registration.MemberId);
 
             bool isMember = user.RoleName == RoleName.Member;

@@ -29,7 +29,7 @@ namespace Application.Packages
 
         public override async Task<ListPackageByMemberRs> RunAsync(ListPackageByMemberRq rq)
         {
-            UserDTO user = await _userService.GetCurrentUser();
+            User user = await _userService.GetCurrentUser();
             MemberDTO member = await _memberDTC.SingleByIdAsync(rq.MemberId);
             if (user.RoleName == RoleName.Member && user.Id == member.UserId)
             {
