@@ -1,6 +1,7 @@
-using API.Extensions;
+using Application;
 using Application.Common;
 using Application.SeedData;
+using Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -15,13 +16,9 @@ builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<MistakeDanceDbContext>(options =>
-{
-    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-});
-
-builder.Services.AddScopedAsSelfByConvention(typeof(BaseService<,>).Assembly, type => type.Name.EndsWith("Service"));
-builder.Services.AddScopedAsSelfByConvention(typeof(DTCBase<,>).Assembly, type => type.Name.EndsWith("DTC"));
+builder.Services.AddApplicationModule();
+builder.Services.AddPersistenceModule(configuration);
+builder.Services.AddInfrastructureModule();
 
 var app = builder.Build();
 

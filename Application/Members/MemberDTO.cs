@@ -8,7 +8,7 @@ namespace Application.Members
         public DateTime? Birthdate { get; set; }
         public int BranchId { get; set; }
         public string UserName { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public int Id { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }

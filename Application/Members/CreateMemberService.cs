@@ -49,7 +49,7 @@ namespace Application.Members
                 RoleName = RoleName.Member
             };
 
-            int userId = await _userService.CreateWithRoleAsync(user);
+            string userId = await _userService.CreateWithRoleAsync(user);
             memberDTO.UserId = userId;
             memberDTO.UserName = user.UserName;
 
