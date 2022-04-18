@@ -4,6 +4,7 @@ using Application.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Identity
 {
@@ -12,12 +13,22 @@ namespace Infrastructure.Identity
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ApplicationIdentityDbContext _appIdentityDbContext;
+        private readonly IConfiguration _configuration;
 
-        public UserService(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ApplicationIdentityDbContext appIdentityDbContext)
+        public UserService(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ApplicationIdentityDbContext appIdentityDbContext, IConfiguration configuration)
         {
+            _configuration = configuration;
             _appIdentityDbContext = appIdentityDbContext;
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
+        }
+
+        public async Task CreateManyWithRoleAsync(List<User> users)
+        {
+            foreach (User user in users)
+            {
+                await CreateWithRoleAsync(user);
+            }
         }
 
         public async Task<string> CreateWithRoleAsync(User user)
@@ -27,7 +38,7 @@ namespace Infrastructure.Identity
                 UserName = user.UserName
             };
 
-            IdentityResult result = await _userManager.CreateAsync(appUser);
+            IdentityResult result = await _userManager.CreateAsync(appUser, GetDefaultPassword());
             if (result.Succeeded)
             {
                 throw new Exception
@@ -62,6 +73,16 @@ namespace Infrastructure.Identity
                 .Where(x => x.UserName.StartsWith(startWith))
                 .Select(x => x.UserName)
                 .ToListAsync();
+        }
+
+        public async Task<bool> IsHasUserAsync()
+        {
+            return await _appIdentityDbContext.Users.AnyAsync();
+        }
+
+        private string GetDefaultPassword()
+        {
+            return _configuration.GetValue<string>("DefaultPassword");
         }
     }
 }

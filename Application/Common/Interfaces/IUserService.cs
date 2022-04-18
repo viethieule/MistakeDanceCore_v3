@@ -7,5 +7,7 @@ namespace Application.Common.Interfaces
         Task<string> CreateWithRoleAsync(User user);
         Task<List<string>> GetUsernamesStartWith(string startWith);
         Task<User> GetCurrentUser();
+        Task CreateManyWithRoleAsync(List<User> users);
+        Task<bool> IsHasUserAsync();
     }
 }

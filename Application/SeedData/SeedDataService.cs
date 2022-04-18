@@ -1,6 +1,8 @@
 using Application.Common;
 using Application.Common.Interfaces;
+using Application.Users;
 using Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.SeedData
 {
@@ -15,15 +17,17 @@ namespace Application.SeedData
     public class SeedDataService : BaseService<SeedDataRq, SeedDataRs>
     {
         private readonly IMistakeDanceDbContext _mistakeDanceDbContext;
-        public SeedDataService(IMistakeDanceDbContext mistakeDanceDbContext)
+        private readonly IUserService _userService;
+        public SeedDataService(IMistakeDanceDbContext mistakeDanceDbContext, IUserService userService)
         {
+            _userService = userService;
             _mistakeDanceDbContext = mistakeDanceDbContext;
         }
 
         public override async Task<SeedDataRs> RunAsync(SeedDataRq rq)
         {
             bool shouldSeed = false;
-            if (!_mistakeDanceDbContext.Branches.Any())
+            if (!(await _mistakeDanceDbContext.Branches.AnyAsync()))
             {
                 shouldSeed = true;
                 _mistakeDanceDbContext.Branches.AddRange(new List<Branch>
@@ -34,7 +38,7 @@ namespace Application.SeedData
                 });
             }
 
-            if (!_mistakeDanceDbContext.DefaultPackages.Any())
+            if (!(await _mistakeDanceDbContext.DefaultPackages.AnyAsync()))
             {
                 shouldSeed = true;
                 _mistakeDanceDbContext.DefaultPackages.AddRange(new List<DefaultPackage>
@@ -52,6 +56,19 @@ namespace Application.SeedData
             }
 
             return new SeedDataRs();
+        }
+
+        private async Task SeedIdentityData()
+        {
+            if (!(await _userService.IsHasUserAsync()))
+            {
+                await _userService.CreateManyWithRoleAsync(new List<User>
+                {
+                    new() { UserName = "admin", RoleName = RoleName.Admin },
+                    new() { UserName = "receptionist", RoleName = RoleName.Receptionist },
+                    new() { UserName = "collaborator", RoleName = RoleName.Collaborator },
+                });
+            }
         }
     }
 }

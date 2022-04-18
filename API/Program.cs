@@ -1,8 +1,6 @@
 using Application;
-using Application.Common;
 using Application.SeedData;
 using Infrastructure;
-using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
