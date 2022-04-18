@@ -1,3 +1,4 @@
+using Application.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,8 +11,10 @@ namespace Persistence
         {
             serviceCollection.AddDbContext<MistakeDanceDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+                options.UseSqlServer(configuration.GetConnectionString("MistakeDanceDatabase"));
             });
+
+            serviceCollection.AddScoped<IMistakeDanceDbContext, MistakeDanceDbContext>();
 
             return serviceCollection;
         }

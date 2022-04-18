@@ -1,3 +1,4 @@
+using Application.Common.Interfaces;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,8 @@ namespace Infrastructure
                 options.Password.RequireNonAlphanumeric = true;
                 options.Password.RequireUppercase = true;
             });
+
+            serviceCollection.AddScoped<IUserService, UserService>();
 
             return serviceCollection;
         }

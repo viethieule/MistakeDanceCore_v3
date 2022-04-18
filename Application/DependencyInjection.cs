@@ -1,5 +1,7 @@
 using System.Reflection;
 using Application.Common;
+using Application.Common.Interfaces;
+using Application.Users;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application
@@ -10,6 +12,8 @@ namespace Application
         {
             serviceCollection.AddScopedAsSelfByConvention(typeof(BaseService<,>).Assembly, type => type.Name.EndsWith("Service"));
             serviceCollection.AddScopedAsSelfByConvention(typeof(DTCBase<,>).Assembly, type => type.Name.EndsWith("DTC"));
+
+            serviceCollection.AddScoped<IUsernameGenerator, UsernameGenerator>();
             
             return serviceCollection;
         }
