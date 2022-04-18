@@ -33,12 +33,16 @@ namespace Application.Memberships
 
         protected override void MapFromDTO(MembershipDTO dto, Membership efo)
         {
-            throw new NotImplementedException();
+            efo.MemberId = dto.MemberId;
+            efo.ExpiryDate = dto.ExpiryDate;
+            efo.RemainingSessions = dto.RemainingSessions;
         }
 
         protected override void MapToDTO(Membership efo, MembershipDTO dto)
         {
-            throw new NotImplementedException();
+            dto.MemberId = efo.MemberId;
+            dto.ExpiryDate = efo.ExpiryDate;
+            dto.RemainingSessions = efo.RemainingSessions;
         }
 
         internal async Task CreateAsync(MembershipDTO dto)

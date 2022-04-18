@@ -13,12 +13,18 @@ namespace Application.DefaultPackages
 
         protected override void MapFromDTO(DefaultPackageDTO dto, DefaultPackage efo)
         {
-            throw new NotImplementedException();
+            efo.Id = dto.Id;
+            efo.NumberOfSessions = dto.NumberOfSessions;
+            efo.Months = dto.Months;
+            efo.Price = dto.Price;
         }
 
         protected override void MapToDTO(DefaultPackage efo, DefaultPackageDTO dto)
         {
-            throw new NotImplementedException();
+            dto.Id = efo.Id;
+            dto.NumberOfSessions = efo.NumberOfSessions;
+            dto.Months = efo.Months;
+            dto.Price = efo.Price;
         }
 
         internal async Task<DefaultPackageDTO> SingleByIdAsync(int id)

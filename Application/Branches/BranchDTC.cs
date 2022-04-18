@@ -29,7 +29,10 @@ namespace Application.Branches
 
         protected override void MapToDTO(Branch efo, BranchDTO dto)
         {
-            throw new NotImplementedException();
+            dto.Id = efo.Id;
+            dto.Name = efo.Name;
+            dto.Abbreviation = efo.Abbreviation;
+            dto.Address = efo.Address;
         }
     }
 }

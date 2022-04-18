@@ -13,15 +13,14 @@ namespace Application.Users
             _userService = userService;
         }
         
-        public async Task<string> Generate(string fullName)
+        public async Task<string> Generate(string normalizedFullName)
         {
-            if (string.IsNullOrWhiteSpace(fullName))
+            if (string.IsNullOrWhiteSpace(normalizedFullName))
             {
                 return string.Empty;
             }
 
-            fullName = fullName.Trim().NormalizeVietnameseDiacritics();
-            string[] names = Regex.Split(fullName.ToLower(), @"\s+");
+            string[] names = Regex.Split(normalizedFullName.ToLower(), @"\s+");
 
             if (names.Length == 1)
             {

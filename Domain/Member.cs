@@ -11,7 +11,7 @@ namespace Domain
         public Branch Branch { get; set; }
         public int BranchId { get; set; }
         public Membership Membership { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public string UserName { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }

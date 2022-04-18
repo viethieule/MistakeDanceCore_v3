@@ -36,12 +36,18 @@ namespace Application.Registrations
 
         protected override void MapFromDTO(RegistrationDTO dto, Registration efo)
         {
-            throw new NotImplementedException();
+            efo.Id = dto.Id;
+            efo.SessionId = dto.SessionId;
+            efo.MemberId = dto.MemberId;
+            efo.Status = dto.Status;
         }
 
         protected override void MapToDTO(Registration efo, RegistrationDTO dto)
         {
-            throw new NotImplementedException();
+            dto.Id = efo.Id;
+            dto.SessionId = efo.SessionId;
+            dto.MemberId = efo.MemberId;
+            dto.Status = efo.Status;
         }
 
         internal async Task<RegistrationDTO> SingleByIdAsync(int id)

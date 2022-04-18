@@ -13,12 +13,30 @@ namespace Application.Members
 
         protected override void MapFromDTO(MemberDTO dto, Member efo)
         {
-            throw new NotImplementedException();
+            efo.Id = dto.Id;
+            efo.FullName = dto.FullName;
+            efo.NormalizedFullName = dto.NormalizedFullName;
+            efo.PhoneNumber = dto.PhoneNumber;
+            efo.Birthdate = dto.Birthdate;
+            efo.BranchId = dto.BranchId;
+            efo.UserName = dto.UserName;
+            efo.UserId = dto.UserId;
         }
 
         protected override void MapToDTO(Member efo, MemberDTO dto)
         {
-            throw new NotImplementedException();
+            dto.Id = efo.Id;
+            dto.FullName = efo.FullName;
+            dto.NormalizedFullName = efo.NormalizedFullName;
+            dto.PhoneNumber = efo.PhoneNumber;
+            dto.Birthdate = efo.Birthdate;
+            dto.BranchId = efo.BranchId;
+            dto.UserName = efo.UserName;
+            dto.UserId = efo.UserId;
+            dto.CreatedDate = efo.CreatedDate;
+            dto.CreatedBy = efo.CreatedBy;
+            dto.UpdatedDate = efo.UpdatedDate;
+            dto.UpdatedBy = efo.UpdatedBy;
         }
 
         internal async Task CreateAsync(MemberDTO dto)

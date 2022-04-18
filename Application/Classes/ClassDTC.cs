@@ -27,7 +27,8 @@ namespace Application.Classes
 
         protected override void MapToDTO(Class efo, ClassDTO dto)
         {
-            throw new NotImplementedException();
+            dto.Id = efo.Id;
+            dto.Name = efo.Name;
         }
     }
 }

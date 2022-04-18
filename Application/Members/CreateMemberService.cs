@@ -1,4 +1,5 @@
 using Application.Common;
+using Application.Common.Helpers;
 using Application.Common.Interfaces;
 using Application.Memberships;
 using Application.Packages;
@@ -43,9 +44,11 @@ namespace Application.Members
         protected override async Task<CreateMemberRs> RunTransactionalAsync(CreateMemberRq rq)
         {
             MemberDTO memberDTO = rq.Member;
+
+            memberDTO.NormalizedFullName = memberDTO.FullName.NormalizeVietnameseDiacritics();
             User user = new User
             {
-                UserName = await _usernameGenerator.Generate(memberDTO.FullName),
+                UserName = await _usernameGenerator.Generate(memberDTO.NormalizedFullName),
                 RoleName = RoleName.Member
             };
 

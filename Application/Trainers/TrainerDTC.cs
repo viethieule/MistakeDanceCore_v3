@@ -27,7 +27,8 @@ namespace Application.Trainers
 
         protected override void MapToDTO(Trainer efo, TrainerDTO dto)
         {
-            throw new NotImplementedException();
+            dto.Id = efo.Id;
+            dto.Name = efo.Name;
         }
     }
 }

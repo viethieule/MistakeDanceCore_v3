@@ -19,12 +19,24 @@ namespace Application.Packages
 
         protected override void MapFromDTO(PackageDTO dto, Package efo)
         {
-            throw new NotImplementedException();
+            efo.Id = dto.Id;
+            efo.MemberId = dto.MemberId;
+            efo.NumberOfSessions = dto.NumberOfSessions;
+            efo.Price = dto.Price;
+            efo.Months = dto.Months;
+            efo.DefaultPackageId = dto.DefaultPackageId;
+            efo.BranchRegisteredId = dto.BranchRegisteredId;
         }
 
         protected override void MapToDTO(Package efo, PackageDTO dto)
         {
-            throw new NotImplementedException();
+            dto.Id = efo.Id;
+            dto.MemberId = efo.MemberId;
+            dto.NumberOfSessions = efo.NumberOfSessions;
+            dto.Price = efo.Price;
+            dto.Months = efo.Months;
+            dto.DefaultPackageId = efo.DefaultPackageId;
+            dto.BranchRegisteredId = efo.BranchRegisteredId;
         }
 
         internal async Task<List<PackageDTO>> ListByMemberIdAsync(int memberId)
