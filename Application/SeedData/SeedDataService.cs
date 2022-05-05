@@ -32,9 +32,9 @@ namespace Application.SeedData
                 shouldSeed = true;
                 _mistakeDanceDbContext.Branches.AddRange(new List<Branch>
                 {
-                    new() { Name = "Phú Nhuận", Abbreviation = "PN" },
-                    new() { Name = "Lê Văn Sỹ", Abbreviation = "LVS" },
-                    new() { Name = "Quận 10", Abbreviation = "Q10" },
+                    new() { Name = "Phú Nhuận", Abbreviation = "PN", CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
+                    new() { Name = "Lê Văn Sỹ", Abbreviation = "LVS", CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
+                    new() { Name = "Quận 10", Abbreviation = "Q10", CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
                 });
             }
 
@@ -43,10 +43,10 @@ namespace Application.SeedData
                 shouldSeed = true;
                 _mistakeDanceDbContext.DefaultPackages.AddRange(new List<DefaultPackage>
                 {
-                    new() { NumberOfSessions = 8, Months = 2, Price = 700000 },
-                    new() { NumberOfSessions = 16, Months = 3, Price = 1280000 },
-                    new() { NumberOfSessions = 24, Months = 5, Price = 1850000 },
-                    new() { NumberOfSessions = 50, Months = 8, Price = 3500000 },
+                    new() { NumberOfSessions = 8, Months = 2, Price = 700000, CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
+                    new() { NumberOfSessions = 16, Months = 3, Price = 1280000, CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
+                    new() { NumberOfSessions = 24, Months = 5, Price = 1850000, CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
+                    new() { NumberOfSessions = 50, Months = 8, Price = 3500000, CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
                 });
             }
 

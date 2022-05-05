@@ -1,6 +1,6 @@
 namespace Domain
 {
-    public class Schedule : BaseEntity
+    public class Schedule : AuditableBaseEntity
     {
         public string Song { get; set; }
         public DateTime OpeningDate { get; set; }

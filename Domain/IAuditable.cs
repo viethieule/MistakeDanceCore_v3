@@ -2,9 +2,9 @@ namespace Domain
 {
     public interface IAuditable
     {
-        public DateTime CreatedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
-        public string CreatedBy { get; set; }
-        public string UpdatedBy { get; set; }
+        DateTime CreatedDate { get; set; }
+        DateTime UpdatedDate { get; set; }
+        string CreatedBy { get; set; }
+        string UpdatedBy { get; set; }
     }
 }

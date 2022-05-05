@@ -26,24 +26,28 @@ namespace Persistence.Configuration
                 .HasOne(x => x.Trainer)
                 .WithMany()
                 .HasForeignKey(x => x.TrainerId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             builder
                 .HasOne(x => x.Class)
                 .WithMany()
                 .HasForeignKey(x => x.ClassId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
             
             builder
                 .HasOne(x => x.Branch)
                 .WithMany()
                 .HasForeignKey(x => x.BranchId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             builder
                 .HasMany(x => x.Sessions)
-                .WithOne()
+                .WithOne(x => x.Schedule)
                 .HasForeignKey(x => x.ScheduleId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             builder.Property(x => x.StartTime).IsRequired();

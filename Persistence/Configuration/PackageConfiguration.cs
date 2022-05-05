@@ -12,6 +12,7 @@ namespace Persistence.Configuration
                 .HasOne(x => x.BranchRegistered)
                 .WithMany()
                 .HasForeignKey(x => x.BranchRegisteredId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             builder

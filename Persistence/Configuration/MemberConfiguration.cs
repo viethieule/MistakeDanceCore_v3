@@ -12,23 +12,27 @@ namespace Persistence.Configuration
                 .HasMany(x => x.Packages)
                 .WithOne(x => x.Member)
                 .HasForeignKey(x => x.MemberId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             builder
                 .HasOne(x => x.Membership)
                 .WithOne()
                 .HasForeignKey<Membership>(x => x.MemberId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             builder
                 .HasMany(x => x.Registrations)
-                .WithOne()
+                .WithOne(x => x.Member)
                 .HasForeignKey(x => x.MemberId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             builder
                 .HasOne(x => x.Branch)
                 .WithMany()
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             builder.Property(x => x.FullName).IsRequired();

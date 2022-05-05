@@ -1,6 +1,6 @@
 namespace Domain
 {
-    public class Member : BaseEntity, IAuditable
+    public class Member : AuditableBaseEntity
     {
         public string FullName { get; set; }
         public string NormalizedFullName { get; set; }
@@ -13,9 +13,5 @@ namespace Domain
         public Membership Membership { get; set; }
         public string UserId { get; set; }
         public string UserName { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime UpdatedDate { get; set; }
-        public string CreatedBy { get; set; }
-        public string UpdatedBy { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 namespace Domain
 {
-    public class Session : BaseEntity
+    public class Session : AuditableBaseEntity
     {
         public DateTime Date { get; set; }
         public int Number { get; set; }

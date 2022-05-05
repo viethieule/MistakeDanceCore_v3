@@ -1,6 +1,6 @@
 namespace Domain
 {
-    public class DefaultPackage : BaseEntity
+    public class DefaultPackage : AuditableBaseEntity
     {
         public int NumberOfSessions { get; set; }
         public double Price { get; set; }

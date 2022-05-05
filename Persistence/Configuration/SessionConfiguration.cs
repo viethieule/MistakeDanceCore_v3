@@ -10,8 +10,9 @@ namespace Persistence.Configuration
         {
             builder
                 .HasMany(x => x.Registrations)
-                .WithOne()
+                .WithOne(x => x.Session)
                 .HasForeignKey(x => x.SessionId)
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
 
             builder.Property(x => x.Number).IsRequired();

@@ -1,6 +1,6 @@
 namespace Domain
 {
-    public class Package : BaseEntity
+    public class Package : AuditableBaseEntity
     {
         public int MemberId { get; set; }
         public Member Member { get; set; }

@@ -1,6 +1,6 @@
 namespace Domain
 {
-    public class Registration : BaseEntity
+    public class Registration : AuditableBaseEntity
     {
         public int SessionId { get; set; }
         public Session Session { get; set; }

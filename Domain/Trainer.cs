@@ -1,6 +1,6 @@
 namespace Domain
 {
-    public class Trainer : BaseEntity
+    public class Trainer : AuditableBaseEntity
     {
         public string Name { get; set; }
     }
