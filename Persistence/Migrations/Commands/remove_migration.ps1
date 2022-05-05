@@ -1,0 +1,1 @@
+dotnet ef migrations remove -p .\Persistence\ -c MistakeDanceDbContext -v

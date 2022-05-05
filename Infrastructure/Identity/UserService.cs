@@ -53,7 +53,7 @@ namespace Infrastructure.Identity
 
         public async Task<User> GetCurrentUser()
         {
-            ClaimsPrincipal? claimsPrincipal = _httpContextAccessor.HttpContext?.User;
+            ClaimsPrincipal claimsPrincipal = _httpContextAccessor.HttpContext?.User;
             if (claimsPrincipal == null)
             {
                 throw new Exception("User is not logged in");

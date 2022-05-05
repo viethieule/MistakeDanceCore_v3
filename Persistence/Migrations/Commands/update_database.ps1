@@ -1,0 +1,1 @@
+dotnet ef database update -p .\Persistence\ -c MistakeDanceDbContext -v
