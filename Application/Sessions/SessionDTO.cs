@@ -1,4 +1,3 @@
-using Application.Common.AutoMapper;
 using AutoMapper;
 using Domain;
 

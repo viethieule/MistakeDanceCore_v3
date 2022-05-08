@@ -35,11 +35,16 @@ app.MapControllers();
 
 try
 {
-    SeedDataService seedDataService = app.Services.GetRequiredService<SeedDataService>();
-    await seedDataService.RunAsync(new SeedDataRq());
+    using (IServiceScope scope = app.Services.CreateScope())
+    {
+        IServiceProvider serviceProvider = scope.ServiceProvider;
+        SeedDataService seedDataService = serviceProvider.GetRequiredService<SeedDataService>();
+        await seedDataService.RunAsync(new SeedDataRq());
+    }
 }
 catch (Exception ex)
 {
+    // Singleton service so can use here without CreateScope
     ILogger<Program> logger = app.Services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "An error occurred while seeding data.");
 }

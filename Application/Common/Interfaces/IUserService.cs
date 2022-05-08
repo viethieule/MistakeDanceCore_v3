@@ -9,5 +9,7 @@ namespace Application.Common.Interfaces
         Task<User> GetCurrentUser();
         Task CreateManyWithRoleAsync(List<User> users);
         Task<bool> IsHasUserAsync();
+        Task CreateRolesAsync(params string[] list);
+        Task<bool> IsHasRoleAsync();
     }
 }

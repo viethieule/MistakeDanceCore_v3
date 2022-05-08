@@ -3,6 +3,7 @@ using Application.Common.Interfaces;
 using Application.Users;
 using Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Application.SeedData
 {
@@ -18,13 +19,26 @@ namespace Application.SeedData
     {
         private readonly IMistakeDanceDbContext _mistakeDanceDbContext;
         private readonly IUserService _userService;
-        public SeedDataService(IMistakeDanceDbContext mistakeDanceDbContext, IUserService userService)
+        private readonly ILogger<SeedDataService> _logger;
+        public SeedDataService(IMistakeDanceDbContext mistakeDanceDbContext, IUserService userService, ILogger<SeedDataService> logger)
         {
+            _logger = logger;
             _userService = userService;
             _mistakeDanceDbContext = mistakeDanceDbContext;
         }
 
         public override async Task<SeedDataRs> RunAsync(SeedDataRq rq)
+        {
+            _logger.LogInformation("Start seeding data");
+
+            var seedAppDataTask = SeedApplicationData();
+            var seedIdentityDataTask = SeedIdentityData();
+            await Task.WhenAll(seedAppDataTask, seedIdentityDataTask);
+
+            return new SeedDataRs();
+        }
+
+        private async Task SeedApplicationData()
         {
             bool shouldSeed = false;
             if (!(await _mistakeDanceDbContext.Branches.AnyAsync()))
@@ -52,22 +66,49 @@ namespace Application.SeedData
 
             if (shouldSeed)
             {
+                _logger.LogInformation("Start seeding application data...");
                 await _mistakeDanceDbContext.SaveChangesAsync();
             }
-
-            return new SeedDataRs();
+            else
+            {
+                _logger.LogInformation("Application data exists: No seeding");
+            }
         }
 
         private async Task SeedIdentityData()
         {
+            bool shouldSeed = false;
+
+            if (!(await _userService.IsHasRoleAsync()))
+            {
+                shouldSeed = true;
+                await _userService.CreateRolesAsync
+                (
+                    RoleName.Admin,
+                    RoleName.Collaborator,
+                    RoleName.Member,
+                    RoleName.Receptionist
+                );
+            }
+
             if (!(await _userService.IsHasUserAsync()))
             {
+                shouldSeed = true;
                 await _userService.CreateManyWithRoleAsync(new List<User>
                 {
                     new() { UserName = "admin", RoleName = RoleName.Admin },
                     new() { UserName = "receptionist", RoleName = RoleName.Receptionist },
                     new() { UserName = "collaborator", RoleName = RoleName.Collaborator },
                 });
+            }
+
+            if (shouldSeed)
+            {
+                _logger.LogInformation("Start seeding identity data...");
+            }
+            else
+            {
+                _logger.LogInformation("Identity data exists: No seeding");
             }
         }
     }

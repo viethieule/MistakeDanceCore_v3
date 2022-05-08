@@ -14,9 +14,11 @@ namespace Infrastructure.Identity
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ApplicationIdentityDbContext _appIdentityDbContext;
         private readonly IConfiguration _configuration;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UserService(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ApplicationIdentityDbContext appIdentityDbContext, IConfiguration configuration)
+        public UserService(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ApplicationIdentityDbContext appIdentityDbContext, IConfiguration configuration, RoleManager<IdentityRole> roleManager)
         {
+            _roleManager = roleManager;
             _configuration = configuration;
             _appIdentityDbContext = appIdentityDbContext;
             _httpContextAccessor = httpContextAccessor;
@@ -31,6 +33,15 @@ namespace Infrastructure.Identity
             }
         }
 
+        public async Task CreateRolesAsync(params string[] roleNames)
+        {
+            foreach (string name in roleNames)
+            {
+                IdentityRole role = new IdentityRole(name);
+                await _roleManager.CreateAsync(role);
+            }
+        }
+
         public async Task<string> CreateWithRoleAsync(User user)
         {
             ApplicationUser appUser = new()
@@ -39,7 +50,7 @@ namespace Infrastructure.Identity
             };
 
             IdentityResult result = await _userManager.CreateAsync(appUser, GetDefaultPassword());
-            if (result.Succeeded)
+            if (!result.Succeeded)
             {
                 throw new Exception
                 (
@@ -73,6 +84,11 @@ namespace Infrastructure.Identity
                 .Where(x => x.UserName.StartsWith(startWith))
                 .Select(x => x.UserName)
                 .ToListAsync();
+        }
+
+        public async Task<bool> IsHasRoleAsync()
+        {
+            return await _appIdentityDbContext.Roles.AnyAsync();
         }
 
         public async Task<bool> IsHasUserAsync()

@@ -1,6 +1,7 @@
 using System.Reflection;
 using Application.Common;
 using Application.Common.Interfaces;
+using Application.SeedData;
 using Application.Users;
 using Microsoft.Extensions.DependencyInjection;
 
