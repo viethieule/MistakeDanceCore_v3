@@ -1,6 +1,3 @@
-using AutoMapper;
-using Domain;
-
 namespace Application.Sessions
 {
     public class SessionDTO

@@ -5,7 +5,6 @@ using Application.Common.Helpers;
 using Application.Common.Interfaces;
 using Application.Sessions;
 using Application.Trainers;
-using AutoMapper;
 
 namespace Application.Schedules
 {

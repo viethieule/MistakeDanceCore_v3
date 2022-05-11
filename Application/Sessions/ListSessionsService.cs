@@ -1,9 +1,4 @@
 using Application.Common;
-using Application.Common.Interfaces;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Domain;
-using Microsoft.EntityFrameworkCore;
 
 namespace Application.Sessions
 {

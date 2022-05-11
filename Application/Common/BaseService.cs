@@ -1,6 +1,3 @@
-using Application.Common.Interfaces;
-using AutoMapper;
-
 namespace Application.Common
 {
     public abstract class BaseService<TRq, TRs>
