@@ -1,46 +1,15 @@
-using Application.Branches;
-using Application.Classes;
 using Application.Common;
 using Application.Common.Interfaces;
-using Application.Sessions;
-using Application.Trainers;
 using FluentValidation;
 using Domain;
 using Microsoft.EntityFrameworkCore;
-using Application.Common.Helpers;
-using Application.Registrations;
-using Application.Packages;
-using Application.Memberships;
 
 namespace Application.Schedules
 {
     public class ScheduleDTC : DTCBase<Schedule, ScheduleDTO>
     {
-        private readonly SessionDTC _sessionDTC;
-        private readonly BranchDTC _branchDTC;
-        private readonly ClassDTC _classDTC;
-        private readonly TrainerDTC _trainerDTC;
-        private readonly RegistrationDTC _registrationDTC;
-        private readonly PackageDTC _packageDTC;
-        private readonly MembershipDTC _membershipDTC;
-
-        public ScheduleDTC(
-            IMistakeDanceDbContext mistakeDanceDbContext,
-            SessionDTC sessionDTC,
-            BranchDTC branchDTC,
-            ClassDTC classDTC,
-            TrainerDTC trainerDTC,
-            RegistrationDTC registrationDTC,
-            PackageDTC packageDTC,
-            MembershipDTC membershipDTC) : base(mistakeDanceDbContext)
+        public ScheduleDTC(IMistakeDanceDbContext mistakeDanceDbContext) : base(mistakeDanceDbContext)
         {
-            _sessionDTC = sessionDTC;
-            _branchDTC = branchDTC;
-            _classDTC = classDTC;
-            _trainerDTC = trainerDTC;
-            _registrationDTC = registrationDTC;
-            _packageDTC = packageDTC;
-            _membershipDTC = membershipDTC;
         }
 
         internal async Task<ScheduleDTO> SingleByIdAsync(int id)

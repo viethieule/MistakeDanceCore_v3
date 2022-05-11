@@ -90,7 +90,7 @@ namespace Application.Schedules
 
             return new CreateScheduleRs
             {
-                SessionsCreated = scheduleFormDTO.SessionsCreatedInQueriedDateRange
+                SessionsCreated = scheduleFormDTO.Sessions
             };
         }
     }
