@@ -26,7 +26,8 @@ namespace Application.Members
             _memberDTC = memberDTC;
 
         }
-        public override async Task<GetMembersRs> RunAsync(GetMembersRq rq)
+        
+        protected override async Task<GetMembersRs> DoRunAsync(GetMembersRq rq)
         {
             GetMembersRs rs = new GetMembersRs();
             rs.Members = await _memberDTC.ListAsync(rq);

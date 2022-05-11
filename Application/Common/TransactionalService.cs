@@ -12,7 +12,7 @@ namespace Application.Common
             _mistakeDanceDbContext = mistakeDanceDbContext;
         }
 
-        public sealed override async Task<TRs> RunAsync(TRq rq)
+        protected sealed override async Task<TRs> DoRunAsync(TRq rq)
         {
             using (var transaction = await _mistakeDanceDbContext.Database.BeginTransactionAsync())
             {

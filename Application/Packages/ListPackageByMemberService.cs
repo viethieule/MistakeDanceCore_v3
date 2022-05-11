@@ -27,7 +27,7 @@ namespace Application.Packages
             _userService = userService;
         }
 
-        public override async Task<ListPackageByMemberRs> RunAsync(ListPackageByMemberRq rq)
+        protected override async Task<ListPackageByMemberRs> DoRunAsync(ListPackageByMemberRq rq)
         {
             User user = await _userService.GetCurrentUser();
             MemberDTO member = await _memberDTC.SingleByIdAsync(rq.MemberId);

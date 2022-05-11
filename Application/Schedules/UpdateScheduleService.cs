@@ -8,6 +8,7 @@ using Application.Packages;
 using Application.Registrations;
 using Application.Sessions;
 using Application.Trainers;
+using FluentValidation.Results;
 
 namespace Application.Schedules
 {
@@ -55,6 +56,11 @@ namespace Application.Schedules
             _registrationDTC = registrationDTC;
             _packageDTC = packageDTC;
             _membershipDTC = membershipDTC;
+        }
+
+        protected override ValidationResult Validate(UpdateScheduleRq rq)
+        {
+            return ScheduleValidators.UpdateRq.Validate(rq);
         }
 
         protected override async Task<UpdateScheduleRs> RunTransactionalAsync(UpdateScheduleRq rq)

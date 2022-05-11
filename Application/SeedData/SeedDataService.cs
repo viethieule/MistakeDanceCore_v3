@@ -27,7 +27,7 @@ namespace Application.SeedData
             _mistakeDanceDbContext = mistakeDanceDbContext;
         }
 
-        public override async Task<SeedDataRs> RunAsync(SeedDataRq rq)
+        protected override async Task<SeedDataRs> DoRunAsync(SeedDataRq rq)
         {
             _logger.LogInformation("Start seeding data");
 

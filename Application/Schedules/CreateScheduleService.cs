@@ -5,6 +5,7 @@ using Application.Common.Helpers;
 using Application.Common.Interfaces;
 using Application.Sessions;
 using Application.Trainers;
+using FluentValidation.Results;
 
 namespace Application.Schedules
 {
@@ -39,6 +40,11 @@ namespace Application.Schedules
             _classDTC = classDTC;
             _scheduleDTC = scheduleDTC;
             _sessionDTC = sessionDTC;
+        }
+
+        protected override ValidationResult Validate(CreateScheduleRq rq)
+        {
+            return ScheduleValidators.CreateRq.Validate(rq);
         }
 
         protected override async Task<CreateScheduleRs> RunTransactionalAsync(CreateScheduleRq rq)
