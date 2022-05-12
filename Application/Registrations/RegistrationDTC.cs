@@ -2,7 +2,6 @@ using Application.Common;
 using Application.Common.Interfaces;
 using Domain;
 using Microsoft.EntityFrameworkCore;
-using FluentValidation;
 
 namespace Application.Registrations
 {
@@ -67,7 +66,6 @@ namespace Application.Registrations
 
         internal async Task CreateAsync(RegistrationDTO registrationDTO)
         {
-            await this.ValidateAndThrowAsync(registrationDTO);
             Registration registration = MapFromDTO(registrationDTO);
 
             await _mistakeDanceDbContext.Registrations.AddAsync(registration);

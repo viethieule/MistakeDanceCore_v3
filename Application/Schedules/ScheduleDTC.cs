@@ -1,6 +1,5 @@
 using Application.Common;
 using Application.Common.Interfaces;
-using FluentValidation;
 using Domain;
 using Microsoft.EntityFrameworkCore;
 
@@ -48,8 +47,6 @@ namespace Application.Schedules
             {
                 throw new Exception("Cannot update an already opened schedule");
             }
-
-            await this.ValidateAndThrowAsync(dto);
 
             Schedule efo = MapFromDTO(dto);
             _mistakeDanceDbContext.Schedules.Attach(efo);

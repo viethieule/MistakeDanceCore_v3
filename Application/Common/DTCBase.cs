@@ -4,7 +4,7 @@ using FluentValidation;
 
 namespace Application.Common
 {
-    public abstract class DTCBase<TENT, TDTO> : AbstractValidator<TDTO>
+    public abstract class DTCBase<TENT, TDTO>
         where TENT : class, new()
         where TDTO : class, new()
     {
@@ -12,12 +12,6 @@ namespace Application.Common
         public DTCBase(IMistakeDanceDbContext mistakeDanceDbContext)
         {
             _mistakeDanceDbContext = mistakeDanceDbContext;
-
-            SetValidationRules();
-        }
-
-        protected virtual void SetValidationRules()
-        {
         }
 
         protected TENT MapFromDTO(TDTO dto)

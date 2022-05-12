@@ -2,7 +2,6 @@ using Application.Common;
 using Application.Common.Interfaces;
 using Application.DefaultPackages;
 using Domain;
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Packages
@@ -54,8 +53,6 @@ namespace Application.Packages
                 dto.Months = defaultPackageDTO.Months;
                 dto.Price = defaultPackageDTO.Price;
             }
-
-            await this.ValidateAndThrowAsync(dto);
 
             Package efo = MapFromDTO(dto);
             await _mistakeDanceDbContext.Packages.AddAsync(efo);

@@ -1,7 +1,6 @@
 using Application.Common;
 using Application.Common.Interfaces;
 using Domain;
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Application.Memberships
@@ -47,7 +46,6 @@ namespace Application.Memberships
 
         internal async Task CreateAsync(MembershipDTO dto)
         {
-            await this.ValidateAndThrowAsync(dto);
             Membership efo = MapFromDTO(dto);
 
             await _mistakeDanceDbContext.Memberships.AddAsync(efo);
@@ -56,7 +54,6 @@ namespace Application.Memberships
 
         internal async Task UpdateAsync(MembershipDTO dto)
         {
-            await this.ValidateAndThrowAsync(dto);
             Membership efo = MapFromDTO(dto);
             
             _mistakeDanceDbContext.Memberships.Attach(efo);
