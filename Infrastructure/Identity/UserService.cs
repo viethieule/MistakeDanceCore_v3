@@ -15,14 +15,22 @@ namespace Infrastructure.Identity
         private readonly ApplicationIdentityDbContext _appIdentityDbContext;
         private readonly IConfiguration _configuration;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public UserService(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ApplicationIdentityDbContext appIdentityDbContext, IConfiguration configuration, RoleManager<IdentityRole> roleManager)
+        public UserService(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ApplicationIdentityDbContext appIdentityDbContext, IConfiguration configuration, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager)
         {
+            _signInManager = signInManager;
             _roleManager = roleManager;
             _configuration = configuration;
             _appIdentityDbContext = appIdentityDbContext;
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
+        }
+
+        public async Task<bool> CheckPasswordSigninAsync(string username, string password)
+        {
+            SignInResult result = await _signInManager.CheckPasswordSignInAsync(new ApplicationUser(username), password, true);
+            return result.Succeeded;
         }
 
         public async Task CreateManyWithRoleAsync(List<User> users)
@@ -35,10 +43,7 @@ namespace Infrastructure.Identity
 
         public async Task<string> CreateWithRoleAsync(User user)
         {
-            ApplicationUser appUser = new()
-            {
-                UserName = user.UserName
-            };
+            ApplicationUser appUser = new(user.UserName);
 
             IdentityResult result = await _userManager.CreateAsync(appUser, GetDefaultPassword());
             if (!result.Succeeded)
@@ -53,6 +58,12 @@ namespace Infrastructure.Identity
             return appUser.Id;
         }
 
+        public async Task<User> FindByUsernameAsync(string username)
+        {
+            ApplicationUser user = await _userManager.FindByNameAsync(username);
+            return await ToAppServiceUser(user);
+        }
+
         public async Task<User> GetCurrentUser()
         {
             ClaimsPrincipal claimsPrincipal = _httpContextAccessor.HttpContext?.User;
@@ -62,11 +73,7 @@ namespace Infrastructure.Identity
             }
 
             ApplicationUser appUser = await _userManager.GetUserAsync(claimsPrincipal);
-            IList<string> roles = await _userManager.GetRolesAsync(appUser);
-
-            // For now get allow the first role since one user has one role only
-            string roleName = roles.First();
-            return appUser.ToAppServiceUser(roleName);
+            return await ToAppServiceUser(appUser);
         }
 
         public async Task<List<string>> GetUsernamesStartWith(string startWith)
@@ -75,6 +82,20 @@ namespace Infrastructure.Identity
                 .Where(x => x.UserName.StartsWith(startWith))
                 .Select(x => x.UserName)
                 .ToListAsync();
+        }
+
+        private async Task<User> ToAppServiceUser(ApplicationUser user)
+        {
+            if (user == null)
+            {
+                return null;
+            }
+            
+            IList<string> roles = await _userManager.GetRolesAsync(user);
+
+            // For now get allow the first role since one user has one role only
+            string roleName = roles.First();
+            return user.ToAppServiceUser(roleName);
         }
 
         public async Task<bool> IsHasUserAsync()
