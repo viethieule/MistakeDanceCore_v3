@@ -20,10 +20,12 @@ namespace Application.SeedData
         private readonly IMistakeDanceDbContext _mistakeDanceDbContext;
         private readonly IUserService _userService;
         private readonly ILogger<SeedDataService> _logger;
-        public SeedDataService(IMistakeDanceDbContext mistakeDanceDbContext, IUserService userService, ILogger<SeedDataService> logger)
+        private readonly IRoleService _roleService;
+        public SeedDataService(IMistakeDanceDbContext mistakeDanceDbContext, IUserService userService, IRoleService roleService, ILogger<SeedDataService> logger)
         {
             _logger = logger;
             _userService = userService;
+            _roleService = roleService;
             _mistakeDanceDbContext = mistakeDanceDbContext;
         }
 
@@ -79,10 +81,10 @@ namespace Application.SeedData
         {
             bool shouldSeed = false;
 
-            if (!(await _userService.IsHasRoleAsync()))
+            if (!(await _roleService.IsHasRoleAsync()))
             {
                 shouldSeed = true;
-                await _userService.CreateRolesAsync
+                await _roleService.CreateRolesAsync
                 (
                     RoleName.Admin,
                     RoleName.Collaborator,

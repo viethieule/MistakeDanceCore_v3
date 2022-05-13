@@ -33,15 +33,6 @@ namespace Infrastructure.Identity
             }
         }
 
-        public async Task CreateRolesAsync(params string[] roleNames)
-        {
-            foreach (string name in roleNames)
-            {
-                IdentityRole role = new IdentityRole(name);
-                await _roleManager.CreateAsync(role);
-            }
-        }
-
         public async Task<string> CreateWithRoleAsync(User user)
         {
             ApplicationUser appUser = new()
@@ -84,11 +75,6 @@ namespace Infrastructure.Identity
                 .Where(x => x.UserName.StartsWith(startWith))
                 .Select(x => x.UserName)
                 .ToListAsync();
-        }
-
-        public async Task<bool> IsHasRoleAsync()
-        {
-            return await _appIdentityDbContext.Roles.AnyAsync();
         }
 
         public async Task<bool> IsHasUserAsync()

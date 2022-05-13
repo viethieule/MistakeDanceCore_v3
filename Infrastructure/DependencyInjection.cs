@@ -32,6 +32,7 @@ namespace Infrastructure
             });
 
             serviceCollection.AddScoped<IUserService, UserService>();
+            serviceCollection.AddScoped<IRoleService, RoleService>();
 
             return serviceCollection;
         }
