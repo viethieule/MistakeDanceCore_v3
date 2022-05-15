@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Application.Common.Interfaces;
+using Application.Common.Settings;
 using Application.Users;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -13,15 +14,15 @@ namespace Infrastructure.Identity
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ApplicationIdentityDbContext _appIdentityDbContext;
-        private readonly IConfiguration _configuration;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly AppSettings _appSettings;
 
-        public UserService(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ApplicationIdentityDbContext appIdentityDbContext, IConfiguration configuration, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager)
+        public UserService(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor, ApplicationIdentityDbContext appIdentityDbContext, AppSettings appSettings, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager)
         {
+            _appSettings = appSettings;
             _signInManager = signInManager;
             _roleManager = roleManager;
-            _configuration = configuration;
             _appIdentityDbContext = appIdentityDbContext;
             _httpContextAccessor = httpContextAccessor;
             _userManager = userManager;
@@ -90,7 +91,7 @@ namespace Infrastructure.Identity
             {
                 return null;
             }
-            
+
             IList<string> roles = await _userManager.GetRolesAsync(user);
 
             // For now get allow the first role since one user has one role only
@@ -105,7 +106,7 @@ namespace Infrastructure.Identity
 
         private string GetDefaultPassword()
         {
-            return _configuration.GetValue<string>("DefaultPassword");
+            return _appSettings.UserDefaultPassword;
         }
     }
 }

@@ -10,14 +10,11 @@ namespace Infrastructure.Security
     public class JwtManager : IJwtManager
     {
         private const string CONFIG_NAME_JWT_SIGNING_KEY = "JwtSigningKey";
-        private const string CONFIG_NAME_JWT_ACCESS_EXPIRES_DURATION = "JwtAccessExpireDuration";
 
         private readonly string _jwtSigningKey;
-        private readonly IConfiguration _configuration;
 
         public JwtManager(IConfiguration configuration)
         {
-            _configuration = configuration;
             _jwtSigningKey = configuration[CONFIG_NAME_JWT_SIGNING_KEY];
         }
 
@@ -25,7 +22,7 @@ namespace Infrastructure.Security
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(AppClaimTypes.Id, jwtInfo.UserId),
+                new Claim(AppClaimTypes.UserName, jwtInfo.UserName),
                 new Claim(AppClaimTypes.Type, jwtInfo.Type.ToString())
             };
 
@@ -35,7 +32,7 @@ namespace Infrastructure.Security
             SecurityTokenDescriptor tokenDescriptor = new()
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddHours(int.Parse(_configuration[CONFIG_NAME_JWT_ACCESS_EXPIRES_DURATION])),
+                Expires = jwtInfo.Expires,
                 SigningCredentials = credentials
             };
 
@@ -45,10 +42,34 @@ namespace Infrastructure.Security
             return tokenHandler.WriteToken(token);
         }
 
-        public string GenerateAndSaveRefreshToken(JwtInfo jwtInfo)
+        public JwtInfo Validate(string token, JwtType type)
         {
-            string refreshToken = this.GenerateToken(jwtInfo);
-            return refreshToken;
+            JwtSecurityTokenHandler tokenHandler = new();
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSigningKey))
+            }, out SecurityToken validatedToken);
+
+            var jwtToken = (JwtSecurityToken)validatedToken;
+            string tokenType = jwtToken.Claims.First(x => x.Type == AppClaimTypes.Type).Value;
+            if (tokenType == type.ToString())
+            {
+                throw new SecurityTokenInvalidTypeComparisonException("Invalid type comparison");
+            }
+
+            string userName = jwtToken.Claims.First(x => x.Type == AppClaimTypes.UserName).Value;
+
+            return new JwtInfo(userName, type, jwtToken.ValidTo);
+        }
+    }
+
+    public class SecurityTokenInvalidTypeComparisonException : SecurityTokenException
+    {
+        public SecurityTokenInvalidTypeComparisonException(string message) : base(message)
+        {
         }
     }
 }

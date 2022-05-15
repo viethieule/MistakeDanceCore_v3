@@ -1,6 +1,7 @@
 using System.Reflection;
 using Application.Common;
 using Application.Common.Interfaces;
+using Application.Common.Settings;
 using Application.SeedData;
 using Application.Users;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +12,8 @@ namespace Application
     {
         public static IServiceCollection AddApplicationModule(this IServiceCollection serviceCollection)
         {
+            serviceCollection.AddScoped<AppSettings>();
+            
             serviceCollection.AddScopedAsSelfByConvention(typeof(BaseService<,>).Assembly, type => type.Name.EndsWith("Service"));
             serviceCollection.AddScopedAsSelfByConvention(typeof(DTCBase<,>).Assembly, type => type.Name.EndsWith("DTC"));
 

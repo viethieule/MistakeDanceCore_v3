@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.Common.Exceptions;
 using Application.Common.Interfaces;
+using Application.Common.Settings;
 using Application.Jwt;
 using Application.Users;
 
@@ -20,10 +21,16 @@ namespace Application.Authentication
 
     public class LoginService : BaseService<LoginRq, LoginRs>
     {
+        private const string CONFIG_NAME_JWT_ACCESS_EXPIRES_DURATION = "JwtAccessExpireDuration";
+        private readonly AppSettings _appSettings;
+
         private readonly IUserService _userService;
         private readonly IJwtManager _jwtManager;
-        public LoginService(IUserService userService, IJwtManager jwtManager)
+        private readonly IRefreshTokenManager _refreshTokenService;
+        public LoginService(IUserService userService, IJwtManager jwtManager, IRefreshTokenManager refreshTokenService, AppSettings appSettings)
         {
+            this._appSettings = appSettings;
+            this._refreshTokenService = refreshTokenService;
             this._jwtManager = jwtManager;
             this._userService = userService;
         }
@@ -42,8 +49,10 @@ namespace Application.Authentication
                 throw new ServiceException("Login error");
             }
 
-            string accessToken = _jwtManager.GenerateToken(new JwtInfo(user.Id, JwtType.Access));
-            string refreshToken = _jwtManager.GenerateAndSaveRefreshToken(new JwtInfo(user.Id, JwtType.Refresh));
+            string accessToken = _jwtManager.GenerateToken(new JwtInfo(user.UserName, JwtType.Access, _appSettings.JwtAccessTokenExpiryDuration));
+            string refreshToken = _jwtManager.GenerateToken(new JwtInfo(user.UserName, JwtType.Refresh, _appSettings.JwtAccessTokenExpiryDuration));
+
+            await _refreshTokenService.SaveTokenAsync(user.UserName, refreshToken);
 
             return new LoginRs
             {
