@@ -10,7 +10,6 @@ namespace Infrastructure.Security
 {
     public class RefreshTokenManager : IRefreshTokenManager
     {
-        private const string CONFIG_NAME_JWT_REFRESH_EXPIRES_DURATION = "JwtRefreshExpireDuration";
         private readonly ApplicationIdentityDbContext _appIdentityDbContext;
         private readonly AppSettings _appSettings;
         private readonly IJwtManager _jwtManager;

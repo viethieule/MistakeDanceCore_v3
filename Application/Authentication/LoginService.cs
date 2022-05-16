@@ -21,18 +21,17 @@ namespace Application.Authentication
 
     public class LoginService : BaseService<LoginRq, LoginRs>
     {
-        private const string CONFIG_NAME_JWT_ACCESS_EXPIRES_DURATION = "JwtAccessExpireDuration";
         private readonly AppSettings _appSettings;
-
         private readonly IUserService _userService;
         private readonly IJwtManager _jwtManager;
         private readonly IRefreshTokenManager _refreshTokenService;
+
         public LoginService(IUserService userService, IJwtManager jwtManager, IRefreshTokenManager refreshTokenService, AppSettings appSettings)
         {
-            this._appSettings = appSettings;
-            this._refreshTokenService = refreshTokenService;
-            this._jwtManager = jwtManager;
-            this._userService = userService;
+            _appSettings = appSettings;
+            _refreshTokenService = refreshTokenService;
+            _jwtManager = jwtManager;
+            _userService = userService;
         }
 
         protected override async Task<LoginRs> DoRunAsync(LoginRq rq)

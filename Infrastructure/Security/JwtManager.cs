@@ -1,21 +1,19 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Application.Common.Settings;
 using Application.Jwt;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.Security
 {
     public class JwtManager : IJwtManager
     {
-        private const string CONFIG_NAME_JWT_SIGNING_KEY = "JwtSigningKey";
-
         private readonly string _jwtSigningKey;
 
-        public JwtManager(IConfiguration configuration)
+        public JwtManager(AppSettings appSettings)
         {
-            _jwtSigningKey = configuration[CONFIG_NAME_JWT_SIGNING_KEY];
+            _jwtSigningKey = appSettings.JwtSigningKey;
         }
 
         public string GenerateToken(JwtInfo jwtInfo)
@@ -57,7 +55,7 @@ namespace Infrastructure.Security
             string tokenType = jwtToken.Claims.First(x => x.Type == AppClaimTypes.Type).Value;
             if (tokenType == type.ToString())
             {
-                throw new SecurityTokenInvalidTypeComparisonException("Invalid type comparison");
+                throw new SecurityTokenInvalidTypeComparisonException();
             }
 
             string userName = jwtToken.Claims.First(x => x.Type == AppClaimTypes.UserName).Value;
@@ -68,7 +66,7 @@ namespace Infrastructure.Security
 
     public class SecurityTokenInvalidTypeComparisonException : SecurityTokenException
     {
-        public SecurityTokenInvalidTypeComparisonException(string message) : base(message)
+        public SecurityTokenInvalidTypeComparisonException(string message = "Invalid type comparison") : base(message)
         {
         }
     }
