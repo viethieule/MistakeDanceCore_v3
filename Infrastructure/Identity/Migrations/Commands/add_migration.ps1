@@ -1,1 +1,1 @@
-dotnet ef migrations add Init -p .\Infrastructure\ -c ApplicationIdentityDbContext -o .\Identity\Migrations -v
+dotnet ef migrations add V0000 -p .\Infrastructure\ -c ApplicationIdentityDbContext -o .\Identity\Migrations -v

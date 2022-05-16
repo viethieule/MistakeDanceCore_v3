@@ -6,10 +6,10 @@ namespace Application.Common.Settings
     {
         public AppSettings(IConfiguration configuration)
         {
-            this.UserDefaultPassword = SettingsUtils.ReadString(configuration, "Identity:MemberDefaultPassword");   
-            this.JwtAccessTokenExpiryDuration = SettingsUtils.ReadTimeSpan(configuration, "Jwt:JwtAccessTokenExpiryDuration");
-            this.JwtRefreshTokenExpiryDuration = SettingsUtils.ReadTimeSpan(configuration, "Jwt:JwtRefreshTokenExpiryDuration");
-            this.JwtSigningKey = SettingsUtils.ReadString(configuration, "Jwt:JwtSigningKey");
+            this.UserDefaultPassword = SettingsUtils.ReadString(configuration, "Identity:UserDefaultPassword");   
+            this.JwtAccessTokenExpiryDuration = SettingsUtils.ReadTimeSpan(configuration, "Jwt:AccessTokenExpiryDuration");
+            this.JwtRefreshTokenExpiryDuration = SettingsUtils.ReadTimeSpan(configuration, "Jwt:RefreshTokenExpiryDuration");
+            this.JwtSigningKey = SettingsUtils.ReadString(configuration, "Jwt:SigningKey");
         }
 
         public string UserDefaultPassword { get; set; }

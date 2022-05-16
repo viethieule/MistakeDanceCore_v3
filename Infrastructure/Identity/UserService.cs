@@ -30,7 +30,8 @@ namespace Infrastructure.Identity
 
         public async Task<bool> CheckPasswordSigninAsync(string username, string password)
         {
-            SignInResult result = await _signInManager.CheckPasswordSignInAsync(new ApplicationUser(username), password, true);
+            ApplicationUser user = await _userManager.FindByNameAsync(username);
+            SignInResult result = await _signInManager.CheckPasswordSignInAsync(user, password, true);
             return result.Succeeded;
         }
 

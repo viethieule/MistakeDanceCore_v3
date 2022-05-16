@@ -9,9 +9,8 @@ namespace Infrastructure.Identity
         {
         }
 
-        public ApplicationUser(string username)
+        public ApplicationUser(string username) : base(username)
         {
-            this.UserName = username;
         }
 
         public User ToAppServiceUser(string roleName)

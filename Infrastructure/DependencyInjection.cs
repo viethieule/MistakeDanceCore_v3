@@ -1,5 +1,7 @@
 using Application.Common.Interfaces;
+using Application.Jwt;
 using Infrastructure.Identity;
+using Infrastructure.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -33,6 +35,9 @@ namespace Infrastructure
 
             serviceCollection.AddScoped<IUserService, UserService>();
             serviceCollection.AddScoped<IRoleService, RoleService>();
+
+            serviceCollection.AddScoped<IJwtManager, JwtManager>();
+            serviceCollection.AddScoped<IRefreshTokenManager, RefreshTokenManager>();
 
             return serviceCollection;
         }
