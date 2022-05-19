@@ -3,7 +3,7 @@ using Application.Members;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
-public class MemberController : BaseApiController
+public class MemberController : AuthenticatedController
 {
     public MemberController(IServiceProvider serviceProvider) : base(serviceProvider)
     {
