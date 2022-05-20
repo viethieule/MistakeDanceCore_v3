@@ -39,6 +39,7 @@ namespace Application.Schedules
         protected override async Task<DeleteScheduleRs> RunTransactionalAsync(DeleteScheduleRq rq)
         {
             ScheduleDTO scheduleDTO = await _scheduleDTC.SingleByIdAsync(rq.ScheduleId);
+            List<SessionDTO> sessionDTOs = await _sessionDTC.ListShallowByScheduleIdAsync(rq.ScheduleId);
             List<RegistrationDTO> registrationDTOs = await _registrationDTC.ListShallowByScheduleIdAsync(rq.ScheduleId);
 
             if (registrationDTOs.Count > 0)
@@ -50,6 +51,8 @@ namespace Application.Schedules
                 await _membershipDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionToReturn);
             }
 
+            await _registrationDTC.DeleteRangeAsync(registrationDTOs);
+            await _sessionDTC.DeleteRangeAsync(sessionDTOs);
             await _scheduleDTC.DeleteAsync(scheduleDTO);
             
             return new DeleteScheduleRs();

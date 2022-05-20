@@ -59,6 +59,7 @@ namespace Application.Registrations
         {
             List<Registration> efos = await _mistakeDanceDbContext.Registrations
                 .Where(x => x.Session.ScheduleId == scheduleId)
+                .AsNoTracking()
                 .ToListAsync();
 
             return efos.Select(MapToDTO).ToList();

@@ -13,7 +13,7 @@ namespace Application.Schedules
 
         internal async Task<ScheduleDTO> SingleByIdAsync(int id)
         {
-            Schedule schedule = await _mistakeDanceDbContext.Schedules.FirstOrDefaultAsync(x => x.Id == id);
+            Schedule schedule = await _mistakeDanceDbContext.Schedules.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (schedule == null)
             {
                 throw new Exception("Schedule not exists");

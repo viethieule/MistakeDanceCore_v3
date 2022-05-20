@@ -14,7 +14,7 @@ namespace Application.Schedules
 {
     public class UpdateScheduleRq : BaseRequest
     {
-        public ScheduleFormDTO ScheduleFormDTO { get; set; }
+        public ScheduleDTO Schedule { get; set; }
         public int SelectedSessionId { get; set; }
     }
 
@@ -66,7 +66,7 @@ namespace Application.Schedules
         protected override async Task<UpdateScheduleRs> RunTransactionalAsync(UpdateScheduleRq rq)
         {
             UpdateScheduleRs rs = new UpdateScheduleRs();
-            ScheduleDTO scheduleDto = rq.ScheduleFormDTO.Schedule;
+            ScheduleDTO scheduleDto = rq.Schedule;
 
             if (!string.IsNullOrWhiteSpace(scheduleDto.BranchName))
             {
@@ -105,7 +105,7 @@ namespace Application.Schedules
 
             if (isUpdateSessions)
             {
-                List<SessionDTO> currentSessions = await _sessionDTC.GetByScheduleIdAsync(scheduleDto.Id);
+                List<SessionDTO> currentSessions = await _sessionDTC.ListShallowByScheduleIdAsync(scheduleDto.Id);
                 List<SessionDTO> updateSessions = SessionsGenerator.Generate(scheduleDto);
 
                 List<SessionDTO> toBeAddedSessions = updateSessions.Where(x => !currentSessions.Any(y => y.Date.Date == x.Date.Date)).ToList();
@@ -116,12 +116,10 @@ namespace Application.Schedules
                     rs.Messages.Add(MESSAGE_SELECTED_SESSION_DELETED);
                 }
 
-                // TODO:
-                // Check if registrations are cascaded
-                List<RegistrationDTO> registrations = await _registrationDTC.GetBySessionIdsAsync(toBeRemovedSessions.Select(x => x.Id).ToList());
-                if (registrations.Count > 0)
+                List<RegistrationDTO> toBeRemovedRegistrations = await _registrationDTC.GetBySessionIdsAsync(toBeRemovedSessions.Select(x => x.Id).ToList());
+                if (toBeRemovedRegistrations.Count > 0)
                 {
-                    Dictionary<int, int> memberIdAndRemainingSessionDiffs = registrations.GroupBy(x => x.MemberId).ToDictionary(x => x.Key, x => x.Count());
+                    Dictionary<int, int> memberIdAndRemainingSessionDiffs = toBeRemovedRegistrations.GroupBy(x => x.MemberId).ToDictionary(x => x.Key, x => x.Count());
 
                     await _membershipDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionDiffs);
 
@@ -129,7 +127,10 @@ namespace Application.Schedules
                 }
 
                 await _sessionDTC.CreateRangeAsync(toBeAddedSessions);
+
+                await _registrationDTC.DeleteRangeAsync(toBeRemovedRegistrations);
                 await _sessionDTC.DeleteRangeAsync(toBeRemovedSessions);
+                
                 await _sessionDTC.RebuildScheduleSessionsNumberAsync(currentSessions.Where(x => toBeAddedSessions.Select(y => y.Id).Contains(x.Id)).Concat(toBeAddedSessions).ToList());
             }
 

@@ -13,7 +13,7 @@ namespace Application.Schedules
     {
         public CreateScheduleRqValidator()
         {
-            RuleFor(x => x.ScheduleFormDTO).NotNull().SetValidator(new ScheduleFormValidator());
+            RuleFor(x => x.Schedule).NotNull().SetValidator(new ScheduleValidator());
         }
     }
 
@@ -21,61 +21,59 @@ namespace Application.Schedules
     {
         public UpdateScheduleRqValidator()
         {
-            RuleFor(x => x.ScheduleFormDTO).NotNull().SetValidator(new ScheduleFormValidator());
+            RuleFor(x => x.Schedule).NotNull().SetValidator(new ScheduleValidator());
         }
     }
 
-    public class ScheduleFormValidator : AbstractValidator<ScheduleFormDTO>
+    public class ScheduleValidator : AbstractValidator<ScheduleDTO>
     {
-        public ScheduleFormValidator()
+        public ScheduleValidator()
         {
-            RuleFor(x => x.Schedule).NotNull();
-
-            RuleFor(x => x.Schedule.Song).NotEmpty();
-            RuleFor(x => x.Schedule.StartTime).NotNull();
-            RuleFor(x => x.Schedule.OpeningDate).NotNull();
+            RuleFor(x => x.Song).NotEmpty();
+            RuleFor(x => x.StartTime).NotNull();
+            RuleFor(x => x.OpeningDate).NotNull();
             
-            When(x => x.Schedule.DaysPerWeek.Count > 0, () =>
+            When(x => x.DaysPerWeek.Count > 0, () =>
             {
-                RuleFor(x => x.Schedule.OpeningDate)
-                    .Must((rq, x) => rq.Schedule.DaysPerWeek.Contains(x.DayOfWeek));
+                RuleFor(x => x.OpeningDate)
+                    .Must((rq, x) => rq.DaysPerWeek.Contains(x.DayOfWeek));
                 
-                RuleFor(x => x.Schedule.TotalSessions).NotNull().NotEqual(0);
+                RuleFor(x => x.TotalSessions).NotNull().NotEqual(0);
             });
 
-            When(x => x.Schedule.TotalSessions.HasValue, () =>
+            When(x => x.TotalSessions.HasValue, () =>
             {
-                RuleFor(x => x.Schedule.DaysPerWeek).NotEmpty();
+                RuleFor(x => x.DaysPerWeek).NotEmpty();
             });
 
-            When(x => !x.Schedule.BranchId.HasValue, () =>
+            When(x => !x.BranchId.HasValue, () =>
             {
-                RuleFor(x => x.Schedule.BranchName).NotEmpty();
+                RuleFor(x => x.BranchName).NotEmpty();
             });
 
-            When(x => !x.Schedule.TrainerId.HasValue, () =>
+            When(x => !x.TrainerId.HasValue, () =>
             {
-                RuleFor(x => x.Schedule.TrainerName).NotEmpty();
+                RuleFor(x => x.TrainerName).NotEmpty();
             });
 
-            When(x => !x.Schedule.ClassId.HasValue, () =>
+            When(x => !x.ClassId.HasValue, () =>
             {
-                RuleFor(x => x.Schedule.ClassName).NotEmpty();
+                RuleFor(x => x.ClassName).NotEmpty();
             });
 
-            When(x => string.IsNullOrEmpty(x.Schedule.BranchName), () =>
+            When(x => string.IsNullOrEmpty(x.BranchName), () =>
             {
-                RuleFor(x => x.Schedule.BranchId).NotEmpty();
+                RuleFor(x => x.BranchId).NotEmpty();
             });
 
-            When(x => string.IsNullOrEmpty(x.Schedule.TrainerName), () =>
+            When(x => string.IsNullOrEmpty(x.TrainerName), () =>
             {
-                RuleFor(x => x.Schedule.TrainerId).NotEmpty();
+                RuleFor(x => x.TrainerId).NotEmpty();
             });
 
-            When(x => string.IsNullOrEmpty(x.Schedule.ClassName), () =>
+            When(x => string.IsNullOrEmpty(x.ClassName), () =>
             {
-                RuleFor(x => x.Schedule.ClassId).NotEmpty();
+                RuleFor(x => x.ClassId).NotEmpty();
             });
         }
     }

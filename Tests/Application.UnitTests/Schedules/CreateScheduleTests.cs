@@ -14,20 +14,17 @@ public class CreateScheduleTests : TestBase
         DateTime openingDate = new DateTime(2022, 5, 9);
         CreateScheduleRq rq = new CreateScheduleRq()
         {
-            ScheduleFormDTO = new()
+            Schedule = new()
             {
-                Schedule = new()
-                {
-                    Song = "Test song",
-                    StartTime = new TimeSpan(9, 0, 0),
-                    BranchName = "Test branch",
-                    ClassName = "Test class",
-                    TrainerName = "Test trainer",
-                    TotalSessions = 3,
-                    DaysPerWeek = new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
-                    OpeningDate = openingDate
-                }
-            }
+                Song = "Test song",
+                StartTime = new TimeSpan(9, 0, 0),
+                BranchName = "Test branch",
+                ClassName = "Test class",
+                TrainerName = "Test trainer",
+                TotalSessions = 3,
+                DaysPerWeek = new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
+                OpeningDate = openingDate
+            }            
         };
 
         var createScheduleService = new CreateScheduleService(
@@ -36,8 +33,8 @@ public class CreateScheduleTests : TestBase
         );
 
         CreateScheduleRs rs = await createScheduleService.RunAsync(rq);
-        ScheduleDTO schedule = rq.ScheduleFormDTO.Schedule;
-        List<SessionDTO> sessions = rs.SessionsCreated;
+        ScheduleDTO schedule = rq.Schedule;
+        List<SessionDTO> sessions = rs.Sessions;
 
         Assert.Equal(3, sessions.Count);
         List<DateTime> expectedSessionDates = new List<DateTime> { openingDate, openingDate.AddDays(2), openingDate.AddDays(4) };
@@ -53,19 +50,16 @@ public class CreateScheduleTests : TestBase
         DateTime openingDate = new DateTime(2022, 5, 9);
         CreateScheduleRq rq = new CreateScheduleRq()
         {
-            ScheduleFormDTO = new()
+            Schedule = new()
             {
-                Schedule = new()
-                {
-                    Song = string.Empty,
-                    StartTime = new TimeSpan(9, 0, 0),
-                    BranchName = "Test branch",
-                    ClassName = "Test class",
-                    TrainerName = "Test trainer",
-                    TotalSessions = 3,
-                    DaysPerWeek = new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
-                    OpeningDate = openingDate
-                }
+                Song = string.Empty,
+                StartTime = new TimeSpan(9, 0, 0),
+                BranchName = "Test branch",
+                ClassName = "Test class",
+                TrainerName = "Test trainer",
+                TotalSessions = 3,
+                DaysPerWeek = new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
+                OpeningDate = openingDate
             }
         };
 

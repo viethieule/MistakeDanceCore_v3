@@ -26,6 +26,23 @@ namespace Application.Sessions
             return sessions.Select(MapToDTO).ToList();
         }
 
+        internal async Task<List<SessionDTO>> ListByScheduleIdAsync(int scheduleId)
+        {
+            List<Session> sessions = await _mistakeDanceDbContext.Sessions
+                .Where(x => x.ScheduleId == scheduleId)
+                .Include(x => x.Schedule).ThenInclude(x => x.Branch)
+                .Include(x => x.Schedule).ThenInclude(x => x.Trainer)
+                .Include(x => x.Schedule).ThenInclude(x => x.Class)
+                .ToListAsync();
+            return sessions.Select(MapToDTO).ToList();
+        }
+
+        internal async Task<List<SessionDTO>> ListShallowByScheduleIdAsync(int scheduleId)
+        {
+            List<Session> sessions = await _mistakeDanceDbContext.Sessions.AsNoTracking().Where(x => x.ScheduleId == scheduleId).ToListAsync();
+            return sessions.Select(MapToDTO).ToList();
+        }
+
         internal async Task CreateAsync(SessionDTO dto)
         {
             Session efo = MapFromDTO(dto);
@@ -42,11 +59,7 @@ namespace Application.Sessions
             await _mistakeDanceDbContext.Sessions.AddRangeAsync(efos);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
-            dtos.Zip(efos, (dto, efo) =>
-            {
-                dto = MapToDTO(efo);
-                return dto;
-            });
+            dtos.ForEach(dto => dto.Id = efos.First(efo => efo.Number == dto.Number).Id);
         }
 
         internal async Task<SessionDTO> SingleWithScheduleByIdAsync(int id)
@@ -70,14 +83,10 @@ namespace Application.Sessions
                 Session efo = MapFromDTO(dto);
                 _mistakeDanceDbContext.Sessions.Attach(efo);
             }
-            
+
             await _mistakeDanceDbContext.SaveChangesAsync();
 
-            dtos.Zip(efos, (dto, efo) =>
-            {
-                dto = MapToDTO(efo);
-                return dto;
-            });
+            dtos.ForEach(dto => dto.Id = efos.First(efo => efo.Number == dto.Number).Id);
         }
 
         internal async Task<List<SessionDTO>> ListFollowingSessions(SessionDTO sessionDTO)
@@ -111,12 +120,6 @@ namespace Application.Sessions
             }
 
             await _mistakeDanceDbContext.SaveChangesAsync();
-        }
-
-        internal async Task<List<SessionDTO>> GetByScheduleIdAsync(int scheduleId)
-        {
-            List<Session> sessions = await _mistakeDanceDbContext.Sessions.Where(x => x.ScheduleId == scheduleId).ToListAsync();
-            return sessions.Select(MapToDTO).ToList();
         }
 
         internal async Task RebuildScheduleSessionsNumberAsync(List<SessionDTO> sessions)

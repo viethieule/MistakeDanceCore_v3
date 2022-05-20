@@ -1,3 +1,5 @@
+using Application.Schedules;
+
 namespace Application.Sessions
 {
     public class SessionDTO

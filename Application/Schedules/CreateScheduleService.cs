@@ -11,12 +11,12 @@ namespace Application.Schedules
 {
     public class CreateScheduleRq : BaseRequest
     {
-        public ScheduleFormDTO ScheduleFormDTO { get; set; }
+        public ScheduleDTO Schedule { get; set; }
     }
 
     public class CreateScheduleRs : BaseResponse
     {
-        public List<SessionDTO> SessionsCreated { get; set; }
+        public List<SessionDTO> Sessions { get; set; }
     }
 
     public class CreateScheduleService : TransactionalService<CreateScheduleRq, CreateScheduleRs>
@@ -49,8 +49,7 @@ namespace Application.Schedules
 
         protected override async Task<CreateScheduleRs> RunTransactionalAsync(CreateScheduleRq rq)
         {
-            ScheduleFormDTO scheduleFormDTO = rq.ScheduleFormDTO;
-            ScheduleDTO scheduleDto = scheduleFormDTO.Schedule;
+            ScheduleDTO scheduleDto = rq.Schedule;
 
             if (!string.IsNullOrWhiteSpace(scheduleDto.BranchName))
             {
@@ -78,7 +77,7 @@ namespace Application.Schedules
             if (scheduleDto.TotalSessions.HasValue && scheduleDto.DaysPerWeek.Count > 0)
             {
                 List<SessionDTO> sessionDTOs = SessionsGenerator.Generate(scheduleDto);
-                scheduleFormDTO.Sessions.AddRange(sessionDTOs);
+                await _sessionDTC.CreateRangeAsync(sessionDTOs);
             }
             else
             {
@@ -89,13 +88,11 @@ namespace Application.Schedules
                     ScheduleId = scheduleDto.Id
                 };
                 await _sessionDTC.CreateAsync(sessionDto);
-
-                scheduleFormDTO.Sessions.Add(sessionDto);
             }
 
-            return new CreateScheduleRs
+            return new CreateScheduleRs()
             {
-                SessionsCreated = scheduleFormDTO.Sessions
+                Sessions = await _sessionDTC.ListByScheduleIdAsync(scheduleDto.Id)
             };
         }
     }

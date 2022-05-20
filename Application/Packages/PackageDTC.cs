@@ -40,7 +40,7 @@ namespace Application.Packages
 
         internal async Task<List<PackageDTO>> ListByMemberIdAsync(int memberId)
         {
-            List<Package> packages = await _mistakeDanceDbContext.Packages.Where(x => x.MemberId == memberId).ToListAsync();
+            List<Package> packages = await _mistakeDanceDbContext.Packages.Where(x => x.MemberId == memberId).AsNoTracking().ToListAsync();
             return packages.Select(MapToDTO).ToList();
         }
 

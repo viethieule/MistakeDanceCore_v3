@@ -3,7 +3,7 @@ using Application.Packages;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
-public class PackageController : BaseApiController
+public class PackageController : AuthenticatedController
 {
     public PackageController(IServiceProvider serviceProvider) : base(serviceProvider)
     {

@@ -20,6 +20,7 @@ namespace Infrastructure.Security
         {
             List<Claim> claims = new List<Claim>
             {
+                new Claim(JwtRegisteredClaimNames.NameId, jwtInfo.UserName),
                 new Claim(AppClaimTypes.UserName, jwtInfo.UserName),
                 new Claim(AppClaimTypes.Type, jwtInfo.Type.ToString())
             };
