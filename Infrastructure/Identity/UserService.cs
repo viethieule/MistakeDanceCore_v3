@@ -1,11 +1,12 @@
 using System.Security.Claims;
+using Application.Common.Exceptions;
 using Application.Common.Interfaces;
 using Application.Common.Settings;
 using Application.Users;
+using Infrastructure.Security;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace Infrastructure.Identity
 {
@@ -74,7 +75,13 @@ namespace Infrastructure.Identity
                 throw new Exception("User is not logged in");
             }
 
-            ApplicationUser appUser = await _userManager.GetUserAsync(claimsPrincipal);
+            string userName = claimsPrincipal.FindFirst(AppClaimTypes.UserName)?.Value;
+            ApplicationUser appUser = await _userManager.FindByNameAsync(userName);
+            if (appUser == null)
+            {
+                throw new ServiceException(!string.IsNullOrEmpty(userName) ? $"User {userName} not exists" : "Invalid username");
+            }
+            
             return await ToAppServiceUser(appUser);
         }
 
