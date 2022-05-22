@@ -6,17 +6,23 @@ namespace Application.Branches
 {
     public class BranchDTC : DTCBase<Branch, BranchDTO>
     {
-        public BranchDTC(IMistakeDanceDbContext mistakeDanceDbContext) : base(mistakeDanceDbContext)
+        public BranchDTC(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext) : base(mistakeDanceDbContext, userContext)
         {
         }
 
         public async Task CreateAsync(BranchDTO dto)
         {
             Branch efo = MapFromDTO(dto);
+            
+            efo.CreatedBy = this.User.UserName;
+            efo.CreatedDate = DateTime.Now;
+            efo.UpdatedBy = this.User.UserName;
+            efo.UpdatedDate = DateTime.Now;
+
             await _mistakeDanceDbContext.Branches.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
-            dto.Id = efo.Id;
+            MapToDTO(efo, dto);
         }
 
         protected override void MapFromDTO(BranchDTO dto, Branch efo)

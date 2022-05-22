@@ -7,7 +7,7 @@ namespace Application.Schedules
 {
     public class ScheduleDTC : DTCBase<Schedule, ScheduleDTO>
     {
-        public ScheduleDTC(IMistakeDanceDbContext mistakeDanceDbContext) : base(mistakeDanceDbContext)
+        public ScheduleDTC(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext) : base(mistakeDanceDbContext, userContext)
         {
         }
 
@@ -25,10 +25,12 @@ namespace Application.Schedules
         internal async Task CreateAsync(ScheduleDTO dto)
         {
             Schedule efo = MapFromDTO(dto);
+            AuditOnCreate(efo);
+
             await _mistakeDanceDbContext.Schedules.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
-            dto.Id = efo.Id;
+            MapToDTO(efo, dto);
         }
 
         internal async Task DeleteAsync(ScheduleDTO dto)
@@ -49,7 +51,9 @@ namespace Application.Schedules
             }
 
             Schedule efo = MapFromDTO(dto);
+            
             _mistakeDanceDbContext.Schedules.Attach(efo);
+            AuditOnUpdate(efo);
             _mistakeDanceDbContext.Entry(efo).State = EntityState.Modified;
 
             await _mistakeDanceDbContext.SaveChangesAsync();
@@ -104,6 +108,11 @@ namespace Application.Schedules
             {
                 dto.ClassName = efo.Class.Name;
             }
+
+            dto.CreatedDate = efo.CreatedDate;
+            dto.CreatedBy = efo.CreatedBy;
+            dto.UpdatedDate = efo.UpdatedDate;
+            dto.UpdatedBy = efo.UpdatedBy;
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Application.Registrations
 {
     public class RegistrationDTC : DTCBase<Registration, RegistrationDTO>
     {
-        public RegistrationDTC(IMistakeDanceDbContext mistakeDanceDbContext) : base(mistakeDanceDbContext)
+        public RegistrationDTC(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext) : base(mistakeDanceDbContext, userContext)
         {
         }
 

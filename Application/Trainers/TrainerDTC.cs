@@ -6,7 +6,7 @@ namespace Application.Trainers
 {
     public class TrainerDTC : DTCBase<Trainer, TrainerDTO>
     {
-        public TrainerDTC(IMistakeDanceDbContext mistakeDanceDbContext) : base(mistakeDanceDbContext)
+        public TrainerDTC(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext) : base(mistakeDanceDbContext, userContext)
         {
         }
 

@@ -1,5 +1,6 @@
 using Application.Branches;
 using Application.Classes;
+using Application.Common.Interfaces;
 using Application.DefaultPackages;
 using Application.Members;
 using Application.Memberships;
@@ -14,18 +15,18 @@ namespace Application.UnitTests.Common;
 
 public class DTCCollection
 {
-    public DTCCollection(MistakeDanceDbContext context)
+    public DTCCollection(MistakeDanceDbContext context, IUserContext userContext)
     {
-        BranchDTC = new(context);
-        ClassDTC = new(context);
-        DefaultPackageDTC = new(context);
-        MemberDTC = new(context);
-        MembershipDTC = new(context);
-        PackageDTC = new(context, DefaultPackageDTC);
-        RegistrationDTC = new(context);
-        ScheduleDTC = new(context);
-        SessionDTC = new(context);
-        TrainerDTC = new(context);
+        BranchDTC = new(context, userContext);
+        ClassDTC = new(context, userContext);
+        DefaultPackageDTC = new(context, userContext);
+        MemberDTC = new(context, userContext);
+        MembershipDTC = new(context, userContext);
+        PackageDTC = new(context, userContext, DefaultPackageDTC);
+        RegistrationDTC = new(context, userContext);
+        ScheduleDTC = new(context, userContext);
+        SessionDTC = new(context, userContext);
+        TrainerDTC = new(context, userContext);
     }
 
     public readonly BranchDTC BranchDTC;

@@ -39,6 +39,8 @@ namespace Infrastructure
             serviceCollection.AddScoped<IJwtManager, JwtManager>();
             serviceCollection.AddScoped<IRefreshTokenManager, RefreshTokenManager>();
 
+            serviceCollection.AddScoped<IUserContext, UserContext>();
+
             return serviceCollection;
         }
     }

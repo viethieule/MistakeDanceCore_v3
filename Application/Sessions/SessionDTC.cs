@@ -9,7 +9,7 @@ namespace Application.Sessions
 {
     public class SessionDTC : DTCBase<Session, SessionDTO>
     {
-        public SessionDTC(IMistakeDanceDbContext mistakeDanceDbContext) : base(mistakeDanceDbContext)
+        public SessionDTC(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext) : base(mistakeDanceDbContext, userContext)
         {
         }
 

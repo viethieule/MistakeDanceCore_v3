@@ -41,6 +41,8 @@ public class CreateScheduleTests : TestBase
         Assert.True(expectedSessionDates.All(date => sessions.Any(session => session.Date == date)));
 
         Assert.NotEqual(0, schedule.Id);
+
+        Assert.Equal(TEST_USER_NAME, schedule.CreatedBy);
     }
 
     [Fact]

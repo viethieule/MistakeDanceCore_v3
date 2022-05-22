@@ -1,8 +1,11 @@
 using System.Text;
 using Application;
+using Application.Common.Interfaces;
 using Application.Common.Settings;
 using Application.SeedData;
+using Application.Users;
 using Infrastructure;
+using Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -62,6 +65,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.JwtSigningKey)),
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async ctx =>
+            {
+                string userName = ctx.Principal.FindFirst(AppClaimTypes.UserName)?.Value;
+                User user = await ctx.HttpContext.RequestServices.GetRequiredService<IUserService>().FindByUsernameAsync(userName);
+                ctx.HttpContext.Items["User"] = user;
+            }
         };
     });
 

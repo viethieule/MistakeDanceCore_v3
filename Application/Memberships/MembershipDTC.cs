@@ -7,7 +7,7 @@ namespace Application.Memberships
 {
     public class MembershipDTC : DTCBase<Membership, MembershipDTO>
     {
-        public MembershipDTC(IMistakeDanceDbContext mistakeDanceDbContext) : base(mistakeDanceDbContext)
+        public MembershipDTC(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext) : base(mistakeDanceDbContext, userContext)
         {
         }
 

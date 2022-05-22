@@ -19,6 +19,6 @@ namespace Application.Common.Interfaces
         DbSet<DefaultPackage> DefaultPackages { get; set; }
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
         DatabaseFacade Database { get; }
-        EntityEntry Entry(object entity);
+        EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
     }
 }

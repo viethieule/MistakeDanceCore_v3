@@ -10,8 +10,8 @@ namespace Application.Packages
     {
         private readonly DefaultPackageDTC _defaultPackageDTC;
 
-        public PackageDTC(IMistakeDanceDbContext mistakeDanceDbContext,
-            DefaultPackageDTC defaultPackageDTC) : base(mistakeDanceDbContext)
+        public PackageDTC(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext,
+            DefaultPackageDTC defaultPackageDTC) : base(mistakeDanceDbContext, userContext)
         {
             _defaultPackageDTC = defaultPackageDTC;
         }

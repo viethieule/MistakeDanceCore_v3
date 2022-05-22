@@ -7,7 +7,7 @@ namespace Application.DefaultPackages
 {
     public class DefaultPackageDTC : DTCBase<DefaultPackage, DefaultPackageDTO>
     {
-        public DefaultPackageDTC(IMistakeDanceDbContext mistakeDanceDbContext) : base(mistakeDanceDbContext)
+        public DefaultPackageDTC(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext) : base(mistakeDanceDbContext, userContext)
         {
         }
 
