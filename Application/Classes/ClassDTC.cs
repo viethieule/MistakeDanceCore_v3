@@ -13,6 +13,7 @@ namespace Application.Classes
         public async Task CreateAsync(ClassDTO dto)
         {
             Class efo = MapFromDTO(dto);
+            this.AuditOnCreate(efo);
             await _mistakeDanceDbContext.Classes.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 

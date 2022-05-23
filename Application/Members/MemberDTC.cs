@@ -43,6 +43,8 @@ namespace Application.Members
         {
             Member efo = MapFromDTO(dto);
 
+            this.AuditOnCreate(efo);
+
             await _mistakeDanceDbContext.Members.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 

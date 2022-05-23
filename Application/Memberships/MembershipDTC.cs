@@ -47,6 +47,7 @@ namespace Application.Memberships
         internal async Task CreateAsync(MembershipDTO dto)
         {
             Membership efo = MapFromDTO(dto);
+            this.AuditOnCreate(efo);
 
             await _mistakeDanceDbContext.Memberships.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
@@ -57,6 +58,7 @@ namespace Application.Memberships
             Membership efo = MapFromDTO(dto);
             
             _mistakeDanceDbContext.Memberships.Attach(efo);
+            this.AuditOnUpdate(efo);
             _mistakeDanceDbContext.Entry(efo).State = EntityState.Modified;
 
             await _mistakeDanceDbContext.SaveChangesAsync();

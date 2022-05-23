@@ -55,6 +55,7 @@ namespace Application.Packages
             }
 
             Package efo = MapFromDTO(dto);
+            this.AuditOnCreate(efo);
             await _mistakeDanceDbContext.Packages.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 

@@ -10,7 +10,6 @@ namespace Application.Common
     {
         private readonly IUserContext _userContext;
         protected readonly IMistakeDanceDbContext _mistakeDanceDbContext;
-        private IMistakeDanceDbContext mistakeDanceDbContext;
 
         protected User User => _userContext.User;
 

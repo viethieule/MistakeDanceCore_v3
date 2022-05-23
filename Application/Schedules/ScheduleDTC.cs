@@ -25,7 +25,7 @@ namespace Application.Schedules
         internal async Task CreateAsync(ScheduleDTO dto)
         {
             Schedule efo = MapFromDTO(dto);
-            AuditOnCreate(efo);
+            this.AuditOnCreate(efo);
 
             await _mistakeDanceDbContext.Schedules.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
@@ -53,7 +53,7 @@ namespace Application.Schedules
             Schedule efo = MapFromDTO(dto);
             
             _mistakeDanceDbContext.Schedules.Attach(efo);
-            AuditOnUpdate(efo);
+            this.AuditOnUpdate(efo);
             _mistakeDanceDbContext.Entry(efo).State = EntityState.Modified;
 
             await _mistakeDanceDbContext.SaveChangesAsync();

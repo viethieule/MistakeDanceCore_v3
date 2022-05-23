@@ -47,6 +47,10 @@ namespace Application.Registrations
             dto.SessionId = efo.SessionId;
             dto.MemberId = efo.MemberId;
             dto.Status = efo.Status;
+            dto.CreatedDate = efo.CreatedDate;
+            dto.CreatedBy = efo.CreatedBy;
+            dto.UpdatedDate = efo.UpdatedDate;
+            dto.UpdatedBy = efo.UpdatedBy;
         }
 
         internal async Task<RegistrationDTO> SingleByIdAsync(int id)
@@ -67,12 +71,12 @@ namespace Application.Registrations
 
         internal async Task CreateAsync(RegistrationDTO registrationDTO)
         {
-            Registration registration = MapFromDTO(registrationDTO);
-
-            await _mistakeDanceDbContext.Registrations.AddAsync(registration);
+            Registration efo = MapFromDTO(registrationDTO);
+            this.AuditOnCreate(efo);
+            await _mistakeDanceDbContext.Registrations.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
-            registrationDTO.Id = registration.Id;
+            registrationDTO.Id = efo.Id;
         }
 
         internal async Task DeleteAsync(RegistrationDTO dto)

@@ -46,6 +46,7 @@ namespace Application.Sessions
         internal async Task CreateAsync(SessionDTO dto)
         {
             Session efo = MapFromDTO(dto);
+            this.AuditOnCreate(efo);
             await _mistakeDanceDbContext.Sessions.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
@@ -82,6 +83,7 @@ namespace Application.Sessions
             {
                 Session efo = MapFromDTO(dto);
                 _mistakeDanceDbContext.Sessions.Attach(efo);
+                this.AuditOnUpdate(efo);
             }
 
             await _mistakeDanceDbContext.SaveChangesAsync();

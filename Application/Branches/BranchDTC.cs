@@ -13,12 +13,7 @@ namespace Application.Branches
         public async Task CreateAsync(BranchDTO dto)
         {
             Branch efo = MapFromDTO(dto);
-            
-            efo.CreatedBy = this.User.UserName;
-            efo.CreatedDate = DateTime.Now;
-            efo.UpdatedBy = this.User.UserName;
-            efo.UpdatedDate = DateTime.Now;
-
+            this.AuditOnCreate(efo);
             await _mistakeDanceDbContext.Branches.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
