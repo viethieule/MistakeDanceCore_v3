@@ -1,4 +1,5 @@
 using Application.Common.Interfaces;
+using Application.Users;
 
 namespace Application.Common
 {
@@ -7,6 +8,7 @@ namespace Application.Common
         where TRs : BaseResponse
     {
         private readonly IUserContext _userContext;
+        protected User User => _userContext.User;
         public AuthenticatedService(IUserContext userContext)
         {
             _userContext = userContext;

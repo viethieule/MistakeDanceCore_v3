@@ -21,23 +21,20 @@ namespace Application.Registrations
     {
         private readonly MembershipDTC _membershipDTC;
         private readonly RegistrationDTC _registrationDTC;
-        private readonly IUserService _userService;
         private readonly MemberDTC _memberDTC;
 
-        public CreateRegistrationService(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext, MembershipDTC membershipDTC, RegistrationDTC registrationDTC, MemberDTC memberDTC, IUserService userService) : base(mistakeDanceDbContext, userContext)
+        public CreateRegistrationService(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext, MembershipDTC membershipDTC, RegistrationDTC registrationDTC, MemberDTC memberDTC) : base(mistakeDanceDbContext, userContext)
         {
             _memberDTC = memberDTC;
-            _userService = userService;
             _registrationDTC = registrationDTC;
             _membershipDTC = membershipDTC;
         }
 
         protected override async Task<CreateRegistrationRs> RunTransactionalAsync(CreateRegistrationRq rq)
         {
-            User user = await _userService.GetCurrentUser();
             MemberDTO member = await _memberDTC.SingleByIdAsync(rq.MemberId);
 
-            if (user.RoleName == RoleName.Member && rq.MemberId != member.Id)
+            if (this.User.RoleName == RoleName.Member && rq.MemberId != member.Id)
             {
                 throw new Exception();
             }

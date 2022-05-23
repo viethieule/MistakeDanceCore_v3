@@ -15,23 +15,20 @@ namespace Application.Packages
         public List<PackageDTO> Packages { get; set; }
     }
 
-    public class ListPackageByMemberService : BaseService<ListPackageByMemberRq, ListPackageByMemberRs>
+    public class ListPackageByMemberService : AuthenticatedService<ListPackageByMemberRq, ListPackageByMemberRs>
     {
-        private readonly IUserService _userService;
         private readonly MemberDTC _memberDTC;
         private readonly PackageDTC _packageDTC;
-        public ListPackageByMemberService(IUserService userService, MemberDTC memberDTC, PackageDTC packageDTC)
+        public ListPackageByMemberService(IUserContext userContext, MemberDTC memberDTC, PackageDTC packageDTC) : base(userContext)
         {
             _packageDTC = packageDTC;
             _memberDTC = memberDTC;
-            _userService = userService;
         }
 
         protected override async Task<ListPackageByMemberRs> DoRunAsync(ListPackageByMemberRq rq)
         {
-            User user = await _userService.GetCurrentUser();
             MemberDTO member = await _memberDTC.SingleByIdAsync(rq.MemberId);
-            if (user.RoleName == RoleName.Member && user.Id == member.UserId)
+            if (this.User.RoleName == RoleName.Member && this.User.Id == member.UserId)
             {
                 throw new Exception("Not found");
             }

@@ -20,15 +20,13 @@ namespace Application.Registrations
     {
         private readonly MembershipDTC _membershipDTC;
         private readonly RegistrationDTC _registrationDTC;
-        private readonly IUserService _userService;
         private readonly MemberDTC _memberDTC;
         private readonly SessionDTC _sessionDTC;
 
-        public CancelRegistrationService(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext, MembershipDTC membershipDTC, RegistrationDTC registrationDTC, MemberDTC memberDTC, SessionDTC sessionDTC, IUserService userService) : base(mistakeDanceDbContext, userContext)
+        public CancelRegistrationService(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext, MembershipDTC membershipDTC, RegistrationDTC registrationDTC, MemberDTC memberDTC, SessionDTC sessionDTC) : base(mistakeDanceDbContext, userContext)
         {
             _sessionDTC = sessionDTC;
             _memberDTC = memberDTC;
-            _userService = userService;
             _registrationDTC = registrationDTC;
             _membershipDTC = membershipDTC;
         }
@@ -37,10 +35,9 @@ namespace Application.Registrations
         {
             RegistrationDTO registration = await _registrationDTC.SingleByIdAsync(rq.RegistrationId);
 
-            User user = await _userService.GetCurrentUser();
             MemberDTO member = await _memberDTC.SingleByIdAsync(registration.MemberId);
 
-            bool isMember = user.RoleName == RoleName.Member;
+            bool isMember = this.User.RoleName == RoleName.Member;
             if (isMember && registration.MemberId != member.Id)
             {
                 throw new Exception();
