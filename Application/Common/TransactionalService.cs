@@ -2,12 +2,12 @@ using Application.Common.Interfaces;
 
 namespace Application.Common
 {
-    public abstract class TransactionalService<TRq, TRs> : BaseService<TRq, TRs>
+    public abstract class TransactionalService<TRq, TRs> : AuthenticatedService<TRq, TRs>
         where TRq : BaseRequest
         where TRs : BaseResponse
     {
         private readonly IMistakeDanceDbContext _mistakeDanceDbContext;
-        public TransactionalService(IMistakeDanceDbContext mistakeDanceDbContext)
+        public TransactionalService(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext) : base(userContext)
         {
             _mistakeDanceDbContext = mistakeDanceDbContext;
         }

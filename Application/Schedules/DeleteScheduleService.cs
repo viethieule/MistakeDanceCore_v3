@@ -25,10 +25,11 @@ namespace Application.Schedules
 
         public DeleteScheduleService(
             IMistakeDanceDbContext mistakeDanceDbContext,
+            IUserContext userContext,
             ScheduleDTC scheduleDTC,
             SessionDTC sessionDTC,
             RegistrationDTC registrationDTC,
-            MembershipDTC membershipDTC) : base(mistakeDanceDbContext)
+            MembershipDTC membershipDTC) : base(mistakeDanceDbContext, userContext)
         {
             _scheduleDTC = scheduleDTC;
             _sessionDTC = sessionDTC;

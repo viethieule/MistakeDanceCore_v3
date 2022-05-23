@@ -26,12 +26,13 @@ namespace Application.Sessions
 
         public DeleteSessionService(
             IMistakeDanceDbContext mistakeDanceDbContext,
+            IUserContext userContext,
             ScheduleDTC scheduleDTC,
             SessionDTC sessionDTC,
             PackageDTC packageDTC,
             MembershipDTC membershipDTC,
             RegistrationDTC registrationDTC,
-            DeleteScheduleService deleteScheduleService) : base(mistakeDanceDbContext)
+            DeleteScheduleService deleteScheduleService) : base(mistakeDanceDbContext, userContext)
         {
             _scheduleDTC = scheduleDTC;
             _sessionDTC = sessionDTC;

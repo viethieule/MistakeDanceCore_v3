@@ -17,7 +17,7 @@ namespace Application.Packages
     {
         private readonly PackageDTC _packageDTC;
         private readonly MembershipDTC _membershipDTC;
-        public AddPackageService(IMistakeDanceDbContext mistakeDanceDbContext, PackageDTC packageDTC, MembershipDTC membershipDTC) : base(mistakeDanceDbContext)
+        public AddPackageService(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext, PackageDTC packageDTC, MembershipDTC membershipDTC) : base(mistakeDanceDbContext, userContext)
         {
             _membershipDTC = membershipDTC;
             _packageDTC = packageDTC;

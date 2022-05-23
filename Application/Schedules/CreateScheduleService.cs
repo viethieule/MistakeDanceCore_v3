@@ -29,11 +29,12 @@ namespace Application.Schedules
 
         public CreateScheduleService(
             IMistakeDanceDbContext mistakeDanceDbContext,
+            IUserContext userContext,
             BranchDTC branchDTC,
             TrainerDTC trainerDTC,
             ClassDTC classDTC,
             ScheduleDTC scheduleDTC,
-            SessionDTC sessionDTC) : base(mistakeDanceDbContext)
+            SessionDTC sessionDTC) : base(mistakeDanceDbContext, userContext)
         {
             _branchDTC = branchDTC;
             _trainerDTC = trainerDTC;

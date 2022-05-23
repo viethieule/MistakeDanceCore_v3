@@ -28,7 +28,7 @@ public class CreateScheduleTests : TestBase
         };
 
         var createScheduleService = new CreateScheduleService(
-            _context, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
+            _context, _userContextMock.Object, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
             _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC, _dtcCollection.SessionDTC
         );
 
@@ -66,7 +66,7 @@ public class CreateScheduleTests : TestBase
         };
 
         var createScheduleService = new CreateScheduleService(
-            _context, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
+            _context, _userContextMock.Object, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
             _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC, _dtcCollection.SessionDTC
         );
 

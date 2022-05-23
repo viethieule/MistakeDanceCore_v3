@@ -24,7 +24,7 @@ namespace Application.Registrations
         private readonly MemberDTC _memberDTC;
         private readonly SessionDTC _sessionDTC;
 
-        public CancelRegistrationService(IMistakeDanceDbContext mistakeDanceDbContext, MembershipDTC membershipDTC, RegistrationDTC registrationDTC, MemberDTC memberDTC, SessionDTC sessionDTC, IUserService userService) : base(mistakeDanceDbContext)
+        public CancelRegistrationService(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext, MembershipDTC membershipDTC, RegistrationDTC registrationDTC, MemberDTC memberDTC, SessionDTC sessionDTC, IUserService userService) : base(mistakeDanceDbContext, userContext)
         {
             _sessionDTC = sessionDTC;
             _memberDTC = memberDTC;

@@ -1,4 +1,5 @@
 using Application.Common;
+using Application.Common.Interfaces;
 
 namespace Application.Members
 {
@@ -18,10 +19,10 @@ namespace Application.Members
         public List<MemberDTO> Members { get; set; }
     }
 
-    public class GetMembersService : BaseService<GetMembersRq, GetMembersRs>
+    public class GetMembersService : AuthenticatedService<GetMembersRq, GetMembersRs>
     {
         private readonly MemberDTC _memberDTC;
-        public GetMembersService(MemberDTC memberDTC)
+        public GetMembersService(IUserContext userContext, MemberDTC memberDTC) : base(userContext)
         {
             _memberDTC = memberDTC;
 

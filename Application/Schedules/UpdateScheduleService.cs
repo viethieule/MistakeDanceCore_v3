@@ -39,6 +39,7 @@ namespace Application.Schedules
 
         public UpdateScheduleService(
             IMistakeDanceDbContext mistakeDanceDbContext,
+            IUserContext userContext,
             BranchDTC branchDTC,
             TrainerDTC trainerDTC,
             ClassDTC classDTC,
@@ -46,7 +47,7 @@ namespace Application.Schedules
             SessionDTC sessionDTC,
             RegistrationDTC registrationDTC,
             PackageDTC packageDTC,
-            MembershipDTC membershipDTC) : base(mistakeDanceDbContext)
+            MembershipDTC membershipDTC) : base(mistakeDanceDbContext, userContext)
         {
             _branchDTC = branchDTC;
             _trainerDTC = trainerDTC;

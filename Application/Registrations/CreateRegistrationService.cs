@@ -24,7 +24,7 @@ namespace Application.Registrations
         private readonly IUserService _userService;
         private readonly MemberDTC _memberDTC;
 
-        public CreateRegistrationService(IMistakeDanceDbContext mistakeDanceDbContext, MembershipDTC membershipDTC, RegistrationDTC registrationDTC, MemberDTC memberDTC, IUserService userService) : base(mistakeDanceDbContext)
+        public CreateRegistrationService(IMistakeDanceDbContext mistakeDanceDbContext, IUserContext userContext, MembershipDTC membershipDTC, RegistrationDTC registrationDTC, MemberDTC memberDTC, IUserService userService) : base(mistakeDanceDbContext, userContext)
         {
             _memberDTC = memberDTC;
             _userService = userService;

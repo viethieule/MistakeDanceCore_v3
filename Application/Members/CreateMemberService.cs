@@ -28,11 +28,12 @@ namespace Application.Members
 
         public CreateMemberService(
             IMistakeDanceDbContext mistakeDanceDbContext,
+            IUserContext userContext,
             IUserService userService,
             IUsernameGenerator usernameGenerator,
             MemberDTC memberDTC,
             PackageDTC packageDTC,
-            MembershipDTC membershipDTC) : base(mistakeDanceDbContext)
+            MembershipDTC membershipDTC) : base(mistakeDanceDbContext, userContext)
         {
             _userService = userService;
             _usernameGenerator = usernameGenerator;
