@@ -32,14 +32,9 @@ namespace Application.Schedules
             RuleFor(x => x.Song).NotEmpty();
             RuleFor(x => x.StartTime).NotNull();
             RuleFor(x => x.OpeningDate).NotNull();
-            
-            When(x => x.DaysPerWeek.Count > 0, () =>
-            {
-                RuleFor(x => x.OpeningDate)
-                    .Must((rq, x) => rq.DaysPerWeek.Contains(x.DayOfWeek));
-                
-                RuleFor(x => x.TotalSessions).NotNull().NotEqual(0);
-            });
+            RuleFor(x => x.DaysPerWeek).NotEmpty();
+
+            RuleFor(x => x.OpeningDate).Must((rq, x) => rq.DaysPerWeek.Contains(x.DayOfWeek));
 
             When(x => x.TotalSessions.HasValue, () =>
             {

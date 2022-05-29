@@ -8,6 +8,13 @@ namespace Application.UnitTests.Schedules;
 
 public class CreateScheduleTests : TestBase
 {
+    //
+    //  Test cases:
+    //  1/ [Theory] Create with correct (TotalSessions + DaysPerWeek + OpeningDate): expect correct sessions date
+    //  2/ [Theory]  Create with correct (DaysPerWeek + OpeningDate) without TotalSessions: expect correct sessions date
+    //  3/ [Theory] Create: expect correct field values inserted
+    //  4/ [Theory] or [Multiple test cases] Create tests with all rules in ScheduleValidators
+    //
     [Fact]
     public async Task Handle_GivenScheduleForm_CreatesSchedule()
     {
@@ -65,14 +72,19 @@ public class CreateScheduleTests : TestBase
             }
         };
 
-        var createScheduleService = new CreateScheduleService(
-            _context, _userContextMock.Object, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
-            _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC, _dtcCollection.SessionDTC
-        );
+        var createScheduleService = GetCreateScheduleService();
 
         await Assert.ThrowsAsync<ServiceException>(async () =>
         {
             await createScheduleService.RunAsync(rq);
         });
+    }
+
+    private CreateScheduleService GetCreateScheduleService()
+    {
+        return new CreateScheduleService(
+            _context, _userContextMock.Object, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
+            _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC, _dtcCollection.SessionDTC
+        );
     }
 }
