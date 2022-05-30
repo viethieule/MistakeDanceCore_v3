@@ -16,10 +16,10 @@ namespace Application.Common.Helpers
 
             DateTime date = schedule.OpeningDate;
             int totalSessions = schedule.TotalSessions.Value;
-            List<DayOfWeek> daysPerWeek = schedule.DaysPerWeek;
+            List<DayOfWeek> daysPerWeek = schedule.DaysPerWeek.OrderBy(x => x).ToList();
 
             // To be validate when create / update schedule DTO
-            int startIndex = Array.IndexOf(schedule.DaysPerWeek.ToArray(), date.DayOfWeek);
+            int startIndex = Array.IndexOf(daysPerWeek.ToArray(), date.DayOfWeek);
             if (startIndex == -1)
             {
                 return new List<SessionDTO>();

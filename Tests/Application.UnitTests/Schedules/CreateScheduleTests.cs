@@ -15,10 +15,42 @@ public class CreateScheduleTests : TestBase
     //  3/ [Theory] Create: expect correct field values inserted
     //  4/ [Theory] or [Multiple test cases] Create tests with all rules in ScheduleValidators
     //
-    [Fact]
-    public async Task Handle_GivenCorrectTimeInput_CreatesSchedule_WithCorrectSessions()
+
+    [Theory]
+    [InlineData
+    (
+        // Inputs
+        "2022-06-01", 4, new DayOfWeek[] { DayOfWeek.Wednesday, DayOfWeek.Saturday },
+        // Expected
+        new string[] { "2022-06-01", "2022-06-04", "2022-06-08", "2022-06-11" }
+    )]
+    [InlineData
+    (
+        // Inputs
+        "2022-06-01", 3, new DayOfWeek[] { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
+        // Expected
+        new string[] { "2022-06-01", "2022-06-03", "2022-06-06" }
+    )]
+    [InlineData
+    (
+        // Inputs
+        "2022-06-01", 1, new DayOfWeek[] { DayOfWeek.Wednesday },
+        // Expected
+        new string[] { "2022-06-01" }
+    )]
+    [InlineData
+    (
+        // Inputs
+        "2022-06-04", 5, new DayOfWeek[] { DayOfWeek.Saturday, DayOfWeek.Sunday },
+        // Expected
+        new string[] { "2022-06-04", "2022-06-05", "2022-06-11", "2022-06-12", "2022-06-18" }
+    )]
+    // Create with correct (TotalSessions + DaysPerWeek + OpeningDate): expect correct sessions date
+    public async Task Handle_GivenCorrectTimeInput_CreatesSchedule_WithCorrectSessions(
+        DateTime openingDate, int totalSessions, DayOfWeek[] daysPerWeek, 
+        string[] expectedSessionDateStrings
+    )
     {
-        DateTime openingDate = new DateTime(2022, 5, 9);
         CreateScheduleRq rq = new CreateScheduleRq()
         {
             Schedule = new()
@@ -28,25 +60,69 @@ public class CreateScheduleTests : TestBase
                 BranchName = "Test branch",
                 ClassName = "Test class",
                 TrainerName = "Test trainer",
-                TotalSessions = 3,
-                DaysPerWeek = new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
+                TotalSessions = totalSessions,
+                DaysPerWeek = daysPerWeek.ToList(),
                 OpeningDate = openingDate
-            }            
+            }
         };
 
         CreateScheduleService createScheduleService = GetCreateScheduleService();
 
         CreateScheduleRs rs = await createScheduleService.RunAsync(rq);
-        ScheduleDTO schedule = rq.Schedule;
         List<SessionDTO> sessions = rs.Sessions;
 
-        Assert.Equal(3, sessions.Count);
-        List<DateTime> expectedSessionDates = new List<DateTime> { openingDate, openingDate.AddDays(2), openingDate.AddDays(4) };
-        Assert.True(expectedSessionDates.All(date => sessions.Any(session => session.Date == date)));
+        List<DateTime> expectedSessionDates = expectedSessionDateStrings.Select(x => DateTime.Parse(x)).ToList();
 
-        Assert.NotEqual(0, schedule.Id);
+        Assert.Equal(totalSessions, sessions.Count);
+        Assert.True(expectedSessionDates.ToList().All(date => sessions.Any(session => session.Date == date)));
+    }
 
-        Assert.Equal(TEST_USER_NAME, schedule.CreatedBy);
+    [Theory]
+    [InlineData
+    (
+        "2022-06-04",
+        new DayOfWeek[] { DayOfWeek.Saturday, DayOfWeek.Sunday },
+        "2022-06-04"
+    )]
+    [InlineData
+    (
+        "2022-06-05",
+        new DayOfWeek[] { DayOfWeek.Saturday, DayOfWeek.Sunday },
+        "2022-06-05"
+    )]
+    [InlineData
+    (
+        "2022-06-01",
+        new DayOfWeek[] { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
+        "2022-06-01"
+    )]
+    // Create with correct (DaysPerWeek + OpeningDate) without TotalSessions: expect 1 session
+    public async Task Handle_GivenCorrectTimeInput_WithoutTotalSession_CreatesSchedule_WithCorrectSessions(
+        DateTime openingDate, DayOfWeek[] daysPerWeek, DateTime expectedOneSessionDate
+    )
+    {
+        CreateScheduleRq rq = new CreateScheduleRq()
+        {
+            Schedule = new()
+            {
+                Song = "Test song",
+                StartTime = new TimeSpan(9, 0, 0),
+                BranchName = "Test branch",
+                ClassName = "Test class",
+                TrainerName = "Test trainer",
+                TotalSessions = null,
+                DaysPerWeek = daysPerWeek.ToList(),
+                OpeningDate = openingDate
+            }
+        };
+
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
+
+        CreateScheduleRs rs = await createScheduleService.RunAsync(rq);
+        List<SessionDTO> sessions = rs.Sessions;
+
+        Assert.Equal(1, sessions.Count);
+        Assert.Equal(expectedOneSessionDate, sessions.First().Date);
     }
 
     [Fact]
@@ -55,17 +131,7 @@ public class CreateScheduleTests : TestBase
         DateTime openingDate = new DateTime(2022, 5, 9);
         CreateScheduleRq rq = new CreateScheduleRq()
         {
-            Schedule = new()
-            {
-                Song = "Test song",
-                StartTime = new TimeSpan(9, 0, 0),
-                BranchName = "Test branch",
-                ClassName = "Test class",
-                TrainerName = "Test trainer",
-                TotalSessions = 3,
-                DaysPerWeek = new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
-                OpeningDate = openingDate
-            }            
+            Schedule = PrepareScheduleDTO()
         };
 
         CreateScheduleService createScheduleService = GetCreateScheduleService();
@@ -74,16 +140,16 @@ public class CreateScheduleTests : TestBase
         ScheduleDTO schedule = rq.Schedule;
 
         Assert.NotEqual(0, schedule.Id);
-        Assert.Equal("Test song", schedule.Song);
-        Assert.Equal(9, schedule.StartTime.Hours);
-        Assert.Equal(0, schedule.StartTime.Minutes);
-        Assert.Equal(0, schedule.StartTime.Seconds);
-        Assert.Equal("Test branch", schedule.BranchName);
-        Assert.Equal("Test class", schedule.ClassName);
-        Assert.Equal("Test trainer", schedule.TrainerName);
-        Assert.Equal(3, schedule.TotalSessions);
-        Assert.Equal(3, schedule.DaysPerWeek.Count);
-        Assert.Equal(openingDate, schedule.OpeningDate);
+        Assert.Equal(rq.Schedule.Song, schedule.Song);
+        Assert.Equal(rq.Schedule.StartTime.Hours, schedule.StartTime.Hours);
+        Assert.Equal(rq.Schedule.StartTime.Minutes, schedule.StartTime.Minutes);
+        Assert.Equal(rq.Schedule.StartTime.Seconds, schedule.StartTime.Seconds);
+        Assert.Equal(rq.Schedule.BranchName, schedule.BranchName);
+        Assert.Equal(rq.Schedule.ClassName, schedule.ClassName);
+        Assert.Equal(rq.Schedule.TrainerName, schedule.TrainerName);
+        Assert.Equal(rq.Schedule.TotalSessions, schedule.TotalSessions);
+        Assert.Equal(rq.Schedule.DaysPerWeek.Count, schedule.DaysPerWeek.Count);
+        Assert.Equal(rq.Schedule.OpeningDate, schedule.OpeningDate);
         Assert.Equal(TEST_USER_NAME, schedule.CreatedBy);
         Assert.Equal(TEST_USER_NAME, schedule.UpdatedBy);
         Assert.Equal(DateTime.Now.Date, schedule.CreatedDate.Date);
@@ -97,18 +163,10 @@ public class CreateScheduleTests : TestBase
         DateTime openingDate = new DateTime(2022, 5, 9);
         CreateScheduleRq rq = new CreateScheduleRq()
         {
-            Schedule = new()
-            {
-                Song = string.Empty,
-                StartTime = new TimeSpan(9, 0, 0),
-                BranchName = "Test branch",
-                ClassName = "Test class",
-                TrainerName = "Test trainer",
-                TotalSessions = 3,
-                DaysPerWeek = new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
-                OpeningDate = openingDate
-            }
+            Schedule = PrepareScheduleDTO()
         };
+
+        rq.Schedule.Song = string.Empty;
 
         CreateScheduleService createScheduleService = GetCreateScheduleService();
 
@@ -116,6 +174,21 @@ public class CreateScheduleTests : TestBase
         {
             await createScheduleService.RunAsync(rq);
         });
+    }
+
+    private ScheduleDTO PrepareScheduleDTO()
+    {
+        return new ScheduleDTO
+        {
+            Song = "Test song",
+            StartTime = new TimeSpan(9, 0, 0),
+            BranchName = "Test branch",
+            ClassName = "Test class",
+            TrainerName = "Test trainer",
+            OpeningDate = new(2022, 5, 9),
+            DaysPerWeek = new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
+            TotalSessions = 3,
+        };
     }
 
     private CreateScheduleService GetCreateScheduleService()
