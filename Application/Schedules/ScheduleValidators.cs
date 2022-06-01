@@ -30,11 +30,14 @@ namespace Application.Schedules
         public ScheduleValidator()
         {
             RuleFor(x => x.Song).NotEmpty();
-            RuleFor(x => x.StartTime).NotNull();
-            RuleFor(x => x.OpeningDate).NotNull();
+            RuleFor(x => x.StartTime).NotEqual(TimeSpan.Zero);
+            RuleFor(x => x.OpeningDate).NotEqual(DateTime.MinValue);
             RuleFor(x => x.DaysPerWeek).NotEmpty();
 
-            RuleFor(x => x.OpeningDate).Must((rq, x) => rq.DaysPerWeek.Contains(x.DayOfWeek));
+            When(x => x.DaysPerWeek != null, () =>
+            {
+                RuleFor(x => x.OpeningDate).Must((rq, x) => rq.DaysPerWeek.Contains(x.DayOfWeek));
+            });
 
             When(x => x.TotalSessions.HasValue, () =>
             {

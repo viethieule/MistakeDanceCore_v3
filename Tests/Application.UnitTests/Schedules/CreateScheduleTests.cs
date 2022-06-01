@@ -53,18 +53,12 @@ public class CreateScheduleTests : TestBase
     {
         CreateScheduleRq rq = new CreateScheduleRq()
         {
-            Schedule = new()
-            {
-                Song = "Test song",
-                StartTime = new TimeSpan(9, 0, 0),
-                BranchName = "Test branch",
-                ClassName = "Test class",
-                TrainerName = "Test trainer",
-                TotalSessions = totalSessions,
-                DaysPerWeek = daysPerWeek.ToList(),
-                OpeningDate = openingDate
-            }
+            Schedule = PrepareScheduleDTO()
         };
+
+        rq.Schedule.TotalSessions = totalSessions;
+        rq.Schedule.DaysPerWeek = daysPerWeek.ToList();
+        rq.Schedule.OpeningDate = openingDate;
 
         CreateScheduleService createScheduleService = GetCreateScheduleService();
 
@@ -103,25 +97,19 @@ public class CreateScheduleTests : TestBase
     {
         CreateScheduleRq rq = new CreateScheduleRq()
         {
-            Schedule = new()
-            {
-                Song = "Test song",
-                StartTime = new TimeSpan(9, 0, 0),
-                BranchName = "Test branch",
-                ClassName = "Test class",
-                TrainerName = "Test trainer",
-                TotalSessions = null,
-                DaysPerWeek = daysPerWeek.ToList(),
-                OpeningDate = openingDate
-            }
+            Schedule = PrepareScheduleDTO()
         };
+
+        rq.Schedule.TotalSessions = null;
+        rq.Schedule.DaysPerWeek = daysPerWeek.ToList();
+        rq.Schedule.OpeningDate = openingDate;
 
         CreateScheduleService createScheduleService = GetCreateScheduleService();
 
         CreateScheduleRs rs = await createScheduleService.RunAsync(rq);
         List<SessionDTO> sessions = rs.Sessions;
 
-        Assert.Equal(1, sessions.Count);
+        Assert.Single(sessions);
         Assert.Equal(expectedOneSessionDate, sessions.First().Date);
     }
 
@@ -156,9 +144,18 @@ public class CreateScheduleTests : TestBase
         Assert.Equal(DateTime.Now.Date, schedule.UpdatedDate.Date);
     }
 
-    [Fact]
-    // TODO: Change to theory with inline data
-    public async Task Handle_GivenScheduleForm_WithoutSong_ThrowException()
+    public static IEnumerable<object[]> RequiredFieldData =>
+        new List<object[]>
+        {
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.Song)) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.StartTime)) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.OpeningDate)) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.DaysPerWeek)) },
+        };
+
+    [Theory]
+    [MemberData(nameof(RequiredFieldData))]
+    public async Task Handle_GivenScheduleForm_WithoutRequiredProperty_ThrowException(Func<ScheduleDTO, string> func)
     {
         DateTime openingDate = new DateTime(2022, 5, 9);
         CreateScheduleRq rq = new CreateScheduleRq()
@@ -166,7 +163,8 @@ public class CreateScheduleTests : TestBase
             Schedule = PrepareScheduleDTO()
         };
 
-        rq.Schedule.Song = string.Empty;
+        string propertyName = func.Invoke(rq.Schedule);
+        rq.Schedule.GetType().GetProperty(propertyName)!.SetValue(rq.Schedule, null);
 
         CreateScheduleService createScheduleService = GetCreateScheduleService();
 
