@@ -30,8 +30,8 @@ namespace Application.Schedules
         public ScheduleValidator()
         {
             RuleFor(x => x.Song).NotEmpty();
-            RuleFor(x => x.StartTime).NotEqual(TimeSpan.Zero);
-            RuleFor(x => x.OpeningDate).NotEqual(DateTime.MinValue);
+            RuleFor(x => x.StartTime).NotEqual(default(TimeSpan));
+            RuleFor(x => x.OpeningDate).NotEqual(default(DateTime));
             RuleFor(x => x.DaysPerWeek).NotEmpty();
 
             When(x => x.DaysPerWeek != null, () =>

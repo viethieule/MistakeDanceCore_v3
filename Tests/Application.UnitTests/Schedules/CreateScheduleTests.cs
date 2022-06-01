@@ -147,24 +147,26 @@ public class CreateScheduleTests : TestBase
     public static IEnumerable<object[]> RequiredFieldData =>
         new List<object[]>
         {
-            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.Song)) },
-            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.StartTime)) },
-            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.OpeningDate)) },
-            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.DaysPerWeek)) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.Song)), null! },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.Song)), string.Empty },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.Song)), " " },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.StartTime)), default(TimeSpan) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.OpeningDate)), default(DateTime) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.DaysPerWeek)), null!},
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.DaysPerWeek)), new List<DayOfWeek>() },
         };
 
     [Theory]
     [MemberData(nameof(RequiredFieldData))]
-    public async Task Handle_GivenScheduleForm_WithoutRequiredProperty_ThrowException(Func<ScheduleDTO, string> func)
+    public async Task Handle_GivenScheduleForm_WithoutRequiredProperty_ThrowException(Func<ScheduleDTO, string> func, object emptyValue)
     {
-        DateTime openingDate = new DateTime(2022, 5, 9);
         CreateScheduleRq rq = new CreateScheduleRq()
         {
             Schedule = PrepareScheduleDTO()
         };
 
         string propertyName = func.Invoke(rq.Schedule);
-        rq.Schedule.GetType().GetProperty(propertyName)!.SetValue(rq.Schedule, null);
+        rq.Schedule.GetType().GetProperty(propertyName)!.SetValue(rq.Schedule, emptyValue);
 
         CreateScheduleService createScheduleService = GetCreateScheduleService();
 
