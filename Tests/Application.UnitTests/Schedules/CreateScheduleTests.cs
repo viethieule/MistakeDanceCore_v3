@@ -158,7 +158,7 @@ public class CreateScheduleTests : TestBase
 
     [Theory]
     [MemberData(nameof(RequiredFieldData))]
-    public async Task Handle_GivenScheduleForm_WithoutRequiredProperty_ThrowException(Func<ScheduleDTO, string> func, object emptyValue)
+    public async Task Handle_NotInputRequiredProperty_ThrowException(Func<ScheduleDTO, string> func, object emptyValue)
     {
         CreateScheduleRq rq = new CreateScheduleRq()
         {
@@ -174,6 +174,29 @@ public class CreateScheduleTests : TestBase
         {
             await createScheduleService.RunAsync(rq);
         });
+    }
+
+    [Theory]
+    [InlineData("2022-06-07", new DayOfWeek[] { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday })]
+    [InlineData("2022-06-04", new DayOfWeek[] { DayOfWeek.Friday, DayOfWeek.Sunday })]
+    public async Task Handle_OpeningDateIsNotInDaysPerWeek_ThrowException(DateTime openingDate, DayOfWeek[] daysPerWeek)
+    {
+        CreateScheduleRq rq = new CreateScheduleRq()
+        {
+            Schedule = PrepareScheduleDTO()
+        };
+
+        rq.Schedule.OpeningDate = openingDate;
+        rq.Schedule.DaysPerWeek = daysPerWeek.ToList();
+
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
+
+        ServiceException exception = await Assert.ThrowsAsync<ServiceException>(async () =>
+        {
+            await createScheduleService.RunAsync(rq);
+        });
+
+        Assert.Contains(ScheduleValidator.MESSAGE_OPENING_DATE_NOT_MATCH_WITH_DAYS_PER_WEEK, exception.Message);
     }
 
     private ScheduleDTO PrepareScheduleDTO()

@@ -27,6 +27,8 @@ namespace Application.Schedules
 
     public class ScheduleValidator : AbstractValidator<ScheduleDTO>
     {
+        public const string MESSAGE_OPENING_DATE_NOT_MATCH_WITH_DAYS_PER_WEEK = "Opening date does not match with days per week";
+
         public ScheduleValidator()
         {
             RuleFor(x => x.Song).NotEmpty();
@@ -36,12 +38,8 @@ namespace Application.Schedules
 
             When(x => x.DaysPerWeek != null, () =>
             {
-                RuleFor(x => x.OpeningDate).Must((rq, x) => rq.DaysPerWeek.Contains(x.DayOfWeek));
-            });
-
-            When(x => x.TotalSessions.HasValue, () =>
-            {
-                RuleFor(x => x.DaysPerWeek).NotEmpty();
+                RuleFor(x => x.OpeningDate).Must((rq, x) => rq.DaysPerWeek.Contains(x.DayOfWeek))
+                    .WithMessage(MESSAGE_OPENING_DATE_NOT_MATCH_WITH_DAYS_PER_WEEK);
             });
 
             When(x => !x.BranchId.HasValue, () =>
