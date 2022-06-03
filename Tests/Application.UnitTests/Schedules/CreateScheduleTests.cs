@@ -47,7 +47,7 @@ public class CreateScheduleTests : TestBase
     )]
     // Create with correct (TotalSessions + DaysPerWeek + OpeningDate): expect correct sessions date
     public async Task Handle_GivenCorrectTimeInput_CreatesSchedule_WithCorrectSessions(
-        DateTime openingDate, int totalSessions, DayOfWeek[] daysPerWeek, 
+        DateTime openingDate, int totalSessions, DayOfWeek[] daysPerWeek,
         string[] expectedSessionDateStrings
     )
     {
@@ -116,11 +116,48 @@ public class CreateScheduleTests : TestBase
     [Fact]
     public async Task Handle_GivenCorrectInput_CreatesSchedule_WithCorrectValues()
     {
-        DateTime openingDate = new DateTime(2022, 5, 9);
         CreateScheduleRq rq = new CreateScheduleRq()
         {
             Schedule = PrepareScheduleDTO()
         };
+
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
+
+        CreateScheduleRs rs = await createScheduleService.RunAsync(rq);
+        ScheduleDTO schedule = rq.Schedule;
+
+        Assert.NotEqual(0, schedule.Id);
+        Assert.Equal(rq.Schedule.Song, schedule.Song);
+        Assert.Equal(rq.Schedule.StartTime.Hours, schedule.StartTime.Hours);
+        Assert.Equal(rq.Schedule.StartTime.Minutes, schedule.StartTime.Minutes);
+        Assert.Equal(rq.Schedule.StartTime.Seconds, schedule.StartTime.Seconds);
+        Assert.Equal(rq.Schedule.BranchName, schedule.BranchName);
+        Assert.Equal(rq.Schedule.ClassName, schedule.ClassName);
+        Assert.Equal(rq.Schedule.TrainerName, schedule.TrainerName);
+        Assert.Equal(rq.Schedule.TotalSessions, schedule.TotalSessions);
+        Assert.Equal(rq.Schedule.DaysPerWeek.Count, schedule.DaysPerWeek.Count);
+        Assert.Equal(rq.Schedule.OpeningDate, schedule.OpeningDate);
+        Assert.Equal(TEST_USER_NAME, schedule.CreatedBy);
+        Assert.Equal(TEST_USER_NAME, schedule.UpdatedBy);
+        Assert.Equal(DateTime.Now.Date, schedule.CreatedDate.Date);
+        Assert.Equal(DateTime.Now.Date, schedule.UpdatedDate.Date);
+    }
+
+    [Fact]
+    public async Task Handle_GivenCorrectInput_CreateSchedule_WithNewlyCreatedNavigation()
+    {
+        CreateScheduleRq rq = new CreateScheduleRq()
+        {
+            Schedule = PrepareScheduleDTO()
+        };
+
+        rq.Schedule.ClassId = null;
+        rq.Schedule.TrainerId = null;
+        rq.Schedule.BranchId = null;
+
+        rq.Schedule.ClassName = "New test class name";
+        rq.Schedule.TrainerName = "New test trainer name";
+        rq.Schedule.BranchName = "New test branch name";
 
         CreateScheduleService createScheduleService = GetCreateScheduleService();
 
@@ -176,6 +213,37 @@ public class CreateScheduleTests : TestBase
         });
     }
 
+    public static IEnumerable<object[]> RequiredNavigationData =>
+        new List<object[]>
+        {
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.ClassId)), (Func<ScheduleDTO, string>)(x => nameof(x.ClassName)) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.TrainerId)), (Func<ScheduleDTO, string>)(x => nameof(x.TrainerName)) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.BranchId)), (Func<ScheduleDTO, string>)(x => nameof(x.BranchName)) },
+        };
+
+    [Theory]
+    [MemberData(nameof(RequiredNavigationData))]
+    public async Task Handle_NotInputRequiredNavigationPair_ThrowException(
+        Func<ScheduleDTO, string> idPropNameFunc, Func<ScheduleDTO, string> namePropNameFunc)
+    {
+        CreateScheduleRq rq = new CreateScheduleRq
+        {
+            Schedule = PrepareScheduleDTO()
+        };
+
+        string idPropName = idPropNameFunc.Invoke(rq.Schedule);
+        string namePropName = namePropNameFunc.Invoke(rq.Schedule);
+        rq.Schedule.GetType().GetProperty(idPropName)!.SetValue(rq.Schedule, null);
+        rq.Schedule.GetType().GetProperty(namePropName)!.SetValue(rq.Schedule, null);
+
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
+
+        await Assert.ThrowsAsync<ServiceException>(async () =>
+        {
+            await createScheduleService.RunAsync(rq);
+        });
+    }
+
     [Theory]
     [InlineData("2022-06-07", new DayOfWeek[] { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday })]
     [InlineData("2022-06-04", new DayOfWeek[] { DayOfWeek.Friday, DayOfWeek.Sunday })]
@@ -205,9 +273,9 @@ public class CreateScheduleTests : TestBase
         {
             Song = "Test song",
             StartTime = new TimeSpan(9, 0, 0),
-            BranchName = "Test branch",
-            ClassName = "Test class",
-            TrainerName = "Test trainer",
+            BranchId = TEST_BRANCH_1_ID,
+            ClassId = TEST_CLASS_1_ID,
+            TrainerId = TEST_TRAINER_1_ID,
             OpeningDate = new(2022, 5, 9),
             DaysPerWeek = new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
             TotalSessions = 3,
