@@ -17,6 +17,7 @@ namespace Application.Schedules
     public class CreateScheduleRs : BaseResponse
     {
         public List<SessionDTO> Sessions { get; set; }
+        public ScheduleDTO Schedule { get; set; }
     }
 
     public class CreateScheduleService : TransactionalService<CreateScheduleRq, CreateScheduleRs>
@@ -93,6 +94,7 @@ namespace Application.Schedules
 
             return new CreateScheduleRs()
             {
+                Schedule = scheduleDto,
                 Sessions = await _sessionDTC.ListByScheduleIdAsync(scheduleDto.Id)
             };
         }

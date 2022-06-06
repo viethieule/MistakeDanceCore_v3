@@ -124,7 +124,7 @@ public class CreateScheduleTests : TestBase
         CreateScheduleService createScheduleService = GetCreateScheduleService();
 
         CreateScheduleRs rs = await createScheduleService.RunAsync(rq);
-        ScheduleDTO schedule = rq.Schedule;
+        ScheduleDTO schedule = rs.Schedule;
 
         Assert.NotEqual(0, schedule.Id);
         Assert.Equal(rq.Schedule.Song, schedule.Song);
@@ -137,8 +137,8 @@ public class CreateScheduleTests : TestBase
         Assert.Equal(rq.Schedule.TotalSessions, schedule.TotalSessions);
         Assert.Equal(rq.Schedule.DaysPerWeek.Count, schedule.DaysPerWeek.Count);
         Assert.Equal(rq.Schedule.OpeningDate, schedule.OpeningDate);
-        Assert.Equal(TEST_USER_NAME, schedule.CreatedBy);
-        Assert.Equal(TEST_USER_NAME, schedule.UpdatedBy);
+        Assert.Equal(TestConstants.TEST_USER_NAME, schedule.CreatedBy);
+        Assert.Equal(TestConstants.TEST_USER_NAME, schedule.UpdatedBy);
         Assert.Equal(DateTime.Now.Date, schedule.CreatedDate.Date);
         Assert.Equal(DateTime.Now.Date, schedule.UpdatedDate.Date);
     }
@@ -162,7 +162,7 @@ public class CreateScheduleTests : TestBase
         CreateScheduleService createScheduleService = GetCreateScheduleService();
 
         CreateScheduleRs rs = await createScheduleService.RunAsync(rq);
-        ScheduleDTO schedule = rq.Schedule;
+        ScheduleDTO schedule = rs.Schedule;
 
         Assert.NotEqual(0, schedule.Id);
         Assert.Equal(rq.Schedule.Song, schedule.Song);
@@ -175,8 +175,8 @@ public class CreateScheduleTests : TestBase
         Assert.Equal(rq.Schedule.TotalSessions, schedule.TotalSessions);
         Assert.Equal(rq.Schedule.DaysPerWeek.Count, schedule.DaysPerWeek.Count);
         Assert.Equal(rq.Schedule.OpeningDate, schedule.OpeningDate);
-        Assert.Equal(TEST_USER_NAME, schedule.CreatedBy);
-        Assert.Equal(TEST_USER_NAME, schedule.UpdatedBy);
+        Assert.Equal(TestConstants.TEST_USER_NAME, schedule.CreatedBy);
+        Assert.Equal(TestConstants.TEST_USER_NAME, schedule.UpdatedBy);
         Assert.Equal(DateTime.Now.Date, schedule.CreatedDate.Date);
         Assert.Equal(DateTime.Now.Date, schedule.UpdatedDate.Date);
     }
@@ -273,9 +273,9 @@ public class CreateScheduleTests : TestBase
         {
             Song = "Test song",
             StartTime = new TimeSpan(9, 0, 0),
-            BranchId = TEST_BRANCH_1_ID,
-            ClassId = TEST_CLASS_1_ID,
-            TrainerId = TEST_TRAINER_1_ID,
+            BranchId = TestConstants.BRANCH_1_ID,
+            ClassId = TestConstants.CLASS_1_ID,
+            TrainerId = TestConstants.TRAINER_1_ID,
             OpeningDate = new(2022, 5, 9),
             DaysPerWeek = new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
             TotalSessions = 3,

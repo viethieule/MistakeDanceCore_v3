@@ -11,29 +11,9 @@ namespace Application.UnitTests.Common;
 
 public class TestBase : IDisposable
 {
-    protected const string TEST_USER_ID = "00000000-0000-0000-0000-000000000001";
-    protected const string TEST_USER_NAME = "testuser";
-    protected const string TEST_USER_ROLE = "testuserrole";
     protected readonly MistakeDanceDbContext _context;
     protected readonly DTCCollection _dtcCollection;
     protected readonly Mock<IUserContext> _userContextMock;
-
-    protected const int TEST_BRANCH_1_ID = 1;
-    protected const string TEST_BRANCH_1_NAME = "Test branch 1 name";
-    protected const int TEST_BRANCH_2_ID = 2;
-    protected const string TEST_BRANCH_2_NAME = "Test branch 2 name";
-    protected const int TEST_BRANCH_3_ID = 3;
-    protected const string TEST_BRANCH_3_NAME = "Test branch 3 name";
-
-    protected const int TEST_TRAINER_1_ID = 1;
-    protected const string TEST_TRAINER_1_NAME = "Test trainer 1 name";
-    protected const int TEST_TRAINER_2_ID = 2;
-    protected const string TEST_TRAINER_2_NAME = "Test trainer 2 name";
-
-    protected const int TEST_CLASS_1_ID = 1;
-    protected const string TEST_CLASS_1_NAME = "Test class 1 name";
-    protected const int TEST_CLASS_2_ID = 2;
-    protected const string TEST_CLASS_2_NAME = "Test class 2 name";
 
     public TestBase()
     {
@@ -47,21 +27,33 @@ public class TestBase : IDisposable
 
         _context.Branches.AddRange(new[]
         {
-            new Branch { Id = TEST_BRANCH_1_ID, Name = TEST_BRANCH_1_NAME },
-            new Branch { Id = TEST_BRANCH_2_ID, Name = TEST_BRANCH_2_NAME },
-            new Branch { Id = TEST_BRANCH_3_ID, Name = TEST_BRANCH_3_NAME },
+            new Branch { Id = TestConstants.BRANCH_1_ID, Name = TestConstants.BRANCH_1_NAME },
+            new Branch { Id = TestConstants.BRANCH_2_ID, Name = TestConstants.BRANCH_2_NAME },
+            new Branch { Id = TestConstants.BRANCH_3_ID, Name = TestConstants.BRANCH_3_NAME },
         });
 
         _context.Classes.AddRange(new[]
         {
-            new Class { Id = TEST_CLASS_1_ID, Name = TEST_CLASS_1_NAME },
-            new Class { Id = TEST_CLASS_2_ID, Name = TEST_CLASS_2_NAME },
+            new Class { Id = TestConstants.CLASS_1_ID, Name = TestConstants.CLASS_1_NAME },
+            new Class { Id = TestConstants.CLASS_2_ID, Name = TestConstants.CLASS_2_NAME },
         });
 
         _context.Trainers.AddRange(new[]
         {
-            new Trainer { Id = TEST_TRAINER_1_ID, Name = TEST_TRAINER_1_NAME },
-            new Trainer { Id = TEST_TRAINER_2_ID, Name = TEST_TRAINER_2_NAME },
+            new Trainer { Id = TestConstants.TRAINER_1_ID, Name = TestConstants.TRAINER_1_NAME },
+            new Trainer { Id = TestConstants.TRAINER_2_ID, Name = TestConstants.TRAINER_2_NAME },
+        });
+
+        _context.Schedules.Add(new Schedule
+        {
+            Id = TestConstants.SCHEDULE_1_ID,
+            Song = "Test song",
+            BranchId = TestConstants.BRANCH_1_ID,
+            TrainerId = TestConstants.TRAINER_1_ID,
+            ClassId = TestConstants.CLASS_1_ID,
+            OpeningDate = new DateTime(2022, 6, 6),
+            StartTime = new TimeSpan(9, 0, 0),
+            DaysPerWeek = new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Monday, }
         });
 
         _context.SaveChanges();
@@ -69,9 +61,9 @@ public class TestBase : IDisposable
         _userContextMock = new Mock<IUserContext>();
         _userContextMock.SetupGet(x => x.User).Returns(new User
         {
-            Id = TEST_USER_ID,
-            UserName = TEST_USER_NAME,
-            RoleName = TEST_USER_ROLE
+            Id = TestConstants.TEST_USER_ID,
+            UserName = TestConstants.TEST_USER_NAME,
+            RoleName = TestConstants.TEST_USER_ROLE
         });
 
         _dtcCollection = new DTCCollection(_context, _userContextMock.Object);
