@@ -1,6 +1,7 @@
 using Application.Branches;
 using Application.Classes;
 using Application.Common;
+using Application.Common.Exceptions;
 using Application.Common.Helpers;
 using Application.Common.Interfaces;
 using Application.Memberships;
@@ -96,6 +97,11 @@ namespace Application.Schedules
             if (scheduleDto.StartTime != currentDto.StartTime)
             {
                 rs.Messages.Add(MESSAGE_START_TIME_CHANGED);
+            }
+
+            if (scheduleDto.OpeningDate.Date != currentDto.OpeningDate.Date && currentDto.OpeningDate.Add(currentDto.StartTime) < DateTime.Now)
+            {
+                throw new ServiceException("Cannot update an already opened schedule");
             }
 
             await _scheduleDTC.UpdateAsync(scheduleDto);

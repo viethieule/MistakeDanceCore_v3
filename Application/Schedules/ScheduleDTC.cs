@@ -61,12 +61,6 @@ namespace Application.Schedules
 
         internal async Task UpdateAsync(ScheduleDTO dto)
         {
-            ScheduleDTO currentDto = await SingleByIdAsync(dto.Id);
-            if (dto.OpeningDate.Date != currentDto.OpeningDate.Date && currentDto.OpeningDate.Add(currentDto.StartTime) < DateTime.Now)
-            {
-                throw new Exception("Cannot update an already opened schedule");
-            }
-
             Schedule efo = MapFromDTO(dto);
             
             _mistakeDanceDbContext.Schedules.Attach(efo);
