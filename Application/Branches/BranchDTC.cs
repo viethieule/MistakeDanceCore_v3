@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.Common.Interfaces;
 using Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Branches
 {
@@ -16,6 +17,8 @@ namespace Application.Branches
             this.AuditOnCreate(efo);
             await _mistakeDanceDbContext.Branches.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
+
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
 
             MapToDTO(efo, dto);
         }

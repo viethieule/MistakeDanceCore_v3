@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.Common.Interfaces;
 using Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Classes
 {
@@ -16,6 +17,8 @@ namespace Application.Classes
             this.AuditOnCreate(efo);
             await _mistakeDanceDbContext.Classes.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
+
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
 
             dto.Id = efo.Id;
         }

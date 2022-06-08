@@ -79,9 +79,9 @@ public class UpdateScheduleTests : TestBase
         Assert.Equal(updatedSchedule.StartTime.Hours, schedule.StartTime.Hours);
         Assert.Equal(updatedSchedule.StartTime.Minutes, schedule.StartTime.Minutes);
         Assert.Equal(updatedSchedule.StartTime.Seconds, schedule.StartTime.Seconds);
-        Assert.Equal(updatedSchedule.BranchName, schedule.BranchName);
-        Assert.Equal(updatedSchedule.ClassName, schedule.ClassName);
-        Assert.Equal(updatedSchedule.TrainerName, schedule.TrainerName);
+        Assert.Equal(TestConstants.BRANCH_2_NAME, schedule.BranchName);
+        Assert.Equal(TestConstants.CLASS_2_NAME, schedule.ClassName);
+        Assert.Equal(TestConstants.TRAINER_2_NAME, schedule.TrainerName);
         Assert.Equal(updatedSchedule.TotalSessions, schedule.TotalSessions);
         Assert.Equal(updatedSchedule.DaysPerWeek.Count, schedule.DaysPerWeek.Count);
         Assert.Equal(updatedSchedule.OpeningDate, schedule.OpeningDate);

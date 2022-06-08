@@ -45,6 +45,8 @@ namespace Application.Schedules
             await _mistakeDanceDbContext.Schedules.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
+
             MapToDTO(efo, dto);
         }
 
@@ -68,10 +70,12 @@ namespace Application.Schedules
             Schedule efo = MapFromDTO(dto);
             
             _mistakeDanceDbContext.Schedules.Attach(efo);
-            this.AuditOnUpdate(efo);
             _mistakeDanceDbContext.Entry(efo).State = EntityState.Modified;
+            this.AuditOnUpdate(efo);
 
             await _mistakeDanceDbContext.SaveChangesAsync();
+
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
         }
 
         protected override void MapFromDTO(ScheduleDTO dto, Schedule efo)
@@ -105,6 +109,7 @@ namespace Application.Schedules
             dto.OpeningDate = efo.OpeningDate;
             dto.StartTime = efo.StartTime;
             dto.DaysPerWeek = efo.DaysPerWeek;
+            dto.TotalSessions = efo.TotalSessions;
 
             dto.BranchId = efo.BranchId;
             if (efo.Branch != null)

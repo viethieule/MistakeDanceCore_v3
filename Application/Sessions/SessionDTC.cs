@@ -33,6 +33,7 @@ namespace Application.Sessions
                 .Include(x => x.Schedule).ThenInclude(x => x.Branch)
                 .Include(x => x.Schedule).ThenInclude(x => x.Trainer)
                 .Include(x => x.Schedule).ThenInclude(x => x.Class)
+                .AsNoTracking()
                 .ToListAsync();
             return sessions.Select(MapToDTO).ToList();
         }
@@ -50,6 +51,8 @@ namespace Application.Sessions
             await _mistakeDanceDbContext.Sessions.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
+
             dto.Id = efo.Id;
         }
 
@@ -59,6 +62,8 @@ namespace Application.Sessions
 
             await _mistakeDanceDbContext.Sessions.AddRangeAsync(efos);
             await _mistakeDanceDbContext.SaveChangesAsync();
+
+            efos.ForEach(efo => _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached);
 
             dtos.ForEach(dto => dto.Id = efos.First(efo => efo.Number == dto.Number).Id);
         }
@@ -75,6 +80,7 @@ namespace Application.Sessions
             return MapToDTO(session);
         }
 
+        // TODO: Refactor so that less loops?
         internal async Task UpdateRangeAsync(List<SessionDTO> dtos)
         {
             List<Session> efos = dtos.Select(MapFromDTO).ToList();
@@ -83,10 +89,13 @@ namespace Application.Sessions
             {
                 Session efo = MapFromDTO(dto);
                 _mistakeDanceDbContext.Sessions.Attach(efo);
+                _mistakeDanceDbContext.Entry(efo).State = EntityState.Modified;
                 this.AuditOnUpdate(efo);
             }
 
             await _mistakeDanceDbContext.SaveChangesAsync();
+
+            efos.ForEach(efo => _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached);
 
             dtos.ForEach(dto => dto.Id = efos.First(efo => efo.Number == dto.Number).Id);
         }
