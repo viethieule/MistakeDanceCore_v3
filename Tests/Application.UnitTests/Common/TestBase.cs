@@ -44,18 +44,6 @@ public class TestBase : IDisposable
             new Trainer { Id = TestConstants.TRAINER_2_ID, Name = TestConstants.TRAINER_2_NAME },
         });
 
-        _context.Schedules.Add(new Schedule
-        {
-            Id = TestConstants.SCHEDULE_1_ID,
-            Song = "Test song",
-            BranchId = TestConstants.BRANCH_1_ID,
-            TrainerId = TestConstants.TRAINER_1_ID,
-            ClassId = TestConstants.CLASS_1_ID,
-            OpeningDate = new DateTime(2022, 6, 6),
-            StartTime = new TimeSpan(9, 0, 0),
-            DaysPerWeek = new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Monday, }
-        });
-
         _context.SaveChanges();
 
         _userContextMock = new Mock<IUserContext>();

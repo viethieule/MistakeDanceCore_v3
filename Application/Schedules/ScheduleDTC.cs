@@ -11,6 +11,21 @@ namespace Application.Schedules
         {
         }
 
+        public async Task<ScheduleDTO> SingleWithIncludeByIdAsync(int id)
+        {
+            Schedule schedule = await _mistakeDanceDbContext.Schedules
+                .Include(x => x.Branch)
+                .Include(x => x.Class)
+                .Include(x => x.Trainer)
+                .AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            if (schedule == null)
+            {
+                throw new Exception("Schedule not exists");
+            }
+
+            return MapToDTO(schedule);
+        }
+
         internal async Task<ScheduleDTO> SingleByIdAsync(int id)
         {
             Schedule schedule = await _mistakeDanceDbContext.Schedules.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);

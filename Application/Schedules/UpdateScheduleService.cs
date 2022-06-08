@@ -20,6 +20,7 @@ namespace Application.Schedules
 
     public class UpdateScheduleRs : BaseResponse
     {
+        public ScheduleDTO Schedule { get; internal set; }
     }
 
     public class UpdateScheduleService : TransactionalService<UpdateScheduleRq, UpdateScheduleRs>
@@ -135,6 +136,7 @@ namespace Application.Schedules
                 await _sessionDTC.RebuildScheduleSessionsNumberAsync(currentSessions.Where(x => toBeAddedSessions.Select(y => y.Id).Contains(x.Id)).Concat(toBeAddedSessions).ToList());
             }
 
+            rs.Schedule = scheduleDto;
             return rs;
         }
     }
