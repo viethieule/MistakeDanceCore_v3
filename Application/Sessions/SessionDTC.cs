@@ -21,6 +21,7 @@ namespace Application.Sessions
                 .Include(x => x.Schedule).ThenInclude(x => x.Trainer)
                 .Include(x => x.Schedule).ThenInclude(x => x.Class)
                 .Include(x => x.Registrations)
+                .AsNoTracking()
                 .ToListAsync();
 
             return sessions.Select(MapToDTO).ToList();
@@ -70,13 +71,13 @@ namespace Application.Sessions
 
         internal async Task<SessionDTO> SingleWithScheduleByIdAsync(int id)
         {
-            Session session = await _mistakeDanceDbContext.Sessions.Include(x => x.Schedule).SingleAsync(x => x.Id == id);
+            Session session = await _mistakeDanceDbContext.Sessions.Include(x => x.Schedule).AsNoTracking().SingleAsync(x => x.Id == id);
             return MapToDTO(session);
         }
 
         internal async Task<SessionDTO> SingleByIdAsync(int id)
         {
-            Session session = await _mistakeDanceDbContext.Sessions.SingleAsync(x => x.Id == id);
+            Session session = await _mistakeDanceDbContext.Sessions.AsNoTracking().SingleAsync(x => x.Id == id);
             return MapToDTO(session);
         }
 
@@ -85,9 +86,8 @@ namespace Application.Sessions
         {
             List<Session> efos = dtos.Select(MapFromDTO).ToList();
 
-            foreach (SessionDTO dto in dtos)
+            foreach (Session efo in efos)
             {
-                Session efo = MapFromDTO(dto);
                 _mistakeDanceDbContext.Sessions.Attach(efo);
                 _mistakeDanceDbContext.Entry(efo).State = EntityState.Modified;
                 this.AuditOnUpdate(efo);
@@ -104,24 +104,13 @@ namespace Application.Sessions
         {
             List<Session> sessions = await _mistakeDanceDbContext.Sessions
                 .Where(x => x.ScheduleId == sessionDTO.ScheduleId && x.Id > sessionDTO.Id)
+                .AsNoTracking()
                 .ToListAsync();
 
             return sessions.Select(MapToDTO).ToList();
         }
 
         internal async Task DeleteRangeAsync(List<SessionDTO> dtos)
-        {
-            foreach (SessionDTO dto in dtos)
-            {
-                Session efo = MapFromDTO(dto);
-                _mistakeDanceDbContext.Sessions.Attach(efo);
-                _mistakeDanceDbContext.Entry(efo).State = EntityState.Deleted;
-            }
-
-            await _mistakeDanceDbContext.SaveChangesAsync();
-        }
-
-        internal async Task RemoveRangeAsync(List<SessionDTO> dtos)
         {
             foreach (SessionDTO dto in dtos)
             {

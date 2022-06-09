@@ -55,7 +55,7 @@ namespace Application.Registrations
 
         internal async Task<RegistrationDTO> SingleByIdAsync(int id)
         {
-            Registration efo = await _mistakeDanceDbContext.Registrations.SingleAsync(x => x.Id == id);
+            Registration efo = await _mistakeDanceDbContext.Registrations.AsNoTracking().SingleAsync(x => x.Id == id);
             return MapToDTO(efo);
         }
 
@@ -76,6 +76,8 @@ namespace Application.Registrations
             await _mistakeDanceDbContext.Registrations.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
+
             registrationDTO.Id = efo.Id;
         }
 
@@ -91,6 +93,7 @@ namespace Application.Registrations
         {
             List<Registration> registrations = await _mistakeDanceDbContext.Registrations
                 .Where(x => sessionIds.Contains(x.Id))
+                .AsNoTracking()
                 .ToListAsync();
 
             return registrations.Select(MapToDTO).ToList();

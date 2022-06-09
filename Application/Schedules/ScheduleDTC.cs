@@ -17,7 +17,9 @@ namespace Application.Schedules
                 .Include(x => x.Branch)
                 .Include(x => x.Class)
                 .Include(x => x.Trainer)
-                .AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+                
             if (schedule == null)
             {
                 throw new Exception("Schedule not exists");
@@ -79,6 +81,7 @@ namespace Application.Schedules
             efo.OpeningDate = dto.OpeningDate;
             efo.StartTime = dto.StartTime;
             efo.DaysPerWeek = dto.DaysPerWeek;
+            efo.TotalSessions = dto.TotalSessions;
 
             if (dto.BranchId.HasValue)
             {

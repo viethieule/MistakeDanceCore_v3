@@ -29,7 +29,7 @@ namespace Application.DefaultPackages
 
         internal async Task<DefaultPackageDTO> SingleByIdAsync(int id)
         {
-            DefaultPackage defaultPackage = await _mistakeDanceDbContext.DefaultPackages.SingleAsync(x => x.Id == id);
+            DefaultPackage defaultPackage = await _mistakeDanceDbContext.DefaultPackages.AsNoTracking().SingleAsync(x => x.Id == id);
             return MapToDTO(defaultPackage);
         }
     }

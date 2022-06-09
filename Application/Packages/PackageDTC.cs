@@ -59,6 +59,8 @@ namespace Application.Packages
             await _mistakeDanceDbContext.Packages.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
+
             dto.Id = efo.Id;
         }
     }

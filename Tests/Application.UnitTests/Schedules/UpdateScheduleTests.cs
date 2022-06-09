@@ -7,7 +7,7 @@ namespace Application.UnitTests.Schedules;
 public class UpdateScheduleTests : TestBase
 {
     //
-    // Test cases
+    // Test cases:
     // - Update correct basic data
     // - Update correct basic data + navigation data (trainer / class /branch)
     // - Update with correct (TotalSessions + DaysPerWeek + OpeningDate), expect:
@@ -21,6 +21,8 @@ public class UpdateScheduleTests : TestBase
     // --- Inform member of session deleted
     // - Validators
     // - Cannot update opening date of started schedule
+    //
+
     [Fact]
     public async Task Handle_ChangeBasicInput_NotIncludeTimeAndSessions_UpdatesSchedule_WithCorrectValues()
     {
@@ -66,7 +68,7 @@ public class UpdateScheduleTests : TestBase
         };
 
         UpdateScheduleService updateScheduleService = new UpdateScheduleService(
-            _context, _userContextMock.Object, 
+            _context, _userContextMock.Object,
             _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC, _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC,
             _dtcCollection.SessionDTC, _dtcCollection.RegistrationDTC, _dtcCollection.PackageDTC, _dtcCollection.MembershipDTC
         );
@@ -90,5 +92,62 @@ public class UpdateScheduleTests : TestBase
         Assert.Equal(DateTime.Now.Date, schedule.CreatedDate.Date);
         Assert.Equal(DateTime.Now.Date, schedule.UpdatedDate.Date);
         Assert.True(schedule.UpdatedDate > schedule.CreatedDate);
+    }
+
+    [Fact]
+    public async Task Handle_ChangeNavigationInput_UpdatesSchedule_WithCorrectValues()
+    {
+        CreateScheduleRq createRq = new CreateScheduleRq
+        {
+            Schedule = new ScheduleDTO
+            {
+                Song = "Test song",
+                OpeningDate = new DateTime(2022, 6, 6),
+                StartTime = new TimeSpan(9, 0, 0),
+                DaysPerWeek = new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
+                TotalSessions = 6,
+                BranchId = TestConstants.BRANCH_1_ID,
+                TrainerId = TestConstants.TRAINER_1_ID,
+                ClassId = TestConstants.CLASS_1_ID
+            }
+        };
+
+        CreateScheduleService createScheduleService = new CreateScheduleService(
+            _context, _userContextMock.Object, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
+            _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC, _dtcCollection.SessionDTC
+        );
+
+        CreateScheduleRs createRs = await createScheduleService.RunAsync(createRq);
+        ScheduleDTO updatedSchedule = createRs.Schedule;
+
+        updatedSchedule.BranchId = null;
+        updatedSchedule.ClassId = null;
+        updatedSchedule.TrainerId = null;
+
+        updatedSchedule.BranchName = "New branch for this update";
+        updatedSchedule.ClassName = "New class for this update";
+        updatedSchedule.TrainerName = "New trainer for this update";
+
+        UpdateScheduleRq updateRq = new UpdateScheduleRq
+        {
+            Schedule = updatedSchedule
+        };
+
+        UpdateScheduleService updateScheduleService = new UpdateScheduleService(
+            _context, _userContextMock.Object,
+            _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC, _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC,
+            _dtcCollection.SessionDTC, _dtcCollection.RegistrationDTC, _dtcCollection.PackageDTC, _dtcCollection.MembershipDTC
+        );
+
+        UpdateScheduleRs rs = await updateScheduleService.RunAsync(updateRq);
+
+        ScheduleDTO schedule = await _dtcCollection.ScheduleDTC.SingleWithIncludeByIdAsync(updatedSchedule.Id);
+
+        Assert.Equal(updatedSchedule.BranchId, schedule.BranchId);
+        Assert.Equal(updatedSchedule.BranchName, schedule.BranchName);
+        Assert.Equal(updatedSchedule.ClassId, schedule.ClassId);
+        Assert.Equal(updatedSchedule.ClassName, schedule.ClassName);
+        Assert.Equal(updatedSchedule.TrainerId, schedule.TrainerId);
+        Assert.Equal(updatedSchedule.TrainerName, schedule.TrainerName);
     }
 }

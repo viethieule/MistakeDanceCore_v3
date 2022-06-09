@@ -71,7 +71,7 @@ namespace Application.Sessions
                 await _membershipDTC.UpdateRemainingSessionsByMemberIds(memberIdAndRemainingSessionToReturn);
             }
 
-            await _sessionDTC.RemoveRangeAsync(sessionDTOs);
+            await _sessionDTC.DeleteRangeAsync(sessionDTOs);
             return rs;
         }
     }

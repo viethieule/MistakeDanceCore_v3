@@ -22,11 +22,16 @@ namespace Application.Memberships
             }
 
             await _mistakeDanceDbContext.SaveChangesAsync();
+
+            foreach (Membership membership in memberships)
+            {
+                _mistakeDanceDbContext.Entry(membership).State = EntityState.Detached;
+            }
         }
 
         internal async Task<MembershipDTO> SingleByMemberIdAsync(int memberId)
         {
-            Membership membership = await _mistakeDanceDbContext.Memberships.SingleAsync(x => x.MemberId == memberId);
+            Membership membership = await _mistakeDanceDbContext.Memberships.AsNoTracking().SingleAsync(x => x.MemberId == memberId);
             return MapToDTO(membership);
         }
 
@@ -51,6 +56,8 @@ namespace Application.Memberships
 
             await _mistakeDanceDbContext.Memberships.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
+
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
         }
 
         internal async Task UpdateAsync(MembershipDTO dto)
@@ -62,6 +69,8 @@ namespace Application.Memberships
             _mistakeDanceDbContext.Entry(efo).State = EntityState.Modified;
 
             await _mistakeDanceDbContext.SaveChangesAsync();
+
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
         }
     }
 }

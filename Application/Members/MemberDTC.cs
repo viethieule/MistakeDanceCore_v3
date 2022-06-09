@@ -48,6 +48,8 @@ namespace Application.Members
             await _mistakeDanceDbContext.Members.AddAsync(efo);
             await _mistakeDanceDbContext.SaveChangesAsync();
 
+            _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
+
             dto.Id = efo.Id;
         }
 
@@ -100,14 +102,14 @@ namespace Application.Members
                 query = query.Where(u => u.Membership.ExpiryDate <= expDateTo);
             }
 
-            List<Member> members = await query.ToListAsync();
+            List<Member> members = await query.AsNoTracking().ToListAsync();
 
             return members.Select(MapToDTO).ToList();
         }
 
         internal async Task<MemberDTO> SingleByIdAsync(int id)
         {
-            Member member = await _mistakeDanceDbContext.Members.SingleAsync(x => x.Id == id);
+            Member member = await _mistakeDanceDbContext.Members.AsNoTracking().SingleAsync(x => x.Id == id);
             return MapToDTO(member);
         }
     }
