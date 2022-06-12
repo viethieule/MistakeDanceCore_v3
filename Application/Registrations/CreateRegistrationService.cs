@@ -46,6 +46,7 @@ namespace Application.Registrations
             }
 
             membership.RemainingSessions += -1;
+            await _membershipDTC.UpdateAsync(membership);
 
             RegistrationDTO registrationDTO = new RegistrationDTO
             {

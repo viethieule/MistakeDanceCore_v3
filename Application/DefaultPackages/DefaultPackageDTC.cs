@@ -27,7 +27,7 @@ namespace Application.DefaultPackages
             dto.Price = efo.Price;
         }
 
-        internal async Task<DefaultPackageDTO> SingleByIdAsync(int id)
+        public async Task<DefaultPackageDTO> SingleByIdAsync(int id)
         {
             DefaultPackage defaultPackage = await _mistakeDanceDbContext.DefaultPackages.AsNoTracking().SingleAsync(x => x.Id == id);
             return MapToDTO(defaultPackage);

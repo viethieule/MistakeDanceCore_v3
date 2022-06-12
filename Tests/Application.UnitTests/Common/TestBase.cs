@@ -44,7 +44,37 @@ public class TestBase : IDisposable
             new Trainer { Id = TestConstants.TRAINER_2_ID, Name = TestConstants.TRAINER_2_NAME },
         });
 
+        _context.Members.Add(new Member
+        {
+            Id = TestConstants.MEMBER_1_ID,
+            FullName = "Test member 1",
+            NormalizedFullName = "Test member 1",
+            PhoneNumber = "0123456789",
+            Birthdate = DateTime.Now.AddYears(-20),
+            BranchId = TestConstants.BRANCH_1_ID,
+            UserId = "1",
+            UserName = "testmember1",
+            Membership = new Membership
+            {
+                RemainingSessions = 1000,
+                ExpiryDate = DateTime.MaxValue
+            },
+            Packages = new List<Package>
+            {
+                new Package
+                {
+                    Id = TestConstants.MEMBER_1_PACKAGE_ID,
+                    NumberOfSessions = 1000,
+                    Price = 1000000,
+                    Months = 100,
+                    BranchRegisteredId = TestConstants.BRANCH_1_ID
+                }
+            }
+        });
+
         _context.SaveChanges();
+
+        _context.ChangeTracker.Clear();
 
         _userContextMock = new Mock<IUserContext>();
         _userContextMock.SetupGet(x => x.User).Returns(new User
@@ -57,7 +87,7 @@ public class TestBase : IDisposable
         _dtcCollection = new DTCCollection(_context, _userContextMock.Object);
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
         _context.Database.EnsureDeleted();
         _context.Dispose();

@@ -13,7 +13,7 @@ namespace Application.Sessions
         {
         }
 
-        internal async Task<List<SessionDTO>> ListAsync(DateTime start, DateTime end)
+        public async Task<List<SessionDTO>> ListAsync(DateTime start, DateTime end)
         {
             List<Session> sessions = await _mistakeDanceDbContext.Sessions
                 .Where(x => x.Date <= end && x.Date >= start)
@@ -27,7 +27,7 @@ namespace Application.Sessions
             return sessions.Select(MapToDTO).ToList();
         }
 
-        internal async Task<List<SessionDTO>> ListByScheduleIdAsync(int scheduleId)
+        public async Task<List<SessionDTO>> ListByScheduleIdAsync(int scheduleId)
         {
             List<Session> sessions = await _mistakeDanceDbContext.Sessions
                 .Where(x => x.ScheduleId == scheduleId)
@@ -39,13 +39,13 @@ namespace Application.Sessions
             return sessions.Select(MapToDTO).ToList();
         }
 
-        internal async Task<List<SessionDTO>> ListShallowByScheduleIdAsync(int scheduleId)
+        public async Task<List<SessionDTO>> ListShallowByScheduleIdAsync(int scheduleId)
         {
             List<Session> sessions = await _mistakeDanceDbContext.Sessions.AsNoTracking().Where(x => x.ScheduleId == scheduleId).ToListAsync();
             return sessions.Select(MapToDTO).ToList();
         }
 
-        internal async Task CreateAsync(SessionDTO dto)
+        public async Task CreateAsync(SessionDTO dto)
         {
             Session efo = MapFromDTO(dto);
             this.AuditOnCreate(efo);
@@ -57,7 +57,7 @@ namespace Application.Sessions
             dto.Id = efo.Id;
         }
 
-        internal async Task CreateRangeAsync(List<SessionDTO> dtos)
+        public async Task CreateRangeAsync(List<SessionDTO> dtos)
         {
             List<Session> efos = dtos.Select(MapFromDTO).ToList();
 
@@ -69,20 +69,20 @@ namespace Application.Sessions
             dtos.ForEach(dto => dto.Id = efos.First(efo => efo.Number == dto.Number).Id);
         }
 
-        internal async Task<SessionDTO> SingleWithScheduleByIdAsync(int id)
+        public async Task<SessionDTO> SingleWithScheduleByIdAsync(int id)
         {
             Session session = await _mistakeDanceDbContext.Sessions.Include(x => x.Schedule).AsNoTracking().SingleAsync(x => x.Id == id);
             return MapToDTO(session);
         }
 
-        internal async Task<SessionDTO> SingleByIdAsync(int id)
+        public async Task<SessionDTO> SingleByIdAsync(int id)
         {
             Session session = await _mistakeDanceDbContext.Sessions.AsNoTracking().SingleAsync(x => x.Id == id);
             return MapToDTO(session);
         }
 
         // TODO: Refactor so that less loops?
-        internal async Task UpdateRangeAsync(List<SessionDTO> dtos)
+        public async Task UpdateRangeAsync(List<SessionDTO> dtos)
         {
             List<Session> efos = dtos.Select(MapFromDTO).ToList();
 
@@ -100,7 +100,7 @@ namespace Application.Sessions
             dtos.ForEach(dto => dto.Id = efos.First(efo => efo.Number == dto.Number).Id);
         }
 
-        internal async Task<List<SessionDTO>> ListFollowingSessions(SessionDTO sessionDTO)
+        public async Task<List<SessionDTO>> ListFollowingSessions(SessionDTO sessionDTO)
         {
             List<Session> sessions = await _mistakeDanceDbContext.Sessions
                 .Where(x => x.ScheduleId == sessionDTO.ScheduleId && x.Id > sessionDTO.Id)
@@ -110,7 +110,7 @@ namespace Application.Sessions
             return sessions.Select(MapToDTO).ToList();
         }
 
-        internal async Task DeleteRangeAsync(List<SessionDTO> dtos)
+        public async Task DeleteRangeAsync(List<SessionDTO> dtos)
         {
             foreach (SessionDTO dto in dtos)
             {
@@ -122,7 +122,7 @@ namespace Application.Sessions
             await _mistakeDanceDbContext.SaveChangesAsync();
         }
 
-        internal async Task RebuildScheduleSessionsNumberAsync(List<SessionDTO> sessions)
+        public async Task RebuildScheduleSessionsNumberAsync(List<SessionDTO> sessions)
         {
             sessions = sessions.OrderBy(x => x.Date).ToList();
             for (int i = 0; i < sessions.Count; i++)

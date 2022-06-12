@@ -11,17 +11,7 @@ namespace Application.Registrations
         {
         }
 
-        internal async Task<List<RegistrationDTO>> GetBySessionIdsAsync(List<int> sessionIds)
-        {
-            List<Registration> registrations = await _mistakeDanceDbContext.Registrations
-                .Where(x => sessionIds.Contains(x.SessionId))
-                .AsNoTracking()
-                .ToListAsync();
-
-            return registrations.Select(MapToDTO).ToList();
-        }
-
-        internal async Task DeleteRangeAsync(List<RegistrationDTO> dtos)
+        public async Task DeleteRangeAsync(List<RegistrationDTO> dtos)
         {
             foreach (RegistrationDTO dto in dtos)
             {
@@ -53,13 +43,19 @@ namespace Application.Registrations
             dto.UpdatedBy = efo.UpdatedBy;
         }
 
-        internal async Task<RegistrationDTO> SingleByIdAsync(int id)
+        public async Task<RegistrationDTO> SingleByIdAsync(int id)
         {
             Registration efo = await _mistakeDanceDbContext.Registrations.AsNoTracking().SingleAsync(x => x.Id == id);
             return MapToDTO(efo);
         }
 
-        internal async Task<List<RegistrationDTO>> ListShallowByScheduleIdAsync(int scheduleId)
+        public async Task<RegistrationDTO> GetByIdAsync(int id)
+        {
+            Registration efo = await _mistakeDanceDbContext.Registrations.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            return MapToDTO(efo);
+        }
+
+        public async Task<List<RegistrationDTO>> ListShallowByScheduleIdAsync(int scheduleId)
         {
             List<Registration> efos = await _mistakeDanceDbContext.Registrations
                 .Where(x => x.Session.ScheduleId == scheduleId)
@@ -69,7 +65,7 @@ namespace Application.Registrations
             return efos.Select(MapToDTO).ToList();
         }
 
-        internal async Task CreateAsync(RegistrationDTO registrationDTO)
+        public async Task CreateAsync(RegistrationDTO registrationDTO)
         {
             Registration efo = MapFromDTO(registrationDTO);
             this.AuditOnCreate(efo);
@@ -81,7 +77,7 @@ namespace Application.Registrations
             registrationDTO.Id = efo.Id;
         }
 
-        internal async Task DeleteAsync(RegistrationDTO dto)
+        public async Task DeleteAsync(RegistrationDTO dto)
         {
             Registration efo = MapFromDTO(dto);
             _mistakeDanceDbContext.Registrations.Attach(efo);
@@ -89,10 +85,10 @@ namespace Application.Registrations
             await _mistakeDanceDbContext.SaveChangesAsync();
         }
 
-        internal async Task<List<RegistrationDTO>> ListShallowBySessionIdsAsync(IEnumerable<int> sessionIds)
+        public async Task<List<RegistrationDTO>> ListShallowBySessionIdsAsync(IEnumerable<int> sessionIds)
         {
             List<Registration> registrations = await _mistakeDanceDbContext.Registrations
-                .Where(x => sessionIds.Contains(x.Id))
+                .Where(x => sessionIds.Contains(x.SessionId))
                 .AsNoTracking()
                 .ToListAsync();
 

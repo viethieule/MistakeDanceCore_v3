@@ -11,7 +11,7 @@ namespace Application.Memberships
         {
         }
 
-        internal async Task UpdateRemainingSessionsByMemberIds(Dictionary<int, int> memberIdAndRemainingSessionDiffs)
+        public async Task UpdateRemainingSessionsByMemberIds(Dictionary<int, int> memberIdAndRemainingSessionDiffs)
         {
             List<int> memberIds = memberIdAndRemainingSessionDiffs.Keys.ToList();
             List<Membership> memberships = await _mistakeDanceDbContext.Memberships.Where(x => memberIds.Contains(x.MemberId)).ToListAsync();
@@ -29,7 +29,7 @@ namespace Application.Memberships
             }
         }
 
-        internal async Task<MembershipDTO> SingleByMemberIdAsync(int memberId)
+        public async Task<MembershipDTO> SingleByMemberIdAsync(int memberId)
         {
             Membership membership = await _mistakeDanceDbContext.Memberships.AsNoTracking().SingleAsync(x => x.MemberId == memberId);
             return MapToDTO(membership);
@@ -49,7 +49,7 @@ namespace Application.Memberships
             dto.RemainingSessions = efo.RemainingSessions;
         }
 
-        internal async Task CreateAsync(MembershipDTO dto)
+        public async Task CreateAsync(MembershipDTO dto)
         {
             Membership efo = MapFromDTO(dto);
             this.AuditOnCreate(efo);
@@ -60,7 +60,7 @@ namespace Application.Memberships
             _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
         }
 
-        internal async Task UpdateAsync(MembershipDTO dto)
+        public async Task UpdateAsync(MembershipDTO dto)
         {
             Membership efo = MapFromDTO(dto);
             

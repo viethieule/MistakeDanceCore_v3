@@ -11,7 +11,7 @@ namespace Application.Trainers
         {
         }
 
-        internal async Task CreateAsync(TrainerDTO dto)
+        public async Task CreateAsync(TrainerDTO dto)
         {
             Trainer efo = MapFromDTO(dto);
             this.AuditOnCreate(efo);

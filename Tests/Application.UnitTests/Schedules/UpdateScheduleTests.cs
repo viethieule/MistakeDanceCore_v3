@@ -1,5 +1,10 @@
+using Application.Memberships;
+using Application.Registrations;
 using Application.Schedules;
+using Application.Sessions;
 using Application.UnitTests.Common;
+using Domain;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Application.UnitTests.Schedules;
@@ -74,7 +79,7 @@ public class UpdateScheduleTests : TestBase
         );
 
         UpdateScheduleRs rs = await updateScheduleService.RunAsync(updateRq);
-        ScheduleDTO schedule = await _dtcCollection.ScheduleDTC.SingleWithIncludeByIdAsync(updatedSchedule.Id);
+        ScheduleDTO schedule = await _dtcCollection.ScheduleDTC.SingleByIdAsync(updatedSchedule.Id);
 
         Assert.NotEqual(0, schedule.Id);
         Assert.Equal(updatedSchedule.Song, schedule.Song);
@@ -141,7 +146,7 @@ public class UpdateScheduleTests : TestBase
 
         UpdateScheduleRs rs = await updateScheduleService.RunAsync(updateRq);
 
-        ScheduleDTO schedule = await _dtcCollection.ScheduleDTC.SingleWithIncludeByIdAsync(updatedSchedule.Id);
+        ScheduleDTO schedule = await _dtcCollection.ScheduleDTC.SingleByIdAsync(updatedSchedule.Id);
 
         Assert.Equal(updatedSchedule.BranchId, schedule.BranchId);
         Assert.Equal(updatedSchedule.BranchName, schedule.BranchName);
@@ -149,5 +154,93 @@ public class UpdateScheduleTests : TestBase
         Assert.Equal(updatedSchedule.ClassName, schedule.ClassName);
         Assert.Equal(updatedSchedule.TrainerId, schedule.TrainerId);
         Assert.Equal(updatedSchedule.TrainerName, schedule.TrainerName);
+    }
+
+    [Fact]
+    public async Task Handle_UpdateTimeInput_UpdatesSchedule()
+    {
+        DateTime openingDate = DateTime.Now.AddDays(1);
+        List<DayOfWeek> daysPerWeek = new List<DayOfWeek> { openingDate.DayOfWeek, openingDate.AddDays(2).DayOfWeek, openingDate.AddDays(4).DayOfWeek };
+        int totalSessions = 6;
+
+        ScheduleDTO schedule = new ScheduleDTO
+        {
+            Song = "Test song",
+            OpeningDate = openingDate,
+            StartTime = new TimeSpan(9, 0, 0),
+            DaysPerWeek = daysPerWeek,
+            TotalSessions = totalSessions,
+            BranchId = TestConstants.BRANCH_1_ID,
+            TrainerId = TestConstants.TRAINER_1_ID,
+            ClassId = TestConstants.CLASS_1_ID
+        };
+
+        CreateScheduleRq createRq = new CreateScheduleRq
+        {
+            Schedule = schedule
+        };
+
+        CreateScheduleService createScheduleService = new CreateScheduleService(
+            _context, _userContextMock.Object, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
+            _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC, _dtcCollection.SessionDTC
+        );
+
+        await createScheduleService.RunAsync(createRq);
+
+        List<SessionDTO> currentSessions = await _dtcCollection.SessionDTC.ListShallowByScheduleIdAsync(schedule.Id);
+
+        MembershipDTO membership = await _dtcCollection.MembershipDTC.SingleByMemberIdAsync(TestConstants.MEMBER_1_ID);
+        int previousRemainingSessions = membership.RemainingSessions;
+        CreateRegistrationService createRegistrationService = new CreateRegistrationService(
+            _context, _userContextMock.Object, _dtcCollection.MembershipDTC, _dtcCollection.RegistrationDTC, _dtcCollection.MemberDTC);
+
+        await createRegistrationService.RunAsync(new CreateRegistrationRq
+        {
+            SessionId = currentSessions.First().Id,
+            MemberId = TestConstants.MEMBER_1_ID
+        });
+
+        List<RegistrationDTO> registrations = await _dtcCollection.RegistrationDTC.ListShallowBySessionIdsAsync(
+            new List<int> { currentSessions.First().Id });
+
+        RegistrationDTO registration = registrations.First();
+        membership = await _dtcCollection.MembershipDTC.SingleByMemberIdAsync(TestConstants.MEMBER_1_ID);
+        Assert.Equal(previousRemainingSessions - 1, membership.RemainingSessions);
+
+        DateTime newOpeningDate = openingDate.AddDays(1);
+        schedule.OpeningDate = newOpeningDate;
+        schedule.TotalSessions = 5;
+        schedule.DaysPerWeek = new List<DayOfWeek> { newOpeningDate.DayOfWeek, newOpeningDate.AddDays(2).DayOfWeek };
+
+        UpdateScheduleService updateScheduleService = new UpdateScheduleService(
+            _context, _userContextMock.Object,
+            _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC, _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC,
+            _dtcCollection.SessionDTC, _dtcCollection.RegistrationDTC, _dtcCollection.PackageDTC, _dtcCollection.MembershipDTC
+        );
+
+        UpdateScheduleRq updateRq = new UpdateScheduleRq
+        {
+            Schedule = schedule
+        };
+
+        await updateScheduleService.RunAsync(updateRq);
+
+        List<DateTime> expectedSessionDates = new List<DateTime>
+        {
+            newOpeningDate,
+            newOpeningDate.AddDays(2),
+            newOpeningDate.AddDays(7),
+            newOpeningDate.AddDays(2 + 7),
+            newOpeningDate.AddDays(7 + 7),
+        };
+
+        List<SessionDTO> updatedSessions = await _dtcCollection.SessionDTC.ListShallowByScheduleIdAsync(schedule.Id);
+        Assert.Equal(schedule.TotalSessions, updatedSessions.Count);
+        Assert.True(expectedSessionDates.ToList().All(date => updatedSessions.Any(session => session.Date == date)));
+
+        registration = await _dtcCollection.RegistrationDTC.GetByIdAsync(registration.Id);
+        MembershipDTO updatedMembership = await _dtcCollection.MembershipDTC.SingleByMemberIdAsync(TestConstants.MEMBER_1_ID);
+        Assert.Null(registration);
+        Assert.Equal(previousRemainingSessions, updatedMembership.RemainingSessions);
     }
 }

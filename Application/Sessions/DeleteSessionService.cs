@@ -54,7 +54,7 @@ namespace Application.Sessions
             }
 
             // Adjust schedule total sessions
-            ScheduleDTO scheduleDTO = await _scheduleDTC.SingleByIdAsync(sessionDto.ScheduleId);
+            ScheduleDTO scheduleDTO = await _scheduleDTC.SingleShallowByIdAsync(sessionDto.ScheduleId);
             scheduleDTO.TotalSessions = sessionDto.Number - 1;
 
             List<SessionDTO> sessionDTOs = await _sessionDTC.ListFollowingSessions(sessionDto);

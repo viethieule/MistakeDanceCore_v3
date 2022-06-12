@@ -92,7 +92,7 @@ namespace Application.Schedules
                 scheduleDto.TrainerId = trainerDTO.Id;
             }
 
-            ScheduleDTO currentDto = await _scheduleDTC.SingleByIdAsync(scheduleDto.Id);
+            ScheduleDTO currentDto = await _scheduleDTC.SingleShallowByIdAsync(scheduleDto.Id);
 
             if (scheduleDto.StartTime != currentDto.StartTime)
             {
@@ -124,7 +124,7 @@ namespace Application.Schedules
                     rs.Messages.Add(MESSAGE_SELECTED_SESSION_DELETED);
                 }
 
-                List<RegistrationDTO> toBeRemovedRegistrations = await _registrationDTC.GetBySessionIdsAsync(toBeRemovedSessions.Select(x => x.Id).ToList());
+                List<RegistrationDTO> toBeRemovedRegistrations = await _registrationDTC.ListShallowBySessionIdsAsync(toBeRemovedSessions.Select(x => x.Id).ToList());
                 if (toBeRemovedRegistrations.Count > 0)
                 {
                     Dictionary<int, int> memberIdAndRemainingSessionDiffs = toBeRemovedRegistrations.GroupBy(x => x.MemberId).ToDictionary(x => x.Key, x => x.Count());

@@ -11,7 +11,7 @@ namespace Application.Schedules
         {
         }
 
-        public async Task<ScheduleDTO> SingleWithIncludeByIdAsync(int id)
+        public async Task<ScheduleDTO> SingleByIdAsync(int id)
         {
             Schedule schedule = await _mistakeDanceDbContext.Schedules
                 .Include(x => x.Branch)
@@ -19,7 +19,7 @@ namespace Application.Schedules
                 .Include(x => x.Trainer)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
-                
+
             if (schedule == null)
             {
                 throw new Exception("Schedule not exists");
@@ -28,7 +28,7 @@ namespace Application.Schedules
             return MapToDTO(schedule);
         }
 
-        internal async Task<ScheduleDTO> SingleByIdAsync(int id)
+        public async Task<ScheduleDTO> SingleShallowByIdAsync(int id)
         {
             Schedule schedule = await _mistakeDanceDbContext.Schedules.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if (schedule == null)
@@ -39,7 +39,7 @@ namespace Application.Schedules
             return MapToDTO(schedule);
         }
 
-        internal async Task CreateAsync(ScheduleDTO dto)
+        public async Task CreateAsync(ScheduleDTO dto)
         {
             Schedule efo = MapFromDTO(dto);
             this.AuditOnCreate(efo);
@@ -52,7 +52,7 @@ namespace Application.Schedules
             MapToDTO(efo, dto);
         }
 
-        internal async Task DeleteAsync(ScheduleDTO dto)
+        public async Task DeleteAsync(ScheduleDTO dto)
         {
             Schedule efo = MapFromDTO(dto);
             _mistakeDanceDbContext.Schedules.Attach(efo);
@@ -61,7 +61,7 @@ namespace Application.Schedules
             await _mistakeDanceDbContext.SaveChangesAsync();
         }
 
-        internal async Task UpdateAsync(ScheduleDTO dto)
+        public async Task UpdateAsync(ScheduleDTO dto)
         {
             Schedule efo = MapFromDTO(dto);
             
