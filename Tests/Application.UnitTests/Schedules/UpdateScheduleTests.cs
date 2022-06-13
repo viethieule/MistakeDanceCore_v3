@@ -3,8 +3,6 @@ using Application.Registrations;
 using Application.Schedules;
 using Application.Sessions;
 using Application.UnitTests.Common;
-using Domain;
-using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Application.UnitTests.Schedules;
@@ -156,12 +154,23 @@ public class UpdateScheduleTests : TestBase
         Assert.Equal(updatedSchedule.TrainerName, schedule.TrainerName);
     }
 
-    [Fact]
-    public async Task Handle_UpdateTimeInput_UpdatesSchedule()
+    public static IEnumerable<object[]> SessionInputTestData =>
+        new List<object[]>
+        {
+            UpdateScheduleTestData.CreateSessionInputTestData1(),
+            UpdateScheduleTestData.CreateSessionInputTestData2(),
+            UpdateScheduleTestData.CreateSessionInputTestData3(),
+        };
+
+    [Theory]
+    [MemberData(nameof(SessionInputTestData))]
+    public async Task Handle_UpdateTimeInput_UpdatesSchedule(
+        SessionInputData initData, SessionInputData updatedData,
+        List<DateTime> expectedSessionDates, bool isExpectRegistrationDeleted)
     {
-        DateTime openingDate = DateTime.Now.AddDays(1);
-        List<DayOfWeek> daysPerWeek = new List<DayOfWeek> { openingDate.DayOfWeek, openingDate.AddDays(2).DayOfWeek, openingDate.AddDays(4).DayOfWeek };
-        int totalSessions = 6;
+        DateTime openingDate = initData.OpeningDate;
+        List<DayOfWeek> daysPerWeek = initData.DaysPerWeek;
+        int totalSessions = initData.TotalSessions;
 
         ScheduleDTO schedule = new ScheduleDTO
         {
@@ -207,10 +216,9 @@ public class UpdateScheduleTests : TestBase
         membership = await _dtcCollection.MembershipDTC.SingleByMemberIdAsync(TestConstants.MEMBER_1_ID);
         Assert.Equal(previousRemainingSessions - 1, membership.RemainingSessions);
 
-        DateTime newOpeningDate = openingDate.AddDays(1);
-        schedule.OpeningDate = newOpeningDate;
-        schedule.TotalSessions = 5;
-        schedule.DaysPerWeek = new List<DayOfWeek> { newOpeningDate.DayOfWeek, newOpeningDate.AddDays(2).DayOfWeek };
+        schedule.OpeningDate = updatedData.OpeningDate;
+        schedule.TotalSessions = updatedData.TotalSessions;
+        schedule.DaysPerWeek = updatedData.DaysPerWeek;
 
         UpdateScheduleService updateScheduleService = new UpdateScheduleService(
             _context, _userContextMock.Object,
@@ -225,22 +233,21 @@ public class UpdateScheduleTests : TestBase
 
         await updateScheduleService.RunAsync(updateRq);
 
-        List<DateTime> expectedSessionDates = new List<DateTime>
-        {
-            newOpeningDate,
-            newOpeningDate.AddDays(2),
-            newOpeningDate.AddDays(7),
-            newOpeningDate.AddDays(2 + 7),
-            newOpeningDate.AddDays(7 + 7),
-        };
-
         List<SessionDTO> updatedSessions = await _dtcCollection.SessionDTC.ListShallowByScheduleIdAsync(schedule.Id);
-        Assert.Equal(schedule.TotalSessions, updatedSessions.Count);
+        Assert.Equal(updatedData.TotalSessions, updatedSessions.Count);
         Assert.True(expectedSessionDates.ToList().All(date => updatedSessions.Any(session => session.Date == date)));
 
         registration = await _dtcCollection.RegistrationDTC.GetByIdAsync(registration.Id);
         MembershipDTO updatedMembership = await _dtcCollection.MembershipDTC.SingleByMemberIdAsync(TestConstants.MEMBER_1_ID);
-        Assert.Null(registration);
-        Assert.Equal(previousRemainingSessions, updatedMembership.RemainingSessions);
+        if (isExpectRegistrationDeleted)
+        {
+            Assert.Null(registration);
+            Assert.Equal(previousRemainingSessions, updatedMembership.RemainingSessions);
+        }
+        else
+        {
+            Assert.NotNull(registration);
+            Assert.Equal(previousRemainingSessions - 1, updatedMembership.RemainingSessions);
+        }
     }
 }
