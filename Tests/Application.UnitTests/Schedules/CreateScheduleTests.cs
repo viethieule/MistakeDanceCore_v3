@@ -6,12 +6,12 @@ using Xunit;
 
 namespace Application.UnitTests.Schedules;
 
-public class CreateScheduleTests : TestBase
+public class CreateScheduleTests : ScheduleTestBase
 {
     //
     //  Test cases:
     //  1/ [Theory] Create with correct (TotalSessions + DaysPerWeek + OpeningDate): expect correct sessions date
-    //  2/ [Theory]  Create with correct (DaysPerWeek + OpeningDate) without TotalSessions: expect correct sessions date
+    //  2/ [Theory] Create with correct (DaysPerWeek + OpeningDate) without TotalSessions: expect correct sessions date
     //  3/ [Theory] Create: expect correct field values inserted
     //  4/ [Theory] or [Multiple test cases] Create tests with all rules in ScheduleValidators
     //
@@ -280,13 +280,5 @@ public class CreateScheduleTests : TestBase
             DaysPerWeek = new() { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
             TotalSessions = 3,
         };
-    }
-
-    private CreateScheduleService GetCreateScheduleService()
-    {
-        return new CreateScheduleService(
-            _context, _userContextMock.Object, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
-            _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC, _dtcCollection.SessionDTC
-        );
     }
 }

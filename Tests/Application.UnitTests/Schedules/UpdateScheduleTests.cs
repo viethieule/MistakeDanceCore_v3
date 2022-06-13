@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Application.UnitTests.Schedules;
 
-public class UpdateScheduleTests : TestBase
+public class UpdateScheduleTests : ScheduleTestBase
 {
     //
     // Test cases:
@@ -31,23 +31,10 @@ public class UpdateScheduleTests : TestBase
     {
         CreateScheduleRq createRq = new CreateScheduleRq
         {
-            Schedule = new ScheduleDTO
-            {
-                Song = "Test song",
-                OpeningDate = new DateTime(2022, 6, 6),
-                StartTime = new TimeSpan(9, 0, 0),
-                DaysPerWeek = new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
-                TotalSessions = 6,
-                BranchId = TestConstants.BRANCH_1_ID,
-                TrainerId = TestConstants.TRAINER_1_ID,
-                ClassId = TestConstants.CLASS_1_ID
-            }
+            Schedule = PrepareScheduleDTO()
         };
 
-        CreateScheduleService createScheduleService = new CreateScheduleService(
-            _context, _userContextMock.Object, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
-            _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC, _dtcCollection.SessionDTC
-        );
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
 
         CreateScheduleRs createRs = await createScheduleService.RunAsync(createRq);
         ScheduleDTO initialSchedule = createRs.Schedule;
@@ -70,11 +57,7 @@ public class UpdateScheduleTests : TestBase
             Schedule = updatedSchedule
         };
 
-        UpdateScheduleService updateScheduleService = new UpdateScheduleService(
-            _context, _userContextMock.Object,
-            _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC, _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC,
-            _dtcCollection.SessionDTC, _dtcCollection.RegistrationDTC, _dtcCollection.PackageDTC, _dtcCollection.MembershipDTC
-        );
+        UpdateScheduleService updateScheduleService = GetUpdateScheduleService();
 
         UpdateScheduleRs rs = await updateScheduleService.RunAsync(updateRq);
         ScheduleDTO schedule = await _dtcCollection.ScheduleDTC.SingleByIdAsync(updatedSchedule.Id);
@@ -102,23 +85,10 @@ public class UpdateScheduleTests : TestBase
     {
         CreateScheduleRq createRq = new CreateScheduleRq
         {
-            Schedule = new ScheduleDTO
-            {
-                Song = "Test song",
-                OpeningDate = new DateTime(2022, 6, 6),
-                StartTime = new TimeSpan(9, 0, 0),
-                DaysPerWeek = new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
-                TotalSessions = 6,
-                BranchId = TestConstants.BRANCH_1_ID,
-                TrainerId = TestConstants.TRAINER_1_ID,
-                ClassId = TestConstants.CLASS_1_ID
-            }
+            Schedule = PrepareScheduleDTO()
         };
 
-        CreateScheduleService createScheduleService = new CreateScheduleService(
-            _context, _userContextMock.Object, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
-            _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC, _dtcCollection.SessionDTC
-        );
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
 
         CreateScheduleRs createRs = await createScheduleService.RunAsync(createRq);
         ScheduleDTO updatedSchedule = createRs.Schedule;
@@ -136,11 +106,7 @@ public class UpdateScheduleTests : TestBase
             Schedule = updatedSchedule
         };
 
-        UpdateScheduleService updateScheduleService = new UpdateScheduleService(
-            _context, _userContextMock.Object,
-            _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC, _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC,
-            _dtcCollection.SessionDTC, _dtcCollection.RegistrationDTC, _dtcCollection.PackageDTC, _dtcCollection.MembershipDTC
-        );
+        UpdateScheduleService updateScheduleService = GetUpdateScheduleService();
 
         UpdateScheduleRs rs = await updateScheduleService.RunAsync(updateRq);
 
@@ -172,27 +138,18 @@ public class UpdateScheduleTests : TestBase
         List<DayOfWeek> daysPerWeek = initData.DaysPerWeek;
         int totalSessions = initData.TotalSessions;
 
-        ScheduleDTO schedule = new ScheduleDTO
-        {
-            Song = "Test song",
-            OpeningDate = openingDate,
-            StartTime = new TimeSpan(9, 0, 0),
-            DaysPerWeek = daysPerWeek,
-            TotalSessions = totalSessions,
-            BranchId = TestConstants.BRANCH_1_ID,
-            TrainerId = TestConstants.TRAINER_1_ID,
-            ClassId = TestConstants.CLASS_1_ID
-        };
+        ScheduleDTO schedule = PrepareScheduleDTO();
+
+        schedule.OpeningDate = openingDate;
+        schedule.DaysPerWeek = daysPerWeek;
+        schedule.TotalSessions = totalSessions;
 
         CreateScheduleRq createRq = new CreateScheduleRq
         {
             Schedule = schedule
         };
 
-        CreateScheduleService createScheduleService = new CreateScheduleService(
-            _context, _userContextMock.Object, _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC,
-            _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC, _dtcCollection.SessionDTC
-        );
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
 
         await createScheduleService.RunAsync(createRq);
 
@@ -220,11 +177,7 @@ public class UpdateScheduleTests : TestBase
         schedule.TotalSessions = updatedData.TotalSessions;
         schedule.DaysPerWeek = updatedData.DaysPerWeek;
 
-        UpdateScheduleService updateScheduleService = new UpdateScheduleService(
-            _context, _userContextMock.Object,
-            _dtcCollection.BranchDTC, _dtcCollection.TrainerDTC, _dtcCollection.ClassDTC, _dtcCollection.ScheduleDTC,
-            _dtcCollection.SessionDTC, _dtcCollection.RegistrationDTC, _dtcCollection.PackageDTC, _dtcCollection.MembershipDTC
-        );
+        UpdateScheduleService updateScheduleService = GetUpdateScheduleService();
 
         UpdateScheduleRq updateRq = new UpdateScheduleRq
         {
@@ -249,5 +202,20 @@ public class UpdateScheduleTests : TestBase
             Assert.NotNull(registration);
             Assert.Equal(previousRemainingSessions - 1, updatedMembership.RemainingSessions);
         }
+    }
+
+    private ScheduleDTO PrepareScheduleDTO()
+    {
+        return new ScheduleDTO
+        {
+            Song = "Test song",
+            OpeningDate = new DateTime(2022, 6, 6),
+            StartTime = new TimeSpan(9, 0, 0),
+            DaysPerWeek = new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
+            TotalSessions = 6,
+            BranchId = TestConstants.BRANCH_1_ID,
+            TrainerId = TestConstants.TRAINER_1_ID,
+            ClassId = TestConstants.CLASS_1_ID
+        };
     }
 }
