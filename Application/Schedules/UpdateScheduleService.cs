@@ -35,9 +35,9 @@ namespace Application.Schedules
         private readonly PackageDTC _packageDTC;
         private readonly MembershipDTC _membershipDTC;
 
-        private const string MESSAGE_START_TIME_CHANGED = "Thời gian lớp học đã thay đổi. Vui lòng thông báo lại cho các hội viên đã đăng ký";
-        private const string MESSAGE_SELECTED_SESSION_DELETED = "Buổi học này đã bị xóa sau khi sửa lịch học";
-        private const string MESSAGE_INFORM_OF_DELETED_REGISTRATION = "Có một hoặc nhiều buổi học đã bị xóa sau cập nhật. Các hội viên đã đăng ký sẽ được hoàn lại đăng ký của mình";
+        public const string MESSAGE_START_TIME_CHANGED = "Thời gian lớp học đã thay đổi. Vui lòng thông báo lại cho các hội viên đã đăng ký";
+        public const string MESSAGE_SELECTED_SESSION_DELETED = "Buổi học này đã bị xóa sau khi sửa lịch học";
+        public const string MESSAGE_INFORM_OF_DELETED_REGISTRATION = "Có một hoặc nhiều buổi học đã bị xóa sau cập nhật. Các hội viên đã đăng ký sẽ được hoàn lại đăng ký của mình";
 
         public UpdateScheduleService(
             IMistakeDanceDbContext mistakeDanceDbContext,

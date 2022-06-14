@@ -1,3 +1,4 @@
+using Application.Common.Exceptions;
 using Application.Memberships;
 using Application.Registrations;
 using Application.Schedules;
@@ -202,6 +203,106 @@ public class UpdateScheduleTests : ScheduleTestBase
             Assert.NotNull(registration);
             Assert.Equal(previousRemainingSessions - 1, updatedMembership.RemainingSessions);
         }
+    }
+
+    [Fact]
+    public async Task Handle_UpdateStartTime_ReturnsMessage()
+    {
+        ScheduleDTO schedule = PrepareScheduleDTO();
+        CreateScheduleRq createRq = new CreateScheduleRq
+        {
+            Schedule = schedule
+        };
+
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
+        await createScheduleService.RunAsync(createRq);
+
+        schedule.StartTime = new TimeSpan(10, 0, 0);
+
+        UpdateScheduleRq updateRq = new UpdateScheduleRq
+        {
+            Schedule = schedule
+        };
+
+        UpdateScheduleService updateScheduleService = GetUpdateScheduleService();
+        UpdateScheduleRs updateRs = await updateScheduleService.RunAsync(updateRq);
+
+        Assert.Contains(UpdateScheduleService.MESSAGE_START_TIME_CHANGED, updateRs.Messages);
+    }
+
+    [Fact]
+    // Test for two messages:
+    // - When the schedule is updated via the selected session on UI and that selected session is later deleted, returns one message inform that deletion
+    // - One of the deleted session has registration, returns one message informing that user is returned a sessions
+    public async Task Handle_OnUpdate_SelectedSession_WithRegistration_Deleted_ReturnsMessages()
+    {
+        ScheduleDTO schedule = PrepareScheduleDTO();
+        CreateScheduleRq createRq = new CreateScheduleRq
+        {
+            Schedule = schedule
+        };
+
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
+        await createScheduleService.RunAsync(createRq);
+
+        // Add registration to the second session, then later update to delete the sessions
+        List<SessionDTO> sessions = await _dtcCollection.SessionDTC.ListShallowByScheduleIdAsync(schedule.Id);
+
+        CreateRegistrationService createRegistrationService = new CreateRegistrationService(
+            _context, _userContextMock.Object, _dtcCollection.MembershipDTC, _dtcCollection.RegistrationDTC, _dtcCollection.MemberDTC);
+
+        int selectedSessionId = sessions.First(x => x.Number == 2).Id;
+        await createRegistrationService.RunAsync(new CreateRegistrationRq
+        {
+            SessionId = selectedSessionId,
+            MemberId = TestConstants.MEMBER_1_ID
+        });
+
+        schedule.DaysPerWeek = new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Thursday };
+
+        UpdateScheduleRq updateRq = new UpdateScheduleRq
+        {
+            Schedule = schedule,
+            SelectedSessionId = selectedSessionId
+        };
+
+        UpdateScheduleService updateScheduleService = GetUpdateScheduleService();
+        UpdateScheduleRs updateRs = await updateScheduleService.RunAsync(updateRq);
+
+        List<string> expectedMessages = new List<string>
+        {
+            UpdateScheduleService.MESSAGE_SELECTED_SESSION_DELETED,
+            UpdateScheduleService.MESSAGE_INFORM_OF_DELETED_REGISTRATION,
+        };
+
+        Assert.Equal(expectedMessages, updateRs.Messages);
+    }
+    
+    [Fact]
+    public async Task Handle_UpdateOpeningDateOfStartedSchedule_ThrowsException()
+    {
+        ScheduleDTO schedule = PrepareScheduleDTO();
+        CreateScheduleRq createRq = new CreateScheduleRq
+        {
+            Schedule = schedule
+        };
+
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
+        await createScheduleService.RunAsync(createRq);
+
+        schedule.OpeningDate = new DateTime(2022, 6, 8);
+
+        UpdateScheduleRq updateRq = new UpdateScheduleRq
+        {
+            Schedule = schedule
+        };
+
+        UpdateScheduleService updateScheduleService = GetUpdateScheduleService();
+
+        await Assert.ThrowsAsync<ServiceException>(async () => 
+        {
+            await updateScheduleService.RunAsync(updateRq);
+        });
     }
 
     protected new ScheduleDTO PrepareScheduleDTO()
