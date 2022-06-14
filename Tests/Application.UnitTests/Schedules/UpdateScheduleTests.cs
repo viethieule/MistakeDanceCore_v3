@@ -132,7 +132,7 @@ public class UpdateScheduleTests : ScheduleTestBase
     [MemberData(nameof(SessionInputTestData))]
     public async Task Handle_UpdateTimeInput_UpdatesSchedule(
         SessionInputData initData, SessionInputData updatedData,
-        List<DateTime> expectedSessionDates, bool isExpectRegistrationDeleted)
+        List<DateTime> expectedSessionDates, bool isExpectRegistrationOnFirstSessionDeleted)
     {
         DateTime openingDate = initData.OpeningDate;
         List<DayOfWeek> daysPerWeek = initData.DaysPerWeek;
@@ -192,7 +192,7 @@ public class UpdateScheduleTests : ScheduleTestBase
 
         registration = await _dtcCollection.RegistrationDTC.GetByIdAsync(registration.Id);
         MembershipDTO updatedMembership = await _dtcCollection.MembershipDTC.SingleByMemberIdAsync(TestConstants.MEMBER_1_ID);
-        if (isExpectRegistrationDeleted)
+        if (isExpectRegistrationOnFirstSessionDeleted)
         {
             Assert.Null(registration);
             Assert.Equal(previousRemainingSessions, updatedMembership.RemainingSessions);
@@ -204,7 +204,7 @@ public class UpdateScheduleTests : ScheduleTestBase
         }
     }
 
-    private ScheduleDTO PrepareScheduleDTO()
+    protected new ScheduleDTO PrepareScheduleDTO()
     {
         return new ScheduleDTO
         {

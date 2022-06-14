@@ -28,8 +28,8 @@ public static class UpdateScheduleTestData
             newOpeningDate.AddDays(7 + 7),
         };
 
-        bool isExpectRegistrationDeleted = true;
-        return new object[] { initData, updatedData, expectedSessionDates, isExpectRegistrationDeleted };
+        bool isExpectRegistrationOnFirstSessionDeleted = true;
+        return new object[] { initData, updatedData, expectedSessionDates, isExpectRegistrationOnFirstSessionDeleted };
     }
 
     public static object[] CreateSessionInputTestData2()
@@ -57,8 +57,8 @@ public static class UpdateScheduleTestData
             openingDate.AddDays(3 + 7)
         };
 
-        bool isExpectRegistrationDeleted = false;
-        return new object[] { initData, updatedData, expectedSessionDates, isExpectRegistrationDeleted };
+        bool isExpectRegistrationOnFirstSessionDeleted = false;
+        return new object[] { initData, updatedData, expectedSessionDates, isExpectRegistrationOnFirstSessionDeleted };
     }
 
     public static object[] CreateSessionInputTestData3()
@@ -86,8 +86,8 @@ public static class UpdateScheduleTestData
             openingDate.AddDays(7)
         };
 
-        bool isExpectRegistrationDeleted = false;
-        return new object[] { initData, updatedData, expectedSessionDates, isExpectRegistrationDeleted };
+        bool isExpectRegistrationOnFirstSessionDeleted = false;
+        return new object[] { initData, updatedData, expectedSessionDates, isExpectRegistrationOnFirstSessionDeleted };
     }
 }
 
