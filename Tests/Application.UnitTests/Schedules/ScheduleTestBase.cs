@@ -5,6 +5,26 @@ namespace Application.UnitTests.Schedules;
 
 public class ScheduleTestBase : TestBase
 {
+    public static IEnumerable<object[]> RequiredFieldData =>
+        new List<object[]>
+        {
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.Song)), null! },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.Song)), string.Empty },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.Song)), " " },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.StartTime)), default(TimeSpan) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.OpeningDate)), default(DateTime) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.DaysPerWeek)), null!},
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.DaysPerWeek)), new List<DayOfWeek>() },
+        };
+
+    public static IEnumerable<object[]> RequiredNavigationData =>
+        new List<object[]>
+        {
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.ClassId)), (Func<ScheduleDTO, string>)(x => nameof(x.ClassName)) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.TrainerId)), (Func<ScheduleDTO, string>)(x => nameof(x.TrainerName)) },
+            new object[] { (Func<ScheduleDTO, string>)(x => nameof(x.BranchId)), (Func<ScheduleDTO, string>)(x => nameof(x.BranchName)) },
+        };
+
     protected CreateScheduleService GetCreateScheduleService()
     {
         return new CreateScheduleService(

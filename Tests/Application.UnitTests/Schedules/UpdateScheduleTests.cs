@@ -277,7 +277,7 @@ public class UpdateScheduleTests : ScheduleTestBase
 
         Assert.Equal(expectedMessages, updateRs.Messages);
     }
-    
+
     [Fact]
     public async Task Handle_UpdateOpeningDateOfStartedSchedule_ThrowsException()
     {
@@ -299,7 +299,64 @@ public class UpdateScheduleTests : ScheduleTestBase
 
         UpdateScheduleService updateScheduleService = GetUpdateScheduleService();
 
-        await Assert.ThrowsAsync<ServiceException>(async () => 
+        await Assert.ThrowsAsync<ServiceException>(async () =>
+        {
+            await updateScheduleService.RunAsync(updateRq);
+        });
+    }
+
+    [Theory]
+    [MemberData(nameof(RequiredFieldData))]
+    public async Task Handle_NotInputRequiredProperty_ThrowException(Func<ScheduleDTO, string> func, object emptyValue)
+    {
+        CreateScheduleRq createRq = new CreateScheduleRq
+        {
+            Schedule = PrepareScheduleDTO()
+        };
+
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
+        CreateScheduleRs createRs = await createScheduleService.RunAsync(createRq);
+
+        UpdateScheduleRq updateRq = new UpdateScheduleRq
+        {
+            Schedule = createRs.Schedule
+        };
+
+        string propertyName = func.Invoke(updateRq.Schedule);
+        updateRq.Schedule.GetType().GetProperty(propertyName)!.SetValue(updateRq.Schedule, emptyValue);
+
+        UpdateScheduleService updateScheduleService = GetUpdateScheduleService();
+        await Assert.ThrowsAsync<ServiceException>(async () =>
+        {
+            await updateScheduleService.RunAsync(updateRq);
+        });
+    }
+
+    [Theory]
+    [MemberData(nameof(RequiredNavigationData))]
+    public async Task Handle_NotInputRequiredNavigationPair_ThrowException(
+        Func<ScheduleDTO, string> idPropNameFunc, Func<ScheduleDTO, string> namePropNameFunc)
+    {
+        CreateScheduleRq createRq = new CreateScheduleRq
+        {
+            Schedule = PrepareScheduleDTO()
+        };
+
+        CreateScheduleService createScheduleService = GetCreateScheduleService();
+        CreateScheduleRs createRs = await createScheduleService.RunAsync(createRq);
+
+        UpdateScheduleRq updateRq = new UpdateScheduleRq
+        {
+            Schedule = createRs.Schedule
+        };
+
+        string idPropName = idPropNameFunc.Invoke(updateRq.Schedule);
+        string namePropName = namePropNameFunc.Invoke(updateRq.Schedule);
+        updateRq.Schedule.GetType().GetProperty(idPropName)!.SetValue(updateRq.Schedule, null);
+        updateRq.Schedule.GetType().GetProperty(namePropName)!.SetValue(updateRq.Schedule, null);
+
+        UpdateScheduleService updateScheduleService = GetUpdateScheduleService();
+        await Assert.ThrowsAsync<ServiceException>(async () =>
         {
             await updateScheduleService.RunAsync(updateRq);
         });
