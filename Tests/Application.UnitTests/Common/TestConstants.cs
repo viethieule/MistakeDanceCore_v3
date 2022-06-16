@@ -27,5 +27,7 @@ namespace Application.UnitTests.Common
 
         public const int MEMBER_1_ID = 1;
         public const int MEMBER_1_PACKAGE_ID = 1;
+
+        public const int DEFAULT_PACKAGE_1_ID = 1;
     }
 }

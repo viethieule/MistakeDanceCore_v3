@@ -39,7 +39,7 @@ namespace Application.Members
             dto.UpdatedBy = efo.UpdatedBy;
         }
 
-        internal async Task CreateAsync(MemberDTO dto)
+        public async Task CreateAsync(MemberDTO dto)
         {
             Member efo = MapFromDTO(dto);
 
@@ -53,7 +53,7 @@ namespace Application.Members
             dto.Id = efo.Id;
         }
 
-        internal async Task<List<MemberDTO>> ListAsync(GetMembersRq rq)
+        public async Task<List<MemberDTO>> ListAsync(GetMembersRq rq)
         {
             IQueryable<Member> query = _mistakeDanceDbContext.Members;
 
@@ -107,7 +107,7 @@ namespace Application.Members
             return members.Select(MapToDTO).ToList();
         }
 
-        internal async Task<MemberDTO> SingleByIdAsync(int id)
+        public async Task<MemberDTO> SingleByIdAsync(int id)
         {
             Member member = await _mistakeDanceDbContext.Members.AsNoTracking().SingleAsync(x => x.Id == id);
             return MapToDTO(member);

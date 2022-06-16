@@ -4,6 +4,7 @@ using Application.Common.Interfaces;
 using Application.Memberships;
 using Application.Packages;
 using Application.Users;
+using FluentValidation.Results;
 
 namespace Application.Members
 {
@@ -42,6 +43,11 @@ namespace Application.Members
             _membershipDTC = membershipDTC;
         }
 
+        protected override ValidationResult Validate(CreateMemberRq rq)
+        {
+            return MemberValidators.CreateRq.Validate(rq);
+        }
+
         protected override async Task<CreateMemberRs> RunTransactionalAsync(CreateMemberRq rq)
         {
             MemberDTO memberDTO = rq.Member;
@@ -61,6 +67,8 @@ namespace Application.Members
 
             PackageDTO packageDTO = rq.Package;
             packageDTO.MemberId = memberDTO.Id;
+            packageDTO.BranchRegisteredId = memberDTO.BranchId;
+            
             await _packageDTC.CreateAsync(packageDTO);
 
             await _membershipDTC.CreateAsync(new MembershipDTO

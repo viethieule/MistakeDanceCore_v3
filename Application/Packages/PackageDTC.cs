@@ -36,9 +36,13 @@ namespace Application.Packages
             dto.Months = efo.Months;
             dto.DefaultPackageId = efo.DefaultPackageId;
             dto.BranchRegisteredId = efo.BranchRegisteredId;
+            dto.CreatedBy = efo.CreatedBy;
+            dto.CreatedDate = efo.CreatedDate;
+            dto.UpdatedBy = efo.UpdatedBy;
+            dto.UpdatedDate = efo.UpdatedDate;
         }
 
-        internal async Task<List<PackageDTO>> ListByMemberIdAsync(int memberId)
+        public async Task<List<PackageDTO>> ListByMemberIdAsync(int memberId)
         {
             List<Package> packages = await _mistakeDanceDbContext.Packages.Where(x => x.MemberId == memberId).AsNoTracking().ToListAsync();
             return packages.Select(MapToDTO).ToList();

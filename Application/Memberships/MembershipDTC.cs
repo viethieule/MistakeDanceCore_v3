@@ -47,6 +47,10 @@ namespace Application.Memberships
             dto.MemberId = efo.MemberId;
             dto.ExpiryDate = efo.ExpiryDate;
             dto.RemainingSessions = efo.RemainingSessions;
+            dto.CreatedBy = efo.CreatedBy;
+            dto.CreatedDate = efo.CreatedDate;
+            dto.UpdatedBy = efo.UpdatedBy;
+            dto.UpdatedDate = efo.UpdatedDate;
         }
 
         public async Task CreateAsync(MembershipDTO dto)

@@ -72,6 +72,14 @@ public class TestBase : IDisposable
             }
         });
 
+        _context.DefaultPackages.Add(new DefaultPackage
+        {
+            Id = TestConstants.DEFAULT_PACKAGE_1_ID,
+            NumberOfSessions = 100,
+            Price = 1000000,
+            Months = 10
+        });
+
         _context.SaveChanges();
 
         _context.ChangeTracker.Clear();
