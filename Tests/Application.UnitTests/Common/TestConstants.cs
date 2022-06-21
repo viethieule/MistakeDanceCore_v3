@@ -23,8 +23,6 @@ namespace Application.UnitTests.Common
         public const int CLASS_2_ID = 2;
         public const string CLASS_2_NAME = "Test class 2 name";
 
-        public const int SCHEDULE_1_ID = 1;
-
         public const int MEMBER_1_ID = 1;
         public const int MEMBER_1_PACKAGE_ID = 1;
 
