@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Identity.Migrations
 {
     [DbContext(typeof(ApplicationIdentityDbContext))]
-    [Migration("20220516150533_V0000")]
-    partial class V0000
+    [Migration("20220621142907_V00001")]
+    partial class V00001
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

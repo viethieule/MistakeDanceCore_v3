@@ -73,7 +73,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             {
                 string userName = ctx.Principal.FindFirst(AppClaimTypes.UserName)?.Value;
                 User user = await ctx.HttpContext.RequestServices.GetRequiredService<IUserService>().FindByUsernameAsync(userName);
-                ctx.HttpContext.Items["User"] = user;
+                ctx.HttpContext.Items[HttpContextCustomKey.User] = user;
             }
         };
     });

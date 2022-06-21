@@ -12,8 +12,8 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(MistakeDanceDbContext))]
-    [Migration("20220505134532_Init")]
-    partial class Init
+    [Migration("20220621140102_V00001")]
+    partial class V00001
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

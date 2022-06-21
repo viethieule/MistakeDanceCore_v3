@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infrastructure.Identity.Migrations
 {
-    public partial class V0000 : Migration
+    public partial class V00001 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

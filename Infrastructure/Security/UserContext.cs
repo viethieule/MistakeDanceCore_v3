@@ -8,7 +8,7 @@ namespace Infrastructure.Security
     {
         public UserContext(IHttpContextAccessor httpContextAccessor)
         {
-            User = httpContextAccessor.HttpContext.Items["User"] as User;
+            User = httpContextAccessor.HttpContext.Items[HttpContextCustomKey.User] as User;
         }
 
         public User User { get; }
