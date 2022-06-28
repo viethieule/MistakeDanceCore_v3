@@ -44,7 +44,7 @@ public class ScheduleTestBase : TestBase
     {
         return new ScheduleDTO
         {
-            Song = "Test song",
+            Song = TestConstants.SCHEDULE_TEST_SONG,
             StartTime = new TimeSpan(9, 0, 0),
             BranchId = TestConstants.BRANCH_1_ID,
             ClassId = TestConstants.CLASS_1_ID,

@@ -366,7 +366,7 @@ public class UpdateScheduleTests : ScheduleTestBase
     {
         return new ScheduleDTO
         {
-            Song = "Test song",
+            Song = TestConstants.SCHEDULE_TEST_SONG,
             OpeningDate = new DateTime(2022, 6, 6),
             StartTime = new TimeSpan(9, 0, 0),
             DaysPerWeek = new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday },
