@@ -40,19 +40,19 @@ public class ListSessionTest : TestBase
             expectedSessions.Any(es => es.Date == s.Date && es.Number == s.Number && es.ScheduleId == s.ScheduleId)));
 
         // Assert schedule info is correct
-        Assert.True(sessions.All(session =>
+        foreach (SessionDTO session in sessions)
         {
             ScheduleDTO schedule = SchedulesData.First(x => x.Id == session.ScheduleId);
-            return session.Song == schedule.Song &&
-                session.BranchId == schedule.BranchId &&
-                session.ClassId == schedule.ClassId &&
-                session.TrainerId == schedule.TrainerId &&
-                session.TotalSessions == schedule.TotalSessions &&
-                session.StartTime == schedule.StartTime &&
-                session.OpeningDate == schedule.OpeningDate &&
-                session.DaysPerWeek.Count == schedule.DaysPerWeek.Count &&
-                session.DaysPerWeek.All(d => schedule.DaysPerWeek.Contains(d));
-        }));
+            Assert.Equal(schedule.Song, session.Song);
+            Assert.Equal(schedule.BranchId, session.BranchId);
+            Assert.Equal(schedule.ClassId, session.ClassId);
+            Assert.Equal(schedule.TrainerId, session.TrainerId);
+            Assert.Equal(schedule.TotalSessions, session.TotalSessions);
+            Assert.Equal(schedule.StartTime, session.StartTime);
+            Assert.Equal(schedule.OpeningDate, session.OpeningDate);
+            Assert.Equal(schedule.DaysPerWeek.Count, session.DaysPerWeek.Count);
+            Assert.True(session.DaysPerWeek.All(d => schedule.DaysPerWeek.Contains(d)));
+        }
     }
 
     private CreateScheduleService GetCreateScheduleService()
@@ -74,25 +74,25 @@ public class ListSessionTest : TestBase
             PrepareScheduleDTO(
                 1000, new DateTime(2022, 6, 15), new TimeSpan(9, 0, 0), new List<DayOfWeek> { DayOfWeek.Wednesday, DayOfWeek.Sunday }, 2),
 
+            // Out of date range (after)
+            PrepareScheduleDTO(
+                2000, new DateTime(2022, 6, 28), new TimeSpan(21, 0, 0), new List<DayOfWeek> { DayOfWeek.Tuesday, DayOfWeek.Thursday, DayOfWeek.Saturday }, 5),
+
             // In date range, with a few behind
             PrepareScheduleDTO(
-                2000, new DateTime(2022, 6, 13), new TimeSpan(15, 0, 0), new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday }, 6),
+                3000, new DateTime(2022, 6, 13), new TimeSpan(15, 0, 0), new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Wednesday, DayOfWeek.Friday }, 6),
             PrepareScheduleDTO(
-                3000, new DateTime(2022, 6, 14), new TimeSpan(10, 0, 0), new List<DayOfWeek> { DayOfWeek.Tuesday, DayOfWeek.Thursday }, 3),
+                4000, new DateTime(2022, 6, 14), new TimeSpan(10, 0, 0), new List<DayOfWeek> { DayOfWeek.Tuesday, DayOfWeek.Thursday }, 3),
 
             // In date range, with a few after
             // With a session in the left limit
             PrepareScheduleDTO(
-                4000, new DateTime(2022, 6, 20), new TimeSpan(19, 0, 0), new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Thursday }, 5),
+                5000, new DateTime(2022, 6, 20), new TimeSpan(19, 0, 0), new List<DayOfWeek> { DayOfWeek.Monday, DayOfWeek.Thursday }, 5),
 
             // In date range, with a few after
             // With a session in the right limit
             PrepareScheduleDTO(
-                5000, new DateTime(2022, 6, 24), new TimeSpan(22, 0, 0), new List<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Sunday }, 5),
-
-            // Out of date range (after)
-            PrepareScheduleDTO(
-                6000, new DateTime(2022, 6, 28), new TimeSpan(21, 0, 0), new List<DayOfWeek> { DayOfWeek.Tuesday, DayOfWeek.Thursday, DayOfWeek.Saturday }, 5),
+                6000, new DateTime(2022, 6, 24), new TimeSpan(22, 0, 0), new List<DayOfWeek> { DayOfWeek.Friday, DayOfWeek.Sunday }, 5)
         };
 
     private static List<SessionDTO> SessionsData
