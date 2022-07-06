@@ -16,9 +16,14 @@ namespace API.Controllers
             return Ok(await this.RunAsync<LoginService, LoginRq, LoginRs>(rq));
         }
 
-        [HttpPost]
-        public async Task<IActionResult> RefreshToken(RefreshTokenRq rq)
+        [HttpGet]
+        public async Task<IActionResult> RefreshToken()
         {
+            RefreshTokenRq rq = new()
+            {
+                RefreshToken = Request.Cookies["JwtRefreshToken"]
+            };
+
             return Ok(await this.RunAsync<RefreshTokenService, RefreshTokenRq, RefreshTokenRs>(rq));
         }
     }
