@@ -13,8 +13,8 @@ namespace Application.Authentication
 
     public class RefreshTokenRs : BaseResponse
     {
-        public string RefreshToken { get; set; }
-        public string AccessToken { get; set; }
+        public string JwtRefreshToken { get; set; }
+        public string JwtAccessToken { get; set; }
     }
 
     public class RefreshTokenService : BaseService<RefreshTokenRq, RefreshTokenRs>
@@ -43,8 +43,8 @@ namespace Application.Authentication
 
             RefreshTokenRs rs = new()
             {
-                AccessToken = accessToken,
-                RefreshToken = newRefreshToken
+                JwtAccessToken = accessToken,
+                JwtRefreshToken = newRefreshToken
             };
 
             return rs;

@@ -1,5 +1,6 @@
 using API.Common;
 using Application.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -11,12 +12,14 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginRq rq)
         {
             return Ok(await this.RunAsync<LoginService, LoginRq, LoginRs>(rq));
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> RefreshToken()
         {
             RefreshTokenRq rq = new()
