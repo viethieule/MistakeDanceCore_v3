@@ -1,46 +1,73 @@
 import React, { useEffect, useReducer, useState } from "react";
-import axios from "axios";
+import axios, { buildAxiosConfig } from "../../axios";
+import { getErrorMessage } from "../../utils/Error";
+import { Routes, Route, BrowserRouter } from "react-router-dom";
+import AuthenticationContainer from "../AuthenticationContainer/AuthenticationContainer";
+import LoggedInContainer from "../LoggedInContainer/LoggedInContainer";
+import { AppActionType, AppContext, appStateReducer, initialAppState } from "../../common/AppContext";
 
-interface IAppState {
-  jwtAccessToken: string;
-}
-
-enum AppActionType {
-  RefreshToken = "RefreshToken",
-}
-
-type AppAction = { type: AppActionType.RefreshToken; jwtAccessToken: string };
-
-const initialAppState: IAppState = {
-  jwtAccessToken: "",
-};
-
-function appStateReducer(state: IAppState, action: AppAction): IAppState {
-  switch (action.type) {
-    case AppActionType.RefreshToken:
-      return {
-        ...state,
-        jwtAccessToken: action.jwtAccessToken,
-      };
-    default:
-      throw new Error("Invalid action type");
-  }
-}
-
-export function App() {
-  const [appState, dispatch] = useReducer(appStateReducer, {
+export default function App() {
+  const [appState, appStateDispatch] = useReducer(appStateReducer, {
     ...initialAppState,
   });
   const [loading, setLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState("");
 
   useEffect(() => {
+    const currentPath = window.location.pathname.toLowerCase();
+    let jwtAccessToken = "";
     axios
-      .get("/authentication/refreshtoken")
+      .get("api/authentication/refreshtoken")
       .then((response) => {
-        const { jwtAccessToken } = response.data;
+        jwtAccessToken = response.data.jwtAccessToken;
+        appStateDispatch({ type: AppActionType.RefreshToken, jwtAccessToken });
+        const config = buildAxiosConfig(jwtAccessToken);
+        return axios.get("api/user/current", config);
       })
-      .catch((error) => {});
+      .then((response) => {
+        const { user } = response.data;
+        appStateDispatch({ type: AppActionType.Login, user, jwtAccessToken });
+        setLoading(false);
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 401) {
+          if (currentPath.startsWith("/auth")) {
+            setLoading(false);
+          } else {
+            window.location.href = `/auth/login?return_url=${encodeURIComponent(
+              currentPath
+            )}`;
+          }
+        } else {
+          const errorMessage = getErrorMessage(error);
+          setLoadingError(errorMessage);
+        }
+      });
   }, []);
 
-  return <></>;
+  let content = null;
+  if (loading && loadingError) {
+    content = <div>Error: {loadingError}</div>;
+  } else if (loading) {
+    content = <div>Loading ...</div>;
+  } else {
+    content = (
+      <Routes>
+        <Route path="auth">
+          <AuthenticationContainer />
+        </Route>
+        <Route>
+          <LoggedInContainer />
+        </Route>
+      </Routes>
+    );
+  }
+
+  return (
+    <AppContext.Provider value={{ appState, appStateDispatch }}>
+      <BrowserRouter>
+        {content}
+      </BrowserRouter>
+    </AppContext.Provider>
+  );
 }

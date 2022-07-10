@@ -15,8 +15,9 @@ namespace Application.Authentication
 
     public class LoginRs : BaseResponse
     {
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
+        public string JwtAccessToken { get; set; }
+        public string JwtRefreshToken { get; set; }
+        public User User { get; set; }
     }
 
     public class LoginService : BaseService<LoginRq, LoginRs>
@@ -55,8 +56,9 @@ namespace Application.Authentication
 
             return new LoginRs
             {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken
+                User = user,
+                JwtAccessToken = accessToken,
+                JwtRefreshToken = refreshToken
             };
         }
     }

@@ -1,33 +1,63 @@
 using API.Common;
 using Application.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     public class AuthenticationController : BaseApiController
     {
+        private const string COOKIE_JWT_REFRESH_TOKEN = "JwtRefreshToken";
         public AuthenticationController(IServiceProvider serviceProvider) : base(serviceProvider)
         {
         }
 
         [HttpPost]
-        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginRq rq)
         {
-            return Ok(await this.RunAsync<LoginService, LoginRq, LoginRs>(rq));
+            LoginRs rs = await this.RunAsync<LoginService, LoginRq, LoginRs>(rq);
+            SetRefreshTokenCookie(rs.JwtRefreshToken);
+            rs.JwtRefreshToken = null;
+            return Ok(rs);
         }
 
         [HttpGet]
-        [AllowAnonymous]
         public async Task<IActionResult> RefreshToken()
         {
-            RefreshTokenRq rq = new()
+            try
             {
-                RefreshToken = Request.Cookies["JwtRefreshToken"]
+                RefreshTokenRq rq = new()
+                {
+                    RefreshToken = Request.Cookies[COOKIE_JWT_REFRESH_TOKEN]
+                };
+
+                if (string.IsNullOrEmpty(rq.RefreshToken))
+                {
+                    return Unauthorized();
+                }
+
+                RefreshTokenRs rs  = await this.RunAsync<RefreshTokenService, RefreshTokenRq, RefreshTokenRs>(rq);
+                SetRefreshTokenCookie(rs.JwtRefreshToken);
+                rs.JwtRefreshToken = string.Empty;
+                return Ok(rs);
+            }
+            catch (Exception)
+            {
+                // log
+                return Unauthorized();
+            }
+        }
+
+        private void SetRefreshTokenCookie(string refreshToken)
+        {
+            CookieOptions cookieOptions = new()
+            {
+                HttpOnly = true,
+                Secure = true,
+                IsEssential = true,
+                Path = "/api/Authentication/RefreshTokens"
             };
 
-            return Ok(await this.RunAsync<RefreshTokenService, RefreshTokenRq, RefreshTokenRs>(rq));
+            Response.Cookies.Append(COOKIE_JWT_REFRESH_TOKEN, refreshToken, cookieOptions);
         }
     }
 }
