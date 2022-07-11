@@ -1,7 +1,9 @@
-import React from 'react'
+import React from "react";
 
 export default function LoggedInContainer() {
   return (
-    <div>LoggedInContainer</div>
-  )
+    <>
+      <p>LoggedInContainer</p>
+    </>
+  );
 }

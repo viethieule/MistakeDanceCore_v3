@@ -4,7 +4,12 @@ import { getErrorMessage } from "../../utils/Error";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import AuthenticationContainer from "../AuthenticationContainer/AuthenticationContainer";
 import LoggedInContainer from "../LoggedInContainer/LoggedInContainer";
-import { AppActionType, AppContext, appStateReducer, initialAppState } from "../../common/AppContext";
+import {
+  AppActionType,
+  AppContext,
+  appStateReducer,
+  initialAppState,
+} from "../../common/AppContext";
 
 export default function App() {
   const [appState, appStateDispatch] = useReducer(appStateReducer, {
@@ -53,21 +58,15 @@ export default function App() {
   } else {
     content = (
       <Routes>
-        <Route path="auth">
-          <AuthenticationContainer />
-        </Route>
-        <Route>
-          <LoggedInContainer />
-        </Route>
+        <Route path="/" element={<LoggedInContainer />} />
+        <Route path="auth/*" element={<AuthenticationContainer />} />
       </Routes>
     );
   }
 
   return (
     <AppContext.Provider value={{ appState, appStateDispatch }}>
-      <BrowserRouter>
-        {content}
-      </BrowserRouter>
+      <BrowserRouter>{content}</BrowserRouter>
     </AppContext.Provider>
   );
 }

@@ -54,7 +54,8 @@ namespace API.Controllers
                 HttpOnly = true,
                 Secure = true,
                 IsEssential = true,
-                Path = "/api/Authentication/RefreshTokens"
+                Expires = DateTime.Now.AddDays(1)
+                // Path = "/api/Authentication/RefreshTokens"
             };
 
             Response.Cookies.Append(COOKIE_JWT_REFRESH_TOKEN, refreshToken, cookieOptions);
