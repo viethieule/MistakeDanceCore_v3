@@ -54,7 +54,9 @@ namespace API.Controllers
                 HttpOnly = true,
                 Secure = true,
                 IsEssential = true,
-                Expires = DateTime.Now.AddDays(1)
+                Expires = DateTime.Now.AddDays(1),
+                SameSite = SameSiteMode.None,
+                Domain = "localhost"
                 // Path = "/api/Authentication/RefreshTokens"
             };
 

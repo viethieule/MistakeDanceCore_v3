@@ -24,7 +24,7 @@ export default function Login() {
     event.preventDefault();
     setLoading(true);
     axios
-      .post("/api/authentication/login", { username, password })
+      .post("/api/authentication/login", { username, password }, { withCredentials: true })
       .then((response) => {
         const { jwtAccessToken, user } = response.data;
         appStateDispatch({ type: AppActionType.Login, user, jwtAccessToken });

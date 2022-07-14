@@ -56,7 +56,7 @@ namespace Infrastructure.Security
 
             var jwtToken = (JwtSecurityToken)validatedToken;
             string tokenType = jwtToken.Claims.First(x => x.Type == AppClaimTypes.Type).Value;
-            if (tokenType == type.ToString())
+            if (tokenType != type.ToString())
             {
                 throw new SecurityTokenInvalidTypeComparisonException();
             }

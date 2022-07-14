@@ -22,7 +22,7 @@ export default function App() {
     const currentPath = window.location.pathname.toLowerCase();
     let jwtAccessToken = "";
     axios
-      .get("api/authentication/refreshtoken")
+      .get("api/authentication/refreshtoken", { withCredentials: true })
       .then((response) => {
         jwtAccessToken = response.data.jwtAccessToken;
         appStateDispatch({ type: AppActionType.RefreshToken, jwtAccessToken });
