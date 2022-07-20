@@ -20,11 +20,6 @@ namespace Infrastructure.Security
             _appIdentityDbContext = appIdentityDbContext;
 
         }
-        public async Task SaveTokenAsync(string userName, string refreshToken)
-        {
-            await SaveTokenAsyncNoCommit(userName, refreshToken);
-            await _appIdentityDbContext.SaveChangesAsync();
-        }
 
         public async Task<string> ValidateAndRefresh(string userName, string refreshToken)
         {
@@ -43,18 +38,25 @@ namespace Infrastructure.Security
             {
                 _appIdentityDbContext.JwtRefreshTokens.Remove(token);
 
-                await SaveTokenAsyncNoCommit(userName, newRefreshToken);
+                await SaveTokenAsync(userName, newRefreshToken, false);
 
                 await _appIdentityDbContext.SaveChangesAsync();
+
+                await transaction.CommitAsync();
             }
 
             return newRefreshToken;
         }
 
-        private async Task SaveTokenAsyncNoCommit(string userName, string refreshToken)
+        public async Task SaveTokenAsync(string userName, string refreshToken, bool commit = true)
         {
             JwtRefreshToken token = new(userName, refreshToken, _appSettings.JwtRefreshTokenExpiryDuration);
             await _appIdentityDbContext.JwtRefreshTokens.AddAsync(token);
+
+            if (commit)
+            {
+                await _appIdentityDbContext.SaveChangesAsync();
+            }
         }
     }
 }

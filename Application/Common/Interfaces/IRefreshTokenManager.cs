@@ -2,7 +2,7 @@ namespace Application.Common.Interfaces
 {
     public interface IRefreshTokenManager
     {
-        Task SaveTokenAsync(string id, string refreshToken);
+        Task SaveTokenAsync(string id, string refreshToken, bool commit = true);
         Task<string> ValidateAndRefresh(string userName, string refreshToken);
     }
 }
