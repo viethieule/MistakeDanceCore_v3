@@ -17,6 +17,7 @@ namespace Application.Authentication
     {
         public string JwtAccessToken { get; set; }
         public string JwtRefreshToken { get; set; }
+        public DateTime JwtAccessTokenExpiresOn { get; set; }
         public User User { get; set; }
     }
 
@@ -49,8 +50,11 @@ namespace Application.Authentication
                 throw new ServiceException("Login error");
             }
 
-            string accessToken = _jwtManager.GenerateToken(new JwtInfo(user.UserName, JwtType.Access, _appSettings.JwtAccessTokenExpiryDuration));
-            string refreshToken = _jwtManager.GenerateToken(new JwtInfo(user.UserName, JwtType.Refresh, _appSettings.JwtAccessTokenExpiryDuration));
+            JwtInfo accessTokenInfo = new JwtInfo(user.UserName, JwtType.Access, _appSettings.JwtAccessTokenExpiryDuration);
+            string accessToken = _jwtManager.GenerateToken(accessTokenInfo);
+
+            JwtInfo refreshTokenInfo = new JwtInfo(user.UserName, JwtType.Refresh, _appSettings.JwtAccessTokenExpiryDuration);
+            string refreshToken = _jwtManager.GenerateToken(refreshTokenInfo);
 
             await _refreshTokenService.SaveTokenAsync(user.UserName, refreshToken);
 
@@ -58,6 +62,7 @@ namespace Application.Authentication
             {
                 User = user,
                 JwtAccessToken = accessToken,
+                JwtAccessTokenExpiresOn = accessTokenInfo.Expires,
                 JwtRefreshToken = refreshToken
             };
         }

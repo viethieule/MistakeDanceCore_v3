@@ -1,6 +1,7 @@
 using Application.Common;
 using Application.Common.Exceptions;
 using Application.Common.Interfaces;
+using Application.Common.Settings;
 using Application.Jwt;
 using Application.Users;
 
@@ -15,6 +16,7 @@ namespace Application.Authentication
     {
         public string JwtRefreshToken { get; set; }
         public string JwtAccessToken { get; set; }
+        public DateTime JwtAccessTokenExpiresOn { get; set; }
     }
 
     public class RefreshTokenService : BaseService<RefreshTokenRq, RefreshTokenRs>
@@ -22,16 +24,18 @@ namespace Application.Authentication
         private readonly IJwtManager _jwtManager;
         private readonly IUserService _userService;
         private readonly IRefreshTokenManager _refreshTokenManager;
-        public RefreshTokenService(IJwtManager jwtManager, IUserService userService, IRefreshTokenManager refreshTokenManager)
+        private readonly AppSettings _appSettings;
+        public RefreshTokenService(IJwtManager jwtManager, IUserService userService, IRefreshTokenManager refreshTokenManager, AppSettings appSettings)
         {
+            _appSettings = appSettings;
             _refreshTokenManager = refreshTokenManager;
             _userService = userService;
             _jwtManager = jwtManager;
         }
         protected override async Task<RefreshTokenRs> DoRunAsync(RefreshTokenRq rq)
         {
-            JwtInfo jwtInfo = _jwtManager.Validate(rq.RefreshToken, JwtType.Refresh);
-            User user = await _userService.FindByUsernameAsync(jwtInfo.UserName);
+            JwtInfo refreshTokenInfo = _jwtManager.Validate(rq.RefreshToken, JwtType.Refresh);
+            User user = await _userService.FindByUsernameAsync(refreshTokenInfo.UserName);
             if (user == null)
             {
                 throw new ServiceException("User not found");
@@ -39,11 +43,13 @@ namespace Application.Authentication
 
             string newRefreshToken = await _refreshTokenManager.ValidateAndRefresh(user.UserName, rq.RefreshToken);
 
-            string accessToken = _jwtManager.GenerateToken(new JwtInfo(user.UserName, JwtType.Access, new TimeSpan(7, 0, 0)));
+            JwtInfo newAccessTokenInfo = new JwtInfo(user.UserName, JwtType.Access, _appSettings.JwtAccessTokenExpiryDuration);
+            string accessToken = _jwtManager.GenerateToken(newAccessTokenInfo);
 
             RefreshTokenRs rs = new()
             {
                 JwtAccessToken = accessToken,
+                JwtAccessTokenExpiresOn = newAccessTokenInfo.Expires,
                 JwtRefreshToken = newRefreshToken
             };
 
