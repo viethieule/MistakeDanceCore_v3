@@ -17,6 +17,7 @@ namespace Application.Authentication
         public string JwtRefreshToken { get; set; }
         public string JwtAccessToken { get; set; }
         public DateTime JwtAccessTokenExpiresOn { get; set; }
+        public DateTime? JwtRefreshTokenExpiresOn { get; set; }
     }
 
     public class RefreshTokenService : BaseService<RefreshTokenRq, RefreshTokenRs>
@@ -39,9 +40,10 @@ namespace Application.Authentication
             if (user == null)
             {
                 throw new ServiceException("User not found");
-            }
+            }   
 
-            string newRefreshToken = await _refreshTokenManager.ValidateAndRefresh(user.UserName, rq.RefreshToken);
+            JwtInfo newRefreshTokenInfo = new JwtInfo(user.UserName, JwtType.Refresh, _appSettings.JwtRefreshTokenExpiryDuration);
+            string newRefreshToken = await _refreshTokenManager.ValidateAndRefresh(user.UserName, rq.RefreshToken, newRefreshTokenInfo);
 
             JwtInfo newAccessTokenInfo = new JwtInfo(user.UserName, JwtType.Access, _appSettings.JwtAccessTokenExpiryDuration);
             string accessToken = _jwtManager.GenerateToken(newAccessTokenInfo);
@@ -50,7 +52,8 @@ namespace Application.Authentication
             {
                 JwtAccessToken = accessToken,
                 JwtAccessTokenExpiresOn = newAccessTokenInfo.Expires,
-                JwtRefreshToken = newRefreshToken
+                JwtRefreshToken = newRefreshToken,
+                JwtRefreshTokenExpiresOn = newRefreshTokenInfo.Expires
             };
 
             return rs;

@@ -21,7 +21,7 @@ namespace Infrastructure.Security
 
         }
 
-        public async Task<string> ValidateAndRefresh(string userName, string refreshToken)
+        public async Task<string> ValidateAndRefresh(string userName, string refreshToken, JwtInfo newRefreshTokenInfo)
         {
             JwtRefreshToken token = await _appIdentityDbContext.JwtRefreshTokens.FirstOrDefaultAsync(x => x.UserName == userName && x.Token == refreshToken);
             if (token == null || token.ExpireDate < DateTime.Now)
@@ -29,10 +29,7 @@ namespace Infrastructure.Security
                 throw new ServiceException("Invalid token");
             }
 
-            string newRefreshToken = _jwtManager.GenerateToken
-            (
-                new JwtInfo(userName, JwtType.Refresh, _appSettings.JwtRefreshTokenExpiryDuration)
-            );
+            string newRefreshToken = _jwtManager.GenerateToken(newRefreshTokenInfo);
 
             using (var transaction = await _appIdentityDbContext.Database.BeginTransactionAsync())
             {

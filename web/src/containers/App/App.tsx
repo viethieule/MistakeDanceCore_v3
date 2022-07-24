@@ -21,17 +21,19 @@ export default function App() {
   useEffect(() => {
     const currentPath = window.location.pathname.toLowerCase();
     let jwtAccessToken = "";
+    let jwtAccessTokenExpiresOn = new Date();
     axios
       .get("api/authentication/refreshtoken", { withCredentials: true })
       .then((response) => {
         jwtAccessToken = response.data.jwtAccessToken;
-        appStateDispatch({ type: AppActionType.RefreshToken, jwtAccessToken });
+        jwtAccessTokenExpiresOn = response.data.jwtAccessTokenExpiresOn;
+        appStateDispatch({ type: AppActionType.RefreshToken, jwtAccessToken, jwtAccessTokenExpiresOn });
         const config = buildAxiosConfig(jwtAccessToken);
         return axios.get("api/user/current", config);
       })
       .then((response) => {
         const { user } = response.data;
-        appStateDispatch({ type: AppActionType.Login, user, jwtAccessToken });
+        appStateDispatch({ type: AppActionType.Login, user, jwtAccessToken, jwtAccessTokenExpiresOn });
         setLoading(false);
       })
       .catch((error) => {

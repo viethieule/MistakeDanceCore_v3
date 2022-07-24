@@ -18,6 +18,7 @@ namespace Application.Authentication
         public string JwtAccessToken { get; set; }
         public string JwtRefreshToken { get; set; }
         public DateTime JwtAccessTokenExpiresOn { get; set; }
+        public DateTime? JwtRefreshTokenExpiresOn { get; set; }
         public User User { get; set; }
     }
 
@@ -63,7 +64,8 @@ namespace Application.Authentication
                 User = user,
                 JwtAccessToken = accessToken,
                 JwtAccessTokenExpiresOn = accessTokenInfo.Expires,
-                JwtRefreshToken = refreshToken
+                JwtRefreshToken = refreshToken,
+                JwtRefreshTokenExpiresOn = refreshTokenInfo.Expires
             };
         }
     }

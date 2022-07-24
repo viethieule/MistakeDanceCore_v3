@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class ScheduleController : BaseApiController
+public class ScheduleController : AuthenticatedController
 {
     public ScheduleController(IServiceProvider serviceProvider) : base(serviceProvider)
     {

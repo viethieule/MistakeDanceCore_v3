@@ -2,6 +2,7 @@ import React, { createContext, useContext } from "react";
 
 export interface IAppState {
   jwtAccessToken: string;
+  jwtAccessTokenExpiresOn: Date | null;
   user: IUser | null;
 }
 
@@ -21,11 +22,21 @@ export enum AppActionType {
 }
 
 export type AppAction =
-  | { type: AppActionType.RefreshToken; jwtAccessToken: string }
-  | { type: AppActionType.Login; user: IUser; jwtAccessToken: string };
+  | {
+      type: AppActionType.RefreshToken;
+      jwtAccessToken: string;
+      jwtAccessTokenExpiresOn: Date;
+    }
+  | {
+      type: AppActionType.Login;
+      user: IUser;
+      jwtAccessToken: string;
+      jwtAccessTokenExpiresOn: Date;
+    };
 
 export const initialAppState: IAppState = {
   jwtAccessToken: "",
+  jwtAccessTokenExpiresOn: null,
   user: {
     id: "",
     userName: "",
@@ -45,11 +56,15 @@ export function appStateReducer(
     case AppActionType.Login:
       return {
         ...state,
+        user: action.user,
+        jwtAccessToken: action.jwtAccessToken,
+        jwtAccessTokenExpiresOn: action.jwtAccessTokenExpiresOn,
       };
     case AppActionType.RefreshToken:
       return {
         ...state,
         jwtAccessToken: action.jwtAccessToken,
+        jwtAccessTokenExpiresOn: action.jwtAccessTokenExpiresOn,
       };
     default:
       throw new Error("Invalid action type");
@@ -69,5 +84,5 @@ export const initialAppContext: IAppContext = {
 export const AppContext = createContext(initialAppContext);
 
 export const useAppContext = () => {
-    return useContext(AppContext);
-}
+  return useContext(AppContext);
+};

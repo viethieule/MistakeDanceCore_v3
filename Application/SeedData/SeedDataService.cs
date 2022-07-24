@@ -66,6 +66,28 @@ namespace Application.SeedData
                 });
             }
 
+            if (!(await _mistakeDanceDbContext.Classes.AnyAsync()))
+            {
+                shouldSeed = true;
+                _mistakeDanceDbContext.Classes.AddRange(new List<Class>
+                {
+                    new() { Name = "Múa đương đại", CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
+                    new() { Name = "Choreography", CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
+                    new() { Name = "Sexy dance", CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
+                });
+            }
+
+            if (!(await _mistakeDanceDbContext.Trainers.AnyAsync()))
+            {
+                shouldSeed = true;
+                _mistakeDanceDbContext.Trainers.AddRange(new List<Trainer>
+                {
+                    new() { Name = "Linh", CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
+                    new() { Name = "Phuong", CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
+                    new() { Name = "Hieu", CreatedBy = "SeedDataService", CreatedDate = DateTime.Now, UpdatedBy = "SeedDataService", UpdatedDate = DateTime.Now },
+                });
+            }
+
             if (shouldSeed)
             {
                 _logger.LogInformation("Start seeding application data...");
