@@ -21,4 +21,10 @@ public class SessionController : BaseApiController
     {
         return Ok(await this.RunAsync<DeleteSessionService, DeleteSessionRq, DeleteSessionRs>(rq));
     }
+
+    [HttpPost]
+    public async Task<IActionResult> Timetable(GetTimetableRq rq)
+    {
+        return Ok(await this.RunAsync<GetTimetableService, GetTimetableRq, GetTimetableRs>(rq));
+    }
 }

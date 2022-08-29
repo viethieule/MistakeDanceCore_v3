@@ -1,3 +1,4 @@
+using System.Globalization;
 using Application.Common;
 using FluentValidation.Results;
 
@@ -31,12 +32,10 @@ namespace Application.Sessions
             DateTime start = rq.Start.Date;
             DateTime end = rq.Start.AddDays(7).AddSeconds(-1);
 
-            List<SessionDTO> sessions = await _sessionDTC.ListAsync(start, end);
+            var rs = new ListSessionsRs();
+            rs.Sessions = await _sessionDTC.ListAsync(start, end);
 
-            return new ListSessionsRs
-            {
-                Sessions = sessions
-            };
+            return rs;
         }
     }
 }

@@ -20,8 +20,7 @@ export const acquireAxiosConfig = async (appState: IAppState, appStateDispatch: 
 export const acquireJwtAccessToken = async (
   appState: IAppState,
   appStateDispatch: React.Dispatch<AppAction>
-): Promise<string> => {
-  debugger;
+): Promise<string> => {  
   if (
     appState.jwtAccessToken &&
     appState.jwtAccessTokenExpiresOn &&
