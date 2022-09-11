@@ -1,4 +1,5 @@
 using Application.Common;
+using Application.Common.Dropdowns;
 using Application.Common.Interfaces;
 using Domain;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,14 @@ namespace Application.Branches
             _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
 
             MapToDTO(efo, dto);
+        }
+
+        public async Task<List<DropdownOptionDTO>> GetDropdownOptions()
+        {
+            var options = await _mistakeDanceDbContext.Branches
+                .Select(x => new DropdownOptionDTO(x.Id.ToString(), x.Name)).ToListAsync();
+            
+            return options;
         }
 
         protected override void MapFromDTO(BranchDTO dto, Branch efo)

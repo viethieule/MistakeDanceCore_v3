@@ -1,4 +1,5 @@
 using Application.Common;
+using Application.Common.Dropdowns;
 using Application.Common.Interfaces;
 using Domain;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,15 @@ namespace Application.Classes
             _mistakeDanceDbContext.Entry(efo).State = EntityState.Detached;
 
             dto.Id = efo.Id;
+        }
+
+        public async Task<List<DropdownOptionDTO>> GetDropdownOptions()
+        {
+            List<DropdownOptionDTO> options = await _mistakeDanceDbContext.Classes
+                .Select(x => new DropdownOptionDTO(x.Id.ToString(), x.Name))
+                .ToListAsync();
+
+            return options;
         }
 
         protected override void MapFromDTO(ClassDTO dto, Class efo)
