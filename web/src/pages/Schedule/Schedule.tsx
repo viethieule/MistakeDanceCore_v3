@@ -8,6 +8,15 @@ import { IDropdownOption } from "../../common/dropdowns/IDropdownOption";
 import { getClassOptions } from "../../common/dropdowns/Class";
 import { getTrainerOptions } from "../../common/dropdowns/Trainer";
 import { getBranchOptions } from "../../common/dropdowns/Branch";
+import { FormContext, FormDataActionType, IFormDef, useForm } from "../../common/form/FormContext";
+import { DropdownField } from "../../common/form/fields/DropdownField";
+import { TextField } from "../../common/form/fields/TextField";
+import { DateField } from "../../common/form/fields/DateField";
+import { TimeField } from "../../common/form/fields/TimeField";
+import { CheckboxesField } from "../../common/form/fields/CheckboxesField";
+import { IntegerField } from "../../common/form/fields/IntegerField";
+import { FieldDataType } from "../../common/form/FieldDefs";
+import { serializeForm } from "../../common/form/FormSerializer";
 
 export interface ITimetableRow {
   startTime: string;
@@ -54,12 +63,77 @@ function getDaysOfCurrentWeek() {
   return daysOfCurrentWeek;
 }
 
+const scheduleFormDef: IFormDef = {
+  fields: {
+    class: {
+      dataType: FieldDataType.Dropdown,
+      dataPath: "schedule.classId"
+    },
+    song: {
+      dataType: FieldDataType.Text,
+      dataPath: "schedule.song"
+    },
+    openingDate: {
+      dataType: FieldDataType.DateTime,
+      dataPath: "schedule.openingDate"
+    },
+    startTime: {
+      dataType: FieldDataType.Time,
+      dataPath: "schedule.startTime"
+    },
+    daysPerWeek: {
+      dataType: FieldDataType.Checkboxes,
+      dataPath: "schedule.daysPerWeek"
+    },
+    totalSessions: {
+      dataType: FieldDataType.Integer,
+      dataPath: "schedule.totalSessions"
+    },
+    trainer: {
+      dataType: FieldDataType.Dropdown,
+      dataPath: "schedule.trainerId"
+    },
+    branch: {
+      dataType: FieldDataType.Dropdown,
+      dataPath: "schedule.branchId"
+    }
+  }
+}
+
+interface IRegistrationListProps {
+  sessionId: number
+}
+interface IRegistration {
+}
+const RegistrationList: React.FC<IRegistrationListProps> = ({ sessionId }) => {
+  const [registrations, setRegistrations] = useState<IRegistration[]>([]);
+  useEffect(() => {
+    const fetchRegistrations = async () => {
+      return new Array<IRegistration>();
+    }
+    fetchRegistrations();
+  }, [])
+  
+  return (
+    <div>
+      {registrations.map(registration => (
+        <div></div>
+      ))}      
+    </div>
+  )
+}
+
 export const Schedule = () => {
   const [timetable, setTimetable] = useState<ITimetableRow[]>([]);
   const [daysOfWeek, setDaysOfWeek] = useState<moment.Moment[]>(getDaysOfCurrentWeek());
   const [loading, setLoading] = useState(true);
+  const [createScheduleSuccess, setCreateScheduleSuccess] = useState(false);
   const [loadingError, setLoadingError] = useState("");
   const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const [session, setSession] = useState<ISession | null>(null);
+
+  const scheduleFormContext = useForm(scheduleFormDef);
+  const { formData, formDataDispatch } = scheduleFormContext;
 
   // Options
   const [classOptions, setClassOptions] = useState(new Array<IDropdownOption>());
@@ -68,29 +142,36 @@ export const Schedule = () => {
 
   const { appState, appStateDispatch } = useAppContext();
 
-  useEffect(() => {
-    const fetchSessions = async () => {
-      setLoading(true);
-      try {
-        const axiosConfig = await acquireAxiosConfig(appState, appStateDispatch);
+  const fetchSessions = async () => {
+    setLoading(true);
+    try {
+      const axiosConfig = await acquireAxiosConfig(appState, appStateDispatch);
 
-        const response = await axios.post(
-          "api/Session/Timetable",
-          { start: daysOfWeek[0] },
-          axiosConfig
-        );
+      const response = await axios.post(
+        "api/Session/Timetable",
+        { start: daysOfWeek[0] },
+        axiosConfig
+      );
 
-        const { timetable } = response.data;
-        setTimetable(timetable);
-        setLoading(false);
-      } catch (error: any) {
-        console.log(error);
-        const errorMessage = getErrorMessage(error);
-        setLoadingError(errorMessage);
-      }
-    };
+      const { timetable } = response.data;
+      setTimetable(timetable);
+      setLoading(false);
+    } catch (error: any) {
+      console.log(error);
+      const errorMessage = getErrorMessage(error);
+      setLoadingError(errorMessage);
+    }
+  };
+
+  useEffect(() => {    
     fetchSessions();
   }, [daysOfWeek]);
+
+  useEffect(() => {
+    if (createScheduleSuccess) {
+      fetchSessions();
+    }
+  }, [createScheduleSuccess])
 
   useEffect(() => {
     if (!showScheduleForm) {
@@ -117,7 +198,6 @@ export const Schedule = () => {
     fetchOptions();
   }, [showScheduleForm])
 
-
   const handlePreviousClick = () => {
     const previousDaysOfWeek = daysOfWeek.map(dayOfWeek => dayOfWeek.clone().subtract(7, 'days'));
     setDaysOfWeek(previousDaysOfWeek);
@@ -132,9 +212,41 @@ export const Schedule = () => {
     setShowScheduleForm(true);
   }
 
-  const handleOnSubmit = (event: any) => {
+  const handleOnSubmit = async (event: any) => {
+    // TODO: can remove preventDefault() ?
     event.preventDefault();
-    console.log(event);
+    const model = serializeForm(formData.values, scheduleFormDef.fields);
+    console.log(model);
+    setLoading(true);
+    setCreateScheduleSuccess(false);
+    try {
+      const axiosConfig = await acquireAxiosConfig(appState, appStateDispatch);
+      const response = await axios.post("api/Schedule/Create", model, axiosConfig);
+      const { sessions, schedule } = response.data;
+      if (sessions && schedule) {
+        setCreateScheduleSuccess(true);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleEmptySlotClick = (selectStartTime: string, selectedDayOfWeek: number) => {
+    formDataDispatch({ type: FormDataActionType.ClearValues });
+    const openingDate = daysOfWeek.find(day => day.day() === selectedDayOfWeek);
+    const newValues = {
+      startTime: selectStartTime,
+      daysPerWeek: [selectedDayOfWeek.toString()],
+      openingDate: openingDate?.format("YYYY-MM-DD")
+    }
+    formDataDispatch({ type: FormDataActionType.SetValues, newValues });
+    setShowScheduleForm(true);
+  }
+
+  const handleSessionClick = (session: ISession) => {
+    setSession(session);
   }
 
   let content = null;
@@ -158,63 +270,58 @@ export const Schedule = () => {
     const scheduleForm = (
       <div>
         <form>
-          <div>
-            <label>Lớp</label>
-            <select name="class" id="class">
-              {classOptions.map(option => <option key={option.value} value={option.value}>{option.text}</option>)}
-            </select>
-          </div>
-          <div>
-            <label>Bài múa</label>
-            <input type="text" name="song" id="song" />
-          </div>
-          <div>
-            <label>Ngày bắt đầu</label>
-            <input type="date" name="openingDate" id="openingDate" />
-          </div>
-          <div>
-            <label>Giờ bắt đầu</label>
-            <input type="time" name="startTime" id="startTime" />
-          </div>
-          <div>
-            <label>Các buổi / tuần</label>
-            <input type="checkbox" name="dayOfWeek1" id="dayOfWeek1" value="1" />
-            <label>Thứ 2</label>
-            <input type="checkbox" name="dayOfWeek2" id="dayOfWeek2" value="2" />
-            <label>Thứ 3</label>
-            <input type="checkbox" name="dayOfWeek3" id="dayOfWeek3" value="3" />
-            <label>Thứ 4</label>
-            <input type="checkbox" name="dayOfWeek4" id="dayOfWeek4" value="4" />
-            <label>Thứ 5</label>
-            <input type="checkbox" name="dayOfWeek5" id="dayOfWeek5" value="5" />
-            <label>Thứ 6</label>
-            <input type="checkbox" name="dayOfWeek6" id="dayOfWeek6" value="6" />
-            <label>Thứ 7</label>
-            <input type="checkbox" name="dayOfWeek0" id="dayOfWeek0" value="0" />
-            <label>Chủ Nhật</label>
-          </div>
-          <div>
-            <label>Tổng số buổi</label>
-            <input type="number" name="totalSession" id="totalSession" />
-          </div>
-          <div>
-            <label>Giáo viên</label>
-            <select name="trainer" id="trainer">
-              {trainerOptions.map(option => <option key={option.value} value={option.value}>{option.text}</option>)}
-            </select>
-          </div>
-          <div>
-            <label>Chi nhánh</label>
-            <select name="branch" id="branch">
-              {branchOptions.map(option => <option key={option.value} value={option.value}>{option.text}</option>)}
-            </select>
-          </div>
-          <div>
-            <button onClick={handleOnSubmit}>Tạo</button>
-          </div>
+          <FormContext.Provider value={scheduleFormContext}>
+            <DropdownField label="Lớp" name="class" options={classOptions} />
+            <TextField label="Bài múa" name="song" />
+            <DateField label="Ngày bắt đầu" name="openingDate" />
+            <TimeField label="Giờ bắt đầu" name="startTime" />
+            <CheckboxesField
+              label="Các buổi / tuần"
+              name="daysPerWeek"
+              options={[
+                { label: 'Thứ 2', value: "1" },
+                { label: 'Thứ 3', value: "2" },
+                { label: 'Thứ 4', value: "3" },
+                { label: 'Thứ 5', value: "4" },
+                { label: 'Thứ 6', value: "5" },
+                { label: 'Thứ 7', value: "6" },
+                { label: 'Chủ nhật', value: "0" },
+              ]}
+            />
+            <IntegerField label="Tổng số buổi" name="totalSessions" />
+            <DropdownField label="Giáo viên" name="trainer" options={trainerOptions} />
+            <DropdownField label="Chi nhánh" name="branch" options={branchOptions} />
+            <div>
+              <button onClick={handleOnSubmit}>Tạo</button>
+            </div>
+          </FormContext.Provider>
         </form>
       </div>
-    );
+    )
+
+    const sessionDetails = session && (
+      <div>
+        <div>
+          <h2>Thông tin buổi học</h2>
+          <p>Id: {session.id}</p>
+          <p>Date: {session.date.toString()}</p>
+          <p>Number: {session.number}</p>
+          <p>ScheduleId: {session.scheduleId}</p>
+          <p>Song: {session.song}</p>
+          <p>Opening date: {session.openingDate.toString()}</p>
+          <p>Days per week: {session.daysPerWeek.join(",")}</p>
+          <p>Total sessions: {session.totalSessions}</p>
+          <p>Start time: {session.startTime}</p>
+          <p>Branch: {session.branchName}</p>
+          <p>Trainer: {session.trainerName}</p>
+          <p>Class: {session.className}</p>
+        </div>
+        <div>
+          <h2>Danh sách đăng ký</h2>
+          <RegistrationList sessionId={session.id} />
+        </div>
+      </div>
+    )
 
     const timetableHeader = (
       <thead>
@@ -233,9 +340,12 @@ export const Schedule = () => {
           <tr key={row.startToEnd}>
             <td>{row.startToEnd}</td>
             {row.sessionCells.map(cell => (
-              <td key={cell.dayOfWeek}>
+              <td
+                key={cell.dayOfWeek}
+                onClick={() => !cell.sessions.length && handleEmptySlotClick(row.startTime, cell.dayOfWeek)}
+              >
                 {cell.sessions.map(session => (
-                  <div key={session.id}>
+                  <div key={session.id} onClick={() => handleSessionClick(session)}>
                     <p>Id: {session.id}</p>
                     <p>Date: {session.date.toString()}</p>
                     <p>Number: {session.number}</p>
@@ -270,6 +380,7 @@ export const Schedule = () => {
       <div>
         {controls}
         {showScheduleForm && scheduleForm}
+        {session && sessionDetails}
         {schedule}
       </div>
     );
