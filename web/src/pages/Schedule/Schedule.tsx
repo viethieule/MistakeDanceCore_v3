@@ -104,20 +104,29 @@ interface IRegistrationListProps {
   sessionId: number
 }
 interface IRegistration {
+  id: number;
+  memberId: number
+  memberFullName: string;
+  status: number;
 }
 const RegistrationList: React.FC<IRegistrationListProps> = ({ sessionId }) => {
   const [registrations, setRegistrations] = useState<IRegistration[]>([]);
+  const { appState, appStateDispatch } = useAppContext();
   useEffect(() => {
     const fetchRegistrations = async () => {
-      return new Array<IRegistration>();
+      const axiosConfig = await acquireAxiosConfig(appState, appStateDispatch);
+      const response = await axios.post("api/Registration/ListBySesssionId", { sessionId }, axiosConfig);
+      const { registrations } = response.data;
+      setRegistrations(registrations);
     }
+
     fetchRegistrations();
   }, [])
   
   return (
     <div>
-      {registrations.map(registration => (
-        <div></div>
+      {registrations.map((registration, index) => (
+        <div>{++index + 1} {registration.memberFullName}</div>
       ))}      
     </div>
   )

@@ -41,6 +41,11 @@ namespace Application.Registrations
             dto.CreatedBy = efo.CreatedBy;
             dto.UpdatedDate = efo.UpdatedDate;
             dto.UpdatedBy = efo.UpdatedBy;
+
+            if (efo.Member != null)
+            {
+                dto.MemberFullName = efo.Member.FullName;
+            }
         }
 
         public async Task<RegistrationDTO> SingleByIdAsync(int id)
@@ -90,6 +95,16 @@ namespace Application.Registrations
             List<Registration> registrations = await _mistakeDanceDbContext.Registrations
                 .Where(x => sessionIds.Contains(x.SessionId))
                 .AsNoTracking()
+                .ToListAsync();
+
+            return registrations.Select(MapToDTO).ToList();
+        }
+
+        public async Task<List<RegistrationDTO>> ListBySessionIdAsync(int sessionId)
+        {
+            List<Registration> registrations = await _mistakeDanceDbContext.Registrations
+                .Where(x => x.SessionId == sessionId)
+                .Include(x => x.Member)
                 .ToListAsync();
 
             return registrations.Select(MapToDTO).ToList();

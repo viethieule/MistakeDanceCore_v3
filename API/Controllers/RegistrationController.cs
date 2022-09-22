@@ -20,4 +20,10 @@ public class RegistrationController : BaseApiController
     {
         return Ok(await this.RunAsync<CancelRegistrationService, CancelRegistrationRq, CancelRegistrationRs>(rq));
     }
+
+    [HttpPost]
+    public async Task<IActionResult> ListBySessionId(ListRegistrationsBySessionIdRq rq)
+    {
+        return Ok(await this.RunAsync<ListRegistrationsBySessionIdService, ListRegistrationsBySessionIdRq, ListRegistrationsBySessionIdRs>(rq));
+    }
 }
