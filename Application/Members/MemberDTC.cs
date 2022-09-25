@@ -1,4 +1,5 @@
 using Application.Common;
+using Application.Common.Helpers;
 using Application.Common.Interfaces;
 using Domain;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,22 @@ namespace Application.Members
             efo.BranchId = dto.BranchId;
             efo.UserName = dto.UserName;
             efo.UserId = dto.UserId;
+        }
+
+        public async Task<List<MemberDTO>> Search(string keyword)
+        {
+            if (string.IsNullOrEmpty(keyword) || keyword.Length < 2 || (keyword.Length < 5 && keyword.All(char.IsDigit)))
+            {
+                return new List<MemberDTO>();
+            }
+
+            keyword = keyword.NormalizeVietnameseDiacritics();
+
+            List<Member> members = await _mistakeDanceDbContext.Members
+                .Where(u => u.NormalizedFullName.Contains(keyword) || u.PhoneNumber.Contains(keyword) || u.UserName.Contains(keyword))
+                .ToListAsync();
+
+            return members.Select(MapToDTO).ToList();
         }
 
         protected override void MapToDTO(Member efo, MemberDTO dto)

@@ -20,4 +20,10 @@ public class MemberController : AuthenticatedController
     {
         return Ok(await this.RunAsync<GetMembersService, GetMembersRq, GetMembersRs>(rq));
     }
+
+    [HttpPost]
+    public async Task<IActionResult> Search(SearchMembersRq rq)
+    {
+        return Ok(await this.RunAsync<SearchMembersService, SearchMembersRq, SearchMembersRs>(rq));
+    }
 }

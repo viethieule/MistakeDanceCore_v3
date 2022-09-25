@@ -1,5 +1,5 @@
 export interface IFieldProps {
-    label: string;
+    label?: string;
     name: string;
     onChange?: () => void;
 }

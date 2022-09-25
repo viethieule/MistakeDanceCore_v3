@@ -104,6 +104,99 @@ const scheduleFormDef: IFormDef = {
   }
 }
 
+interface IMemberSearchListProps {
+  registeredMemberIds: number[];
+  onRegisterMember: (memberId: number) => void;
+}
+interface IMemberSearchResult {
+  id: number;
+  fullName: string;
+  phoneNumber: string;
+  userName: string;
+}
+const MemberSearchList: React.FC<IMemberSearchListProps> = ({
+  registeredMemberIds, onRegisterMember
+}) => {
+  const searchFormDef = {
+    fields: {
+      keyword: {
+        dataType: FieldDataType.Text,
+        dataPath: "keyword"
+      }
+    }
+  }
+
+  const searchFormContext = useForm(searchFormDef);
+  const { formData } = searchFormContext;
+  const { appState, appStateDispatch } = useAppContext();
+  const [members, setMembers] = useState<IMemberSearchResult[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadingError, setLoadingError] = useState("");
+  const [emptyResultMessage, setEmptyResultMessage] = useState("");
+
+  const handleSearchClick = async (event: any) => {
+    event.preventDefault();
+    const model = serializeForm(formData.values, searchFormDef.fields);
+    const axiosConfig = await acquireAxiosConfig(appState, appStateDispatch);
+    setLoadingError("");
+    setEmptyResultMessage("");
+    setLoading(true);
+    try {
+      const response = await axios.post("api/Member/Search", model, axiosConfig);
+      const { members } = response.data;
+      setMembers(members);
+      if (members.length === 0) {
+        setEmptyResultMessage("Not found or keyword too short!");
+      }
+    } catch (error) {
+      console.log(error);
+      setLoadingError(getErrorMessage(error));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleRegisterClick = (memberId: number) => {
+    onRegisterMember(memberId);
+  }
+
+  return (
+    <div>
+      <form>
+        <FormContext.Provider value={searchFormContext}>
+          <TextField placeholder="Search..." name="keyword" />
+          <button onClick={handleSearchClick}>Search</button>
+        </FormContext.Provider>
+      </form>
+      <div>
+        {loadingError}
+        {loading && "Loading..."}
+        {!loading && (
+          <table>
+            <tbody>
+              {emptyResultMessage && <tr>{emptyResultMessage}</tr>}
+              {members.map(member => (
+                <tr key={member.id}>
+                  <td>{member.fullName}</td>
+                  <td>{member.userName}</td>
+                  <td>{member.phoneNumber}</td>
+                  <td>
+                    {
+                      registeredMemberIds.includes(member.id) ?
+                        'Đã đăng ký' :
+                        <button onClick={() => handleRegisterClick(member.id)}>Đăng ký</button>
+                    }
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  )
+}
+
 interface IRegistrationListProps {
   sessionId: number
 }
@@ -116,6 +209,7 @@ interface IRegistration {
 const RegistrationList: React.FC<IRegistrationListProps> = ({ sessionId }) => {
   const [registrations, setRegistrations] = useState<IRegistration[]>([]);
   const { appState, appStateDispatch } = useAppContext();
+
   useEffect(() => {
     const fetchRegistrations = async () => {
       const axiosConfig = await acquireAxiosConfig(appState, appStateDispatch);
@@ -125,20 +219,31 @@ const RegistrationList: React.FC<IRegistrationListProps> = ({ sessionId }) => {
     }
 
     fetchRegistrations();
-  }, [sessionId])
+  }, [sessionId]);
+
+  const handleRegisterMember = () => {
+
+  }
 
   return (
-    <div>
-      {registrations.map((registration, index) => (
-        <div key={registration.id}>{+index + 1} {registration.memberFullName}</div>
-      ))}
-    </div>
+    <>
+      <MemberSearchList
+        registeredMemberIds={registrations.map(x => x.memberId)}
+        onRegisterMember={handleRegisterMember}
+      />
+      <div>
+        {registrations.map((registration, index) => (
+          <div key={registration.id}>{+index + 1} {registration.memberFullName}</div>
+        ))}
+      </div>
+    </>
   )
 }
 
 export const Schedule = () => {
   const [timetable, setTimetable] = useState<ITimetableRow[]>([]);
   const [daysOfWeek, setDaysOfWeek] = useState<moment.Moment[]>(getDaysOfCurrentWeek());
+  const [selectedDayOfWeek, setSelectedDayOfWeek] = useState<moment.Moment | null>(null);
   const [loading, setLoading] = useState(true);
   const [saveScheduleComplete, setSaveScheduleComplete] = useState(false);
   const [loadingError, setLoadingError] = useState("");
@@ -149,9 +254,9 @@ export const Schedule = () => {
   const { formMode, formModeDispatch, formData, formDataDispatch } = scheduleFormContext;
 
   // Options
-  const [classOptions, setClassOptions] = useState(new Array<IDropdownOption>());
-  const [trainerOptions, setTrainerOptions] = useState(new Array<IDropdownOption>());
-  const [branchOptions, setBranchOptions] = useState(new Array<IDropdownOption>());
+  const [classOptions, setClassOptions] = useState<IDropdownOption[]>([]);
+  const [trainerOptions, setTrainerOptions] = useState<IDropdownOption[]>([]);
+  const [branchOptions, setBranchOptions] = useState<IDropdownOption[]>([]);
 
   const { appState, appStateDispatch } = useAppContext();
 
@@ -212,19 +317,45 @@ export const Schedule = () => {
   }, [showScheduleForm])
 
   const handlePreviousClick = () => {
-    const previousDaysOfWeek = daysOfWeek.map(dayOfWeek => dayOfWeek.clone().subtract(7, 'days'));
-    setDaysOfWeek(previousDaysOfWeek);
+    const goToPreviousWeek = !selectedDayOfWeek || selectedDayOfWeek.day() === daysOfWeek[0].day();
+    if (goToPreviousWeek) {
+      const previousDaysOfWeek = daysOfWeek.map(dayOfWeek => dayOfWeek.clone().subtract(7, 'days'));
+      setDaysOfWeek(previousDaysOfWeek);
+      if (selectedDayOfWeek) {
+        setSelectedDayOfWeek(previousDaysOfWeek[previousDaysOfWeek.length - 1].clone());
+      }
+    } else {
+      const currentSelectedIndex = daysOfWeek.findIndex(dayOfWeek => dayOfWeek.day() === selectedDayOfWeek.day());
+      setSelectedDayOfWeek(daysOfWeek[currentSelectedIndex - 1].clone());
+    }
   }
 
   const handleNextClick = () => {
-    const nextDaysOfWeek = daysOfWeek.map(dayOfWeek => dayOfWeek.clone().add(7, 'days'));
-    setDaysOfWeek(nextDaysOfWeek);
+    const goToNextWeek = !selectedDayOfWeek || selectedDayOfWeek.day() === daysOfWeek[daysOfWeek.length - 1].day();
+    if (goToNextWeek) {
+      const nextDaysOfWeek = daysOfWeek.map(dayOfWeek => dayOfWeek.clone().add(7, 'days'));
+      setDaysOfWeek(nextDaysOfWeek);
+      if (selectedDayOfWeek) {
+        setSelectedDayOfWeek(nextDaysOfWeek[0].clone());
+      }
+    } else {
+      const currentSelectedIndex = daysOfWeek.findIndex(dayOfWeek => dayOfWeek.day() === selectedDayOfWeek.day());
+      setSelectedDayOfWeek(daysOfWeek[currentSelectedIndex + 1].clone());
+    }
   }
 
   const handleCreateScheduleClick = () => {
     formModeDispatch(FormMode.Create);
     formDataDispatch({ type: FormDataActionType.ClearValues });
     setShowScheduleForm(true);
+  }
+
+  const handleDayOfWeekClick = (dayOfWeek: moment.Moment) => {
+    setSelectedDayOfWeek(dayOfWeek);
+  }
+
+  const handleToggleTimetableViewMode = () => {
+    setSelectedDayOfWeek(selectedDayOfWeek ? null : daysOfWeek[0].clone());
   }
 
   const handleOnSubmit = async (event: any) => {
@@ -301,11 +432,13 @@ export const Schedule = () => {
       <div>
         <button onClick={handlePreviousClick}>Prev</button>
         {daysOfWeek.map(dayOfWeek => (
-          <button key={dayOfWeek.date()}>{dayOfWeek.date()}</button>
+          <button key={dayOfWeek.date()} onClick={() => handleDayOfWeekClick(dayOfWeek)}>{dayOfWeek.date()}</button>
         ))}
         <button onClick={handleNextClick}>Next</button>
         {' '}
         <button onClick={handleCreateScheduleClick}>Create</button>
+        {' '}
+        <button onClick={handleToggleTimetableViewMode}>{selectedDayOfWeek ? 'Week View' : 'Day view'}</button>
       </div>
     )
 
@@ -356,6 +489,7 @@ export const Schedule = () => {
           <p>Opening date: {session.openingDate.toString()}</p>
           <p>Days per week: {session.daysPerWeek.join(",")}</p>
           <p>Total sessions: {session.totalSessions}</p>
+          <p>Total registered: {session.totalRegistered}</p>
           <p>Start time: {session.startTime}</p>
           <p>Branch: {session.branchName}</p>
           <p>Trainer: {session.trainerName}</p>
@@ -376,9 +510,13 @@ export const Schedule = () => {
       <thead>
         <tr>
           <th></th>
-          {daysOfWeek.map(dayOfWeek => (
-            <th key={dayOfWeek.day()}>{dayOfWeek.format("ddd D/M")}</th>
-          ))}
+          {
+            selectedDayOfWeek ?
+              <th key={selectedDayOfWeek.day()}>{selectedDayOfWeek.format("ddd D/M")}</th> :
+              daysOfWeek.map(dayOfWeek => (
+                <th key={dayOfWeek.day()}>{dayOfWeek.format("ddd D/M")}</th>
+              ))
+          }
         </tr>
       </thead>
     )
@@ -388,7 +526,7 @@ export const Schedule = () => {
         {timetable.map(row => (
           <tr key={row.startToEnd}>
             <td>{row.startToEnd}</td>
-            {row.sessionCells.map(cell => (
+            {row.sessionCells.filter(cell => !selectedDayOfWeek || cell.dayOfWeek === selectedDayOfWeek.day()).map(cell => (
               <td
                 key={cell.dayOfWeek}
                 onClick={() => !cell.sessions.length && handleEmptySlotClick(row.startTime, cell.dayOfWeek)}
@@ -403,6 +541,7 @@ export const Schedule = () => {
                     <p>Opening date: {session.openingDate.toString()}</p>
                     <p>Days per week: {session.daysPerWeek.join(",")}</p>
                     <p>Total sessions: {session.totalSessions}</p>
+                    <p>Total registered: {session.totalRegistered}</p>
                     <p>Start time: {session.startTime}</p>
                     <p>Branch: {session.branchName}</p>
                     <p>Trainer: {session.trainerName}</p>
