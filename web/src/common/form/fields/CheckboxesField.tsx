@@ -15,7 +15,7 @@ export const CheckboxesField: React.FC<ICheckboxFieldProps> = ({
     label, name, onChange = () => { }, options
 }) => {
     const { formData, formDataDispatch } = useFormContext();
-    const checkboxValues: string[] = formData.values[name];
+    const checkboxValues: string[] = formData.values[name] ? formData.values[name].map((x: any) => x.toString()) : [];
     const handleChange = (event: any) => {
         const newCheckboxValues = checkboxValues ? [ ...checkboxValues ] : [];
         const value = event.target.value;

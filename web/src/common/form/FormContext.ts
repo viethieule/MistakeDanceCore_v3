@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useReducer } from "react";
 import { IFieldDefs } from "./FieldDefs";
 
@@ -38,22 +38,32 @@ const formDataReducer = (state: IFormData, action: FormDataAction): IFormData =>
     }
 }
 
+export enum FormMode {
+    Create = "Create",
+    Edit = "Edit"
+}
+
 interface IFormContext {
     formDef: IFormDef;
+    formMode: FormMode;
+    formModeDispatch: React.Dispatch<FormMode>;
     formData: IFormData;
     formDataDispatch: React.Dispatch<FormDataAction>;
 }
 
 export const FormContext = React.createContext<IFormContext>({
     formDef: { fields: {} },
+    formMode: FormMode.Create,
+    formModeDispatch: (formMode: FormMode) => {}, 
     formData: blankFormState,
     formDataDispatch: (value: FormDataAction) => { }
 })
 
 export const useForm = (formDef: IFormDef): IFormContext => {
     const [formData, formDataDispatch] = useReducer(formDataReducer, blankFormState);
+    const [formMode, formModeDispatch] = useState(FormMode.Create);
     return {
-        formDef, formData, formDataDispatch
+        formDef, formMode, formModeDispatch, formData, formDataDispatch
     };
 }
 

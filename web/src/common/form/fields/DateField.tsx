@@ -1,3 +1,5 @@
+import { type } from '@testing-library/user-event/dist/type';
+import moment from 'moment';
 import React from 'react';
 import { FormDataActionType, useFormContext } from '../FormContext';
 import { IFieldProps } from './IFieldProps';
@@ -8,7 +10,10 @@ export const DateField: React.FC<IDateFieldProps> = ({
     label, name, onChange = () => {}
 }) => {
     const { formData, formDataDispatch } = useFormContext();
-    const value = formData.values[name];
+    let value = formData.values[name];
+    if (value) {
+        value = moment(value).format('YYYY-MM-DD');
+    }
     const handleChange = (event: any) => {
         formDataDispatch({ type: FormDataActionType.SetValues, newValues: { [name]: event.target.value } });
         onChange();

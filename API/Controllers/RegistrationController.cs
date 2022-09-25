@@ -3,7 +3,7 @@ using Application.Registrations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
-public class RegistrationController : BaseApiController
+public class RegistrationController : AuthenticatedController
 {
     public RegistrationController(IServiceProvider serviceProvider) : base(serviceProvider)
     {

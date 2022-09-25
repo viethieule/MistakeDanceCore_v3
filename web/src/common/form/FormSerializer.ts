@@ -16,7 +16,9 @@ export const serializeForm = (fieldValues: IDictionary, fieldDefs: IFieldDefs): 
             case FieldDataType.Checkboxes:
                 break;
             case FieldDataType.Integer:
-                fieldValue = parseInt(fieldValue);
+                if (fieldValue) {
+                    fieldValue = parseInt(fieldValue);
+                }
                 break;
             case FieldDataType.DateTime:
                 if (fieldValue) {
@@ -24,7 +26,7 @@ export const serializeForm = (fieldValues: IDictionary, fieldDefs: IFieldDefs): 
                 }
                 break;
         }
-        _.set(model, fieldDef.dataPath, fieldValue);        
+        _.set(model, fieldDef.dataPath, fieldValue);
     }
 
     return model;

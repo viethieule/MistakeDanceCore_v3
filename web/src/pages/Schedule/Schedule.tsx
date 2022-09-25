@@ -8,7 +8,7 @@ import { IDropdownOption } from "../../common/dropdowns/IDropdownOption";
 import { getClassOptions } from "../../common/dropdowns/Class";
 import { getTrainerOptions } from "../../common/dropdowns/Trainer";
 import { getBranchOptions } from "../../common/dropdowns/Branch";
-import { FormContext, FormDataActionType, IFormDef, useForm } from "../../common/form/FormContext";
+import { FormContext, FormDataActionType, FormMode, IFormDef, useForm } from "../../common/form/FormContext";
 import { DropdownField } from "../../common/form/fields/DropdownField";
 import { TextField } from "../../common/form/fields/TextField";
 import { DateField } from "../../common/form/fields/DateField";
@@ -65,6 +65,10 @@ function getDaysOfCurrentWeek() {
 
 const scheduleFormDef: IFormDef = {
   fields: {
+    id: {
+      dataType: FieldDataType.Integer,
+      dataPath: "schedule.id"
+    },
     class: {
       dataType: FieldDataType.Dropdown,
       dataPath: "schedule.classId"
@@ -115,19 +119,19 @@ const RegistrationList: React.FC<IRegistrationListProps> = ({ sessionId }) => {
   useEffect(() => {
     const fetchRegistrations = async () => {
       const axiosConfig = await acquireAxiosConfig(appState, appStateDispatch);
-      const response = await axios.post("api/Registration/ListBySesssionId", { sessionId }, axiosConfig);
+      const response = await axios.post("api/Registration/ListBySessionId", { sessionId }, axiosConfig);
       const { registrations } = response.data;
       setRegistrations(registrations);
     }
 
     fetchRegistrations();
-  }, [])
-  
+  }, [sessionId])
+
   return (
     <div>
       {registrations.map((registration, index) => (
-        <div>{++index + 1} {registration.memberFullName}</div>
-      ))}      
+        <div key={registration.id}>{+index + 1} {registration.memberFullName}</div>
+      ))}
     </div>
   )
 }
@@ -136,13 +140,13 @@ export const Schedule = () => {
   const [timetable, setTimetable] = useState<ITimetableRow[]>([]);
   const [daysOfWeek, setDaysOfWeek] = useState<moment.Moment[]>(getDaysOfCurrentWeek());
   const [loading, setLoading] = useState(true);
-  const [createScheduleSuccess, setCreateScheduleSuccess] = useState(false);
+  const [saveScheduleComplete, setSaveScheduleComplete] = useState(false);
   const [loadingError, setLoadingError] = useState("");
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [session, setSession] = useState<ISession | null>(null);
 
   const scheduleFormContext = useForm(scheduleFormDef);
-  const { formData, formDataDispatch } = scheduleFormContext;
+  const { formMode, formModeDispatch, formData, formDataDispatch } = scheduleFormContext;
 
   // Options
   const [classOptions, setClassOptions] = useState(new Array<IDropdownOption>());
@@ -172,15 +176,15 @@ export const Schedule = () => {
     }
   };
 
-  useEffect(() => {    
+  useEffect(() => {
     fetchSessions();
   }, [daysOfWeek]);
 
   useEffect(() => {
-    if (createScheduleSuccess) {
+    if (saveScheduleComplete) {
       fetchSessions();
     }
-  }, [createScheduleSuccess])
+  }, [saveScheduleComplete])
 
   useEffect(() => {
     if (!showScheduleForm) {
@@ -218,6 +222,8 @@ export const Schedule = () => {
   }
 
   const handleCreateScheduleClick = () => {
+    formModeDispatch(FormMode.Create);
+    formDataDispatch({ type: FormDataActionType.ClearValues });
     setShowScheduleForm(true);
   }
 
@@ -227,13 +233,14 @@ export const Schedule = () => {
     const model = serializeForm(formData.values, scheduleFormDef.fields);
     console.log(model);
     setLoading(true);
-    setCreateScheduleSuccess(false);
+    setSaveScheduleComplete(false);
     try {
       const axiosConfig = await acquireAxiosConfig(appState, appStateDispatch);
-      const response = await axios.post("api/Schedule/Create", model, axiosConfig);
-      const { sessions, schedule } = response.data;
-      if (sessions && schedule) {
-        setCreateScheduleSuccess(true);
+      const url = formMode === FormMode.Create ? "api/Schedule/Create" : "api/Schedule/Update";
+      const response = await axios.post(url, model, axiosConfig);
+      const { schedule } = response.data;
+      if (schedule) {
+        setSaveScheduleComplete(true);
       }
     } catch (error) {
       console.log(error);
@@ -243,12 +250,13 @@ export const Schedule = () => {
   }
 
   const handleEmptySlotClick = (selectStartTime: string, selectedDayOfWeek: number) => {
+    formModeDispatch(FormMode.Create);
     formDataDispatch({ type: FormDataActionType.ClearValues });
     const openingDate = daysOfWeek.find(day => day.day() === selectedDayOfWeek);
     const newValues = {
       startTime: selectStartTime,
-      daysPerWeek: [selectedDayOfWeek.toString()],
-      openingDate: openingDate?.format("YYYY-MM-DD")
+      daysPerWeek: [selectedDayOfWeek],
+      openingDate
     }
     formDataDispatch({ type: FormDataActionType.SetValues, newValues });
     setShowScheduleForm(true);
@@ -257,6 +265,31 @@ export const Schedule = () => {
   const handleSessionClick = (session: ISession) => {
     setSession(session);
   }
+
+  const handleEditScheduleClick = () => {
+    if (!session) {
+      return;
+    }
+
+    formModeDispatch(FormMode.Edit);
+    formDataDispatch({ type: FormDataActionType.ClearValues });
+
+    const newValues = {
+      id: session.scheduleId,
+      class: session.classId,
+      song: session.song,
+      openingDate: session.openingDate,
+      startTime: session.startTime,
+      daysPerWeek: session.daysPerWeek,
+      totalSessions: session.totalSessions,
+      trainer: session.trainerId,
+      branch: session.branchId
+    }
+    formDataDispatch({ type: FormDataActionType.SetValues, newValues });
+    setShowScheduleForm(true);
+  }
+
+  const handleCloseSessionDetails = () => setSession(null);
 
   let content = null;
   if (loading && loadingError) {
@@ -301,7 +334,10 @@ export const Schedule = () => {
             <DropdownField label="Giáo viên" name="trainer" options={trainerOptions} />
             <DropdownField label="Chi nhánh" name="branch" options={branchOptions} />
             <div>
-              <button onClick={handleOnSubmit}>Tạo</button>
+              <button onClick={handleOnSubmit}>Lưu</button>
+            </div>
+            <div>
+              Form mode: {formMode}
             </div>
           </FormContext.Provider>
         </form>
@@ -328,6 +364,10 @@ export const Schedule = () => {
         <div>
           <h2>Danh sách đăng ký</h2>
           <RegistrationList sessionId={session.id} />
+        </div>
+        <div>
+          <button onClick={handleEditScheduleClick}>Sửa</button>
+          <button onClick={handleCloseSessionDetails}>Đóng</button>
         </div>
       </div>
     )
